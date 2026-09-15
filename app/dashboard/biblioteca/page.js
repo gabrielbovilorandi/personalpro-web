@@ -7,7 +7,8 @@ import {
   atribuirProgramaMuscular,
 } from '@/lib/firestore';
 import { listarProgramas } from '@/lib/programaMusculacao';
-import { BookOpen, Plus, X, Dumbbell, Copy, Users, Trash2, Check, Zap, ChevronLeft, ChevronRight } from 'lucide-react';
+import { BookOpen, Plus, X, Dumbbell, Copy, Users, Trash2, Check, Zap, ChevronLeft, ChevronRight, Bike } from 'lucide-react';
+import { TEMPLATES_CICLISMO } from '@/lib/templatesCiclismo';
 import { useToast } from '@/components/Toast';
 import ConfirmModal from '@/components/ConfirmModal';
 
@@ -338,6 +339,41 @@ export default function BibliotecaPage() {
                     <span className="text-[10px] text-emerald-400/60 ml-auto">Gerar →</span>
                   </div>
                 </button>
+              ))}
+            </div>
+          </section>
+
+          {/* Templates de Ciclismo */}
+          <section>
+            <div className="flex items-center gap-2 mb-4">
+              <h2 className="text-[15px] font-bold text-white">Para Ciclistas</h2>
+              <span className="bg-amber-500/15 text-amber-400 text-[10px] font-semibold px-2 py-0.5 rounded-full ring-1 ring-amber-500/20">
+                {TEMPLATES_CICLISMO.length} templates · musculação complementar
+              </span>
+            </div>
+            <p className="text-[12px] text-white/35 mb-4">
+              Musculação de suporte ao ciclismo — base, força máxima, potência e manutenção. Aplique ao aluno diretamente.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {TEMPLATES_CICLISMO.map(t => (
+                <div key={t.id} className="rounded-2xl bg-[#0d1b2e] ring-1 ring-white/[0.06] p-5 flex flex-col gap-4 hover:ring-amber-500/20 transition-all">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
+                      <Bike size={17} className="text-amber-400" strokeWidth={1.8} />
+                    </div>
+                    <p className="text-[13px] font-semibold text-white/85 leading-snug">{t.nome}</p>
+                  </div>
+                  <p className="text-[11px] text-white/35 leading-relaxed">{t.descricao}</p>
+                  <div className="flex items-center gap-2 text-[11px] text-white/30">
+                    <Dumbbell size={12} strokeWidth={1.8} />
+                    <span>{t.exercicios.length} exercícios</span>
+                  </div>
+                  <button
+                    onClick={() => setModalTemplate(t)}
+                    className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-[12px] font-semibold text-amber-400 transition-all ring-1 ring-amber-500/20">
+                    <Users size={12} /> Usar template
+                  </button>
+                </div>
               ))}
             </div>
           </section>
