@@ -11,9 +11,13 @@
 // Matheus olhou e disse, com razão, que dava pra perceber que era feita por IA.
 // O que entregava era o esqueleto genérico — herói centralizado, grade de cards
 // com ícone e uma frase cada, passos 01/02/03, sanfona de perguntas — e o fato
-// de ele não estar em lugar nenhum dela. Aqui a foto dele abre a página, o
-// vermelho é o da marca dele e não o azul do aplicativo, e as seções têm pesos
-// diferentes em vez de serem todas do mesmo tamanho.
+// de ele não estar em lugar nenhum dela. Aqui a foto dele abre a página e as
+// seções têm pesos diferentes em vez de serem todas do mesmo tamanho.
+//
+// VISUAL DO APP DESDE 16/10/2026. Era o vermelho dele com Outfit e cantos retos;
+// a pedido do Matheus passou ao Grafite & Lima do app (fundo grafite, acento
+// lima com texto escuro, Sora nos títulos, cartões de raio 22, controles de 14).
+// Quem compra a consultoria abre o app e reconhece a página.
 //
 // ESTÁGIO 1: o formulário leva ao WhatsApp dele com tudo preenchido. Já vende.
 // ESTÁGIO 2: o botão cria a assinatura no Asaas e o `asaasWebhook` — que já é
@@ -266,9 +270,9 @@ export default function Treine() {
   }
 
   const input =
-    'w-full border-b border-white/15 bg-transparent px-0 py-3 text-lg text-white ' +
-    'placeholder-white/25 outline-none transition focus:border-[#E5484D]';
-  const label = 'mb-1 block text-[13px] font-medium uppercase tracking-wider text-white/45';
+    'h-13 w-full rounded-[14px] bg-surface-2 px-4 text-base text-ink ring-1 ring-white/[0.06] ' +
+    'placeholder-white/25 outline-none transition focus:ring-2 focus:ring-accent/70';
+  const label = 'mb-2 block text-[12px] font-semibold uppercase tracking-[0.12em] text-ink-3';
 
   return (
     <main className="pb-24">
@@ -294,9 +298,11 @@ export default function Treine() {
           largura, que é o que o celular não tem. Uma pilha de fotos só, e a
           ordem das colunas troca no lg. */}
       <section className="relative overflow-hidden">
-        <div className="mx-auto grid max-w-6xl items-center gap-8 px-6 pb-14 pt-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12 lg:py-20">
+        <div aria-hidden className="pointer-events-none absolute inset-0"
+          style={{ background: 'radial-gradient(80% 60% at 100% 0%, rgba(198,244,50,0.10), transparent 60%)' }} />
+        <div className="relative mx-auto grid max-w-6xl items-center gap-8 px-6 pb-14 pt-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12 lg:py-20">
 
-          <div className="relative aspect-[3/4] w-full lg:order-2">
+          <div className="relative aspect-[3/4] w-full overflow-hidden rounded-[22px] bg-surface lg:order-2">
             {FOTOS_TOPO.map((f, i) => (
               <div
                 key={f.src}
@@ -316,8 +322,8 @@ export default function Treine() {
           </div>
 
           <div className="lg:order-1">
-            <p className="flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.18em] text-[#E5484D]">
-              <span aria-hidden className="h-px w-8 bg-[#E5484D]" />
+            <p className="inline-flex items-center gap-2 rounded-full bg-accent/10 px-3 py-1.5 text-[12px] font-semibold uppercase tracking-[0.14em] text-accent ring-1 ring-accent/20">
+              <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />
               Consultoria online
             </p>
 
@@ -344,22 +350,22 @@ export default function Treine() {
                 iniciante e o que treina há anos precisam da mesma coisa. Um
                 título sobre carga parada, por exemplo, deixaria cinco deles
                 de fora. */}
-            <h1 className="mt-5 text-[2.9rem] font-bold leading-[1.05] tracking-[-0.02em] sm:text-[3.6rem] xl:text-[4.25rem]">
+            <h1 className="mt-6 text-[2.6rem] font-semibold leading-[1.06] tracking-[-0.03em] sm:text-[3.4rem] xl:text-[4rem]">
               Treino,
               <br />
               qualquer um monta.
               <br />
-              <span className="text-[#E5484D]">Acompanhar é outra coisa.</span>
+              <span className="text-accent">Acompanhar é outra coisa.</span>
             </h1>
 
-            <p className="mt-6 max-w-md text-lg leading-relaxed text-white/70">
+            <p className="mt-6 max-w-md text-lg leading-relaxed text-ink-2">
               Musculação, corrida e ciclismo, com alguém do outro lado olhando
               o que você faz — não um arquivo que você baixa e nunca mais abre.
             </p>
 
             <a href="#comecar"
-              className="mt-8 inline-flex w-fit items-center bg-[#E5484D] px-8 py-4 text-lg font-bold text-white transition hover:bg-[#d63c41]">
-              Quero começar
+              className="mt-8 inline-flex h-14 w-fit items-center gap-2 rounded-[14px] bg-accent px-8 text-base font-bold text-on-accent shadow-lg shadow-black/30 transition hover:bg-accent-hover">
+              Quero começar <span aria-hidden>→</span>
             </a>
 
             {/* As objeções que aparecem primeiro, respondidas antes de serem
@@ -369,7 +375,7 @@ export default function Treine() {
                 escada de planos que vem aí um número solto no topo não diz de
                 qual plano está falando. A caixa de preço, mais abaixo, é o
                 lugar onde ele tem contexto. */}
-            <p className="mt-5 text-sm text-white/45">
+            <p className="mt-5 text-sm text-ink-3">
               Sem fidelidade · Cancela quando quiser · WhatsApp direto comigo
             </p>
 
@@ -383,12 +389,12 @@ export default function Treine() {
             <div className="mt-8 flex items-center gap-3">
               <button type="button" onClick={() => trocarFoto(-1)}
                 aria-label="Foto anterior"
-                className="flex h-10 w-10 items-center justify-center border border-white/25 pb-0.5 text-xl leading-none text-white/70 transition hover:border-white/60 hover:text-white">
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-2 pb-0.5 text-xl leading-none text-ink-2 ring-1 ring-white/[0.06] transition hover:text-ink hover:ring-white/20">
                 ‹
               </button>
               <button type="button" onClick={() => trocarFoto(1)}
                 aria-label="Próxima foto"
-                className="flex h-10 w-10 items-center justify-center border border-white/25 pb-0.5 text-xl leading-none text-white/70 transition hover:border-white/60 hover:text-white">
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-2 pb-0.5 text-xl leading-none text-ink-2 ring-1 ring-white/[0.06] transition hover:text-ink hover:ring-white/20">
                 ›
               </button>
 
@@ -398,7 +404,7 @@ export default function Treine() {
                     aria-label={f.alt}
                     aria-current={i === foto}
                     className={`h-1.5 rounded-full transition-all ${
-                      i === foto ? 'w-7 bg-[#E5484D]' : 'w-1.5 bg-white/30 hover:bg-white/60'
+                      i === foto ? 'w-7 bg-accent' : 'w-1.5 bg-white/25 hover:bg-white/50'
                     }`}
                   />
                 ))}
@@ -413,11 +419,11 @@ export default function Treine() {
         {/* Números — só aparecem quando ele confirmar. Enquanto vazios, a faixa
             não existe: número inventado em página de venda se descobre. */}
         {NUMEROS.length > 0 && (
-          <section className="flex flex-wrap gap-x-14 gap-y-6 border-b border-white/10 py-10">
+          <section className="grid grid-cols-2 gap-3 pt-4">
             {NUMEROS.map(({ n, oq }) => (
-              <div key={oq}>
-                <p className="text-4xl font-bold tracking-tight">{n}</p>
-                <p className="mt-1 text-sm text-white/50">{oq}</p>
+              <div key={oq} className="rounded-[22px] bg-surface p-6">
+                <p className="font-display text-[2rem] font-semibold leading-tight text-accent sm:text-4xl">{n}</p>
+                <p className="mt-1 text-sm text-ink-2">{oq}</p>
               </div>
             ))}
           </section>
@@ -427,13 +433,13 @@ export default function Treine() {
             A pessoa para numa das linhas e, dali em diante, está lendo sobre
             ela mesma. É a seção que mais trabalha na página inteira. */}
         <section className="pt-20">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+          <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
             Isso aqui é pra você que…
           </h2>
-          <ul className="mt-8 divide-y divide-white/10 border-y border-white/10">
+          <ul className="mt-8 divide-y divide-white/[0.06] rounded-[22px] bg-surface px-6">
             {PARA_VOCE.map((linha) => (
-              <li key={linha} className="flex gap-4 py-5 text-lg leading-snug text-white/80">
-                <span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#E5484D]" />
+              <li key={linha} className="flex gap-4 py-5 text-lg leading-snug text-ink">
+                <span aria-hidden className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
                 {linha}
               </li>
             ))}
@@ -448,15 +454,15 @@ export default function Treine() {
             Duas colunas no computador porque oito itens empilhados viram uma
             rolagem longa demais antes de chegar no preço. */}
         <section className="pt-20">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">O que você recebe</h2>
+          <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">O que você recebe</h2>
           <div className="mt-10 grid gap-x-10 gap-y-9 sm:grid-cols-2">
             {RECEBE.map(({ tag, t, d }) => (
               <div key={t}>
-                <span className="inline-block border border-white/20 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.15em] text-white/50">
+                <span className="inline-block rounded-full bg-surface-2 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-2">
                   {tag}
                 </span>
-                <h3 className="mt-3 text-lg font-bold leading-snug">{t}</h3>
-                <p className="mt-1.5 leading-relaxed text-white/60">{d}</p>
+                <h3 className="mt-3 text-lg leading-snug">{t}</h3>
+                <p className="mt-1.5 leading-relaxed text-ink-2">{d}</p>
               </div>
             ))}
           </div>
@@ -480,10 +486,10 @@ export default function Treine() {
             Só aparece quando houver imagem em TELAS_APP. */}
         {TELAS_APP.length > 0 && (
           <section className="pt-20">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
               O aplicativo por dentro
             </h2>
-            <p className="mt-4 max-w-xl text-lg leading-relaxed text-white/70">
+            <p className="mt-4 max-w-xl text-lg leading-relaxed text-ink-2">
               Não é planilha em PDF nem grupo de WhatsApp com vídeo solto. É por
               ele que o seu treino chega.
             </p>
@@ -506,7 +512,7 @@ export default function Treine() {
                     aria-hidden={i !== tela}
                     className="grid w-full shrink-0 items-center gap-8 sm:grid-cols-[auto_1fr]"
                   >
-                    <div className="mx-auto w-[220px] rounded-[2rem] border-[6px] border-white/15 bg-black shadow-2xl sm:mx-0 sm:w-[240px]">
+                    <div className="mx-auto w-[220px] rounded-[2rem] border-[6px] border-surface-2 bg-black shadow-2xl sm:mx-0 sm:w-[240px]">
                       <img
                         src={t.src}
                         alt={t.titulo}
@@ -525,8 +531,8 @@ export default function Treine() {
                     </div>
 
                     <div>
-                      <h3 className="text-2xl font-bold leading-snug">{t.titulo}</h3>
-                      <p className="mt-3 max-w-md text-lg leading-relaxed text-white/65">{t.d}</p>
+                      <h3 className="text-2xl leading-snug">{t.titulo}</h3>
+                      <p className="mt-3 max-w-md text-lg leading-relaxed text-ink-2">{t.d}</p>
                     </div>
                   </div>
                 ))}
@@ -543,7 +549,7 @@ export default function Treine() {
                     aria-label={t.titulo}
                     aria-current={i === tela}
                     className={`h-1.5 rounded-full transition-all ${
-                      i === tela ? "w-7 bg-[#E5484D]" : "w-1.5 bg-white/30 hover:bg-white/60"
+                      i === tela ? "w-7 bg-accent" : "w-1.5 bg-white/25 hover:bg-white/50"
                     }`}
                   />
                 ))}
@@ -570,7 +576,7 @@ export default function Treine() {
             dois lados, e uma foto que desliza sozinha some no meio disso. */}
         {TRANSFORMACOES.length > 0 && (
           <section className="pt-20">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
               Corpos transformados
             </h2>
 
@@ -587,12 +593,12 @@ export default function Treine() {
                     aria-hidden={n >= TRANSFORMACOES.length}
                     className="w-[260px] shrink-0 sm:w-[300px]"
                   >
-                    <div className="grid grid-cols-2 gap-0.5">
+                    <div className="grid grid-cols-2 gap-0.5 overflow-hidden rounded-[18px]">
                       {[['Antes', t.antes], ['Depois', t.depois]].map(([rotulo, src]) => (
                         <div key={rotulo} className="relative aspect-[9/16] overflow-hidden">
                           <img src={src} alt="" loading="lazy" className="h-full w-full object-cover" />
-                          <span className={`absolute left-0 top-0 px-2 py-1 text-[10px] font-bold uppercase tracking-widest ${
-                            rotulo === 'Depois' ? 'bg-[#E5484D] text-white' : 'bg-black/70 text-white/80'
+                          <span className={`absolute left-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest ${
+                            rotulo === 'Depois' ? 'bg-accent text-on-accent' : 'bg-black/70 text-white/80'
                           }`}>
                             {rotulo}
                           </span>
@@ -602,7 +608,7 @@ export default function Treine() {
                     <figcaption className="mt-3">
                       <p className="font-semibold">{t.quem}</p>
                       {t.resultado && (
-                        <p className="text-sm font-semibold text-[#E5484D]">{t.resultado}</p>
+                        <p className="text-sm font-semibold text-accent">{t.resultado}</p>
                       )}
                     </figcaption>
                   </figure>
@@ -664,7 +670,7 @@ export default function Treine() {
             que se acumula e fica visível na última. */}
         {DEPOIMENTOS.length > 0 && (
           <section className="pt-20">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
               Quem já treina comigo
             </h2>
 
@@ -692,8 +698,8 @@ export default function Treine() {
                     className="w-full shrink-0 px-2.5 sm:w-1/2 lg:w-1/3"
                     aria-hidden={Math.floor(i / porPagina) !== dep}
                   >
-                    <figure className="flex h-full flex-col border border-white/12 bg-white/[0.03] p-6">
-                      <span aria-hidden className="text-2xl leading-none text-[#E5484D]">&ldquo;</span>
+                    <figure className="flex h-full flex-col rounded-[22px] bg-surface p-6">
+                      <span aria-hidden className="font-display text-3xl leading-none text-accent">&ldquo;</span>
 
                       {/* Título e subtítulo, sempre os dois.
                           O corte era automático, no primeiro ponto final — e
@@ -708,14 +714,14 @@ export default function Treine() {
                           nome de todos os cartões da linha. Só funciona bem
                           porque os textos têm tamanho parecido — se voltarem a
                           divergir, volta o vão. */}
-                      <p className="mt-2.5 flex-1 text-sm leading-relaxed text-white/60">
+                      <p className="mt-2.5 flex-1 text-sm leading-relaxed text-ink-2">
                         {d.resto}
                       </p>
 
-                      <figcaption className="mt-5 border-t border-white/10 pt-4">
+                      <figcaption className="mt-5 border-t border-white/[0.06] pt-4">
                         <p className="text-sm font-semibold leading-tight">{d.quem}</p>
                         {d.detalhe && (
-                          <p className="text-xs text-white/45">{d.detalhe}</p>
+                          <p className="text-xs text-ink-3">{d.detalhe}</p>
                         )}
                       </figcaption>
                     </figure>
@@ -734,7 +740,7 @@ export default function Treine() {
                     aria-label={`Página ${i + 1} de ${paginasDep}`}
                     aria-current={i === dep}
                     className={`h-1.5 rounded-full transition-all ${
-                      i === dep ? "w-7 bg-[#E5484D]" : "w-1.5 bg-white/30 hover:bg-white/60"
+                      i === dep ? "w-7 bg-accent" : "w-1.5 bg-white/25 hover:bg-white/50"
                     }`}
                   />
                 ))}
@@ -754,7 +760,7 @@ export default function Treine() {
             A última etapa é a dos 90 dias, de propósito: ela liga esta seção à
             garantia, que aparece logo depois do preço. */}
         <section className="pt-20">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Como funciona</h2>
+          <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">Como funciona</h2>
 
           <ol className="mt-10">
             {PASSOS.map(({ quando, t, d }, i) => (
@@ -762,16 +768,16 @@ export default function Treine() {
                 {/* O traço que liga uma etapa na outra. Não desce da última,
                     senão a linha do tempo parece continuar pra fora da seção. */}
                 {i < PASSOS.length - 1 && (
-                  <span aria-hidden className="absolute left-[5px] top-4 h-full w-px bg-white/15" />
+                  <span aria-hidden className="absolute left-[5px] top-4 h-full w-px bg-white/10" />
                 )}
-                <span aria-hidden className="relative mt-[7px] h-2.5 w-2.5 shrink-0 rounded-full bg-[#E5484D]" />
+                <span aria-hidden className="relative mt-[7px] h-2.5 w-2.5 shrink-0 rounded-full bg-accent ring-4 ring-accent/15" />
 
                 <div className="min-w-0">
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#E5484D]">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">
                     {quando}
                   </p>
-                  <h3 className="mt-1.5 text-xl font-bold leading-snug">{t}</h3>
-                  <p className="mt-1.5 leading-relaxed text-white/65">{d}</p>
+                  <h3 className="mt-1.5 text-xl leading-snug">{t}</h3>
+                  <p className="mt-1.5 leading-relaxed text-ink-2">{d}</p>
                 </div>
               </li>
             ))}
@@ -796,8 +802,8 @@ export default function Treine() {
             depois de pagar trava e não manda, e aí o acompanhamento morre — que
             é justamente o que ele está vendendo. */}
         <section className="pt-20">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">O nosso acordo</h2>
-          <p className="mt-4 max-w-xl text-lg leading-relaxed text-white/70">
+          <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">O nosso acordo</h2>
+          <p className="mt-4 max-w-xl text-lg leading-relaxed text-ink-2">
             {ABERTURA_ACORDO}
           </p>
 
@@ -808,14 +814,15 @@ export default function Treine() {
             ].map(({ titulo, itens, minha }) => (
               <div
                 key={titulo}
-                className={`border p-7 ${
+                className={`rounded-[22px] p-7 ${
                   minha
-                    ? 'border-[#E5484D]/40 bg-[#E5484D]/[0.05]'
-                    : 'border-white/15 bg-white/[0.02]'
+                    ? 'bg-surface ring-1 ring-accent/25'
+                    : 'bg-surface'
                 }`}
+                style={minha ? { background: 'radial-gradient(90% 60% at 100% 0%, rgba(198,244,50,0.08), transparent 60%), #141619' } : undefined}
               >
                 <h3 className={`text-sm font-semibold uppercase tracking-[0.14em] ${
-                  minha ? 'text-[#E5484D]' : 'text-white/45'
+                  minha ? 'text-accent' : 'text-ink-3'
                 }`}>
                   {titulo}
                 </h3>
@@ -823,10 +830,10 @@ export default function Treine() {
                 <ul className="mt-7 space-y-7">
                   {itens.map(({ t, d, extra }, i) => (
                     <li key={t}>
-                      <h4 className="text-lg font-bold leading-snug">{t}</h4>
-                      <p className="mt-1.5 leading-relaxed text-white/65">{d}</p>
+                      <h4 className="text-lg leading-snug">{t}</h4>
+                      <p className="mt-1.5 leading-relaxed text-ink-2">{d}</p>
                       {extra && (
-                        <p className="mt-1.5 leading-relaxed text-white/40">{extra}</p>
+                        <p className="mt-1.5 leading-relaxed text-ink-3">{extra}</p>
                       )}
 
                       {/* O protocolo mora dentro do compromisso a que pertence:
@@ -836,9 +843,9 @@ export default function Treine() {
                           contratou — quem está decidindo lê aquilo e pensa
                           "que trabalheira". */}
                       {!minha && i === 0 && (
-                        <details className="group mt-4 border-l-2 border-white/15 pl-5">
+                        <details className="group mt-4 rounded-[18px] bg-surface-2 px-5 py-4">
                           <summary className="cursor-pointer list-none text-sm font-semibold text-white/70 transition marker:hidden hover:text-white">
-                            <span aria-hidden className="mr-2 inline-block text-[#E5484D] transition group-open:rotate-90">›</span>
+                            <span aria-hidden className="mr-2 inline-block text-accent transition group-open:rotate-90">›</span>
                             Como tirar as fotos
                           </summary>
                           {/* Foto no lugar de lista de instruções: "de frente,
@@ -852,7 +859,7 @@ export default function Treine() {
                               src={m.src}
                               alt={`Exemplo de foto ${m.rotulo.toLowerCase()}`}
                               loading="lazy"
-                              className="w-full rounded border border-white/10"
+                              className="w-full rounded-[10px]"
                             />
                             <figcaption className="mt-1.5 text-xs font-semibold text-white/85">{m.rotulo}</figcaption>
                           </figure>
@@ -885,49 +892,50 @@ export default function Treine() {
             caçar a diferença — e o que ela quer saber é exatamente isso, o que
             muda de um pro outro. */}
         <section className="pt-20">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Planos</h2>
-          <p className="mt-4 max-w-xl text-lg leading-relaxed text-white/80">
+          <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">Planos</h2>
+          <p className="mt-4 max-w-xl text-lg leading-relaxed text-ink-2">
             Você não está assinando um aplicativo. Está contratando alguém que
             olha o seu treino, vê a sua carga subir e mexe no que precisa mexer.
             O aplicativo é só por onde isso chega até você.
           </p>
 
-          <div className="mt-10 grid gap-5 lg:grid-cols-3">
+          {/* Mais largo que a coluna de texto no computador: em 768px, três cartões
+              com Sora quebravam o preço em duas linhas. */}
+          <div className="mt-10 grid gap-5 lg:-mx-20 lg:grid-cols-3">
             {PLANOS.map(({ nome, preco, resumo, destaque, herda, itens }) => (
               <div
                 key={nome}
-                className={`flex flex-col border p-7 ${
-                  destaque
-                    ? 'border-[#E5484D] bg-[#E5484D]/[0.07]'
-                    : 'border-white/15 bg-white/[0.02]'
+                className={`flex flex-col rounded-[22px] p-7 ${
+                  destaque ? 'ring-2 ring-accent' : 'bg-surface'
                 }`}
+                style={destaque ? { background: 'radial-gradient(100% 60% at 100% 0%, rgba(198,244,50,0.12), transparent 60%), #141619' } : undefined}
               >
-                <div className="flex items-start justify-between gap-3">
-                  <h3 className="text-xl font-bold">{nome}</h3>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="text-xl">{nome}</h3>
                   {destaque && (
-                    <span className="shrink-0 bg-[#E5484D] px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-white">
+                    <span className="shrink-0 rounded-full bg-accent px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-on-accent">
                       {destaque}
                     </span>
                   )}
                 </div>
 
-                <p className="mt-4 text-3xl font-bold tracking-tight">
+                <p className="mt-4 whitespace-nowrap font-display text-3xl font-semibold">
                   {preco}
-                  <span className="text-base font-normal text-white/40">/mês</span>
+                  <span className="font-sans text-base font-normal text-ink-3">/mês</span>
                 </p>
 
-                <p className="mt-3 leading-relaxed text-white/60">{resumo}</p>
+                <p className="mt-3 leading-relaxed text-ink-2">{resumo}</p>
 
                 {herda && (
-                  <p className="mt-6 border-t border-white/10 pt-5 text-sm font-semibold text-white/75">
+                  <p className="mt-6 border-t border-white/[0.06] pt-5 text-sm font-semibold text-ink">
                     Tudo do {herda}, mais:
                   </p>
                 )}
 
-                <ul className={`space-y-2.5 ${herda ? 'mt-4' : 'mt-6 border-t border-white/10 pt-6'}`}>
+                <ul className={`space-y-2.5 ${herda ? 'mt-4' : 'mt-6 border-t border-white/[0.06] pt-6'}`}>
                   {itens.map((item) => (
-                    <li key={item} className="flex gap-2.5 text-sm leading-snug text-white/75">
-                      <span aria-hidden className="font-bold text-[#E5484D]">✓</span>
+                    <li key={item} className="flex gap-2.5 text-sm leading-snug text-ink-2">
+                      <span aria-hidden className="font-bold text-accent">✓</span>
                       {item}
                     </li>
                   ))}
@@ -942,10 +950,10 @@ export default function Treine() {
                     setForm((f) => ({ ...f, plano: nome }));
                     document.getElementById('comecar')?.scrollIntoView({ behavior: 'smooth' });
                   }}
-                  className={`mt-7 block w-full px-6 py-3.5 text-center font-bold transition ${
+                  className={`mt-7 block h-12 w-full rounded-[14px] px-6 text-center font-bold transition ${
                     destaque
-                      ? 'bg-[#E5484D] text-white hover:bg-[#d63c41]'
-                      : 'border border-white/25 text-white hover:border-white/60'
+                      ? 'bg-accent text-on-accent hover:bg-accent-hover'
+                      : 'bg-surface-2 text-ink hover:bg-white/[0.12]'
                   }`}>
                   Quero o {nome}
                 </button>
@@ -957,8 +965,8 @@ export default function Treine() {
               gastaria três vezes o espaço pra dizer a mesma coisa. */}
           <ul className="mt-6 flex flex-wrap gap-x-7 gap-y-2">
             {VALE_PARA_TODOS.map((item) => (
-              <li key={item} className="flex gap-2 text-sm text-white/50">
-                <span aria-hidden className="text-[#E5484D]">✓</span>
+              <li key={item} className="flex gap-2 text-sm text-ink-2">
+                <span aria-hidden className="text-accent">✓</span>
                 {item}
               </li>
             ))}
@@ -970,23 +978,24 @@ export default function Treine() {
             aos 90 dias porque é quando chegam as segundas fotos — a única data
             em que existe medida dos dois lados pra comparar. */}
         <section className="pt-16">
-          <div className="border-l-2 border-white/25 pl-6">
-            <h2 className="text-2xl font-bold tracking-tight">{GARANTIA.titulo}</h2>
-            <p className="mt-3 text-lg leading-relaxed text-white/70">{GARANTIA.texto}</p>
+          <div className="rounded-[22px] p-7 ring-1 ring-accent/20"
+            style={{ background: 'radial-gradient(90% 70% at 0% 0%, rgba(198,244,50,0.10), transparent 60%), #141619' }}>
+            <h2 className="text-2xl tracking-tight">{GARANTIA.titulo}</h2>
+            <p className="mt-3 text-lg leading-relaxed text-ink-2">{GARANTIA.texto}</p>
           </div>
         </section>
 
         {/* ── DÚVIDAS ─────────────────────────────────────────────────────────*/}
         <section className="pt-20">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Dúvidas</h2>
-          <div className="mt-8 divide-y divide-white/10 border-y border-white/10">
+          <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">Dúvidas</h2>
+          <div className="mt-8 divide-y divide-white/[0.06] rounded-[22px] bg-surface px-6">
             {FAQ.map(({ q, r }) => (
               <details key={q} className="group py-5">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-lg font-semibold marker:hidden">
                   {q}
-                  <span aria-hidden className="shrink-0 text-white/30 transition group-open:rotate-45">+</span>
+                  <span aria-hidden className="shrink-0 text-xl text-accent transition group-open:rotate-45">+</span>
                 </summary>
-                <p className="mt-3 leading-relaxed text-white/65">{r}</p>
+                <p className="mt-3 leading-relaxed text-ink-2">{r}</p>
               </details>
             ))}
           </div>
@@ -1002,12 +1011,12 @@ export default function Treine() {
 
             Agora a última coisa que a pessoa vê é o campo de nome. */}
         <section id="comecar" className="scroll-mt-6 pt-20">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Começar</h2>
-          <p className="mt-3 text-lg text-white/60">
+          <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">Começar</h2>
+          <p className="mt-3 text-lg text-ink-2">
             Preenche aqui que eu te mando o passo a passo. Leva um minuto.
           </p>
 
-          <form onSubmit={enviar} className="mt-10 space-y-7" noValidate>
+          <form onSubmit={enviar} className="mt-8 space-y-5 rounded-[22px] bg-surface p-6 sm:p-8" noValidate>
             <div>
               <label className={label} htmlFor="nome">Nome completo</label>
               <input id="nome" className={input} value={form.nome}
@@ -1059,13 +1068,13 @@ export default function Treine() {
             </div>
 
             {erro && (
-              <p role="alert" className="border-l-2 border-[#E5484D] bg-[#E5484D]/10 px-4 py-3 text-sm text-white">
+              <p role="alert" className="rounded-[14px] bg-danger/[0.14] px-4 py-3 text-sm text-danger">
                 {erro}
               </p>
             )}
 
             <button type="submit"
-              className="w-full bg-[#E5484D] px-8 py-5 text-lg font-bold text-white transition hover:bg-[#d63c41]">
+              className="h-14 w-full rounded-[14px] bg-accent px-8 text-base font-bold text-on-accent transition hover:bg-accent-hover">
               Continuar
             </button>
 
@@ -1077,13 +1086,13 @@ export default function Treine() {
 
                 Discreto de propósito: se competir com o Continuar, tira
                 gente do que a página inteira está vendendo. */}
-            <p className="pt-2 text-center text-sm text-white/45">
+            <p className="pt-1 text-center text-sm text-ink-3">
               Quer treinar comigo presencialmente?{' '}
               <a
                 href={`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
                   'Olá Matheus! Vi a sua página e queria saber sobre o treino presencial.',
                 )}`}
-                className="font-semibold text-white/75 underline underline-offset-4 transition hover:text-white"
+                className="font-semibold text-ink underline decoration-accent/60 underline-offset-4 transition hover:text-accent"
               >
                 Me chama no WhatsApp
               </a>
@@ -1091,8 +1100,8 @@ export default function Treine() {
           </form>
         </section>
 
-        <footer className="mt-20 border-t border-white/10 pt-8 text-sm text-white/35">
-          <p className="font-medium text-white/55">Matheus Wruck Barbosa · {CREF}</p>
+        <footer className="mt-20 border-t border-white/[0.06] pt-8 text-sm text-ink-3">
+          <p className="font-medium text-ink-2">Matheus Barbosa · {CREF}</p>
           <p className="mt-1">
             O treino é entregue pelo aplicativo PersonalPro, para Android e iPhone.
           </p>
@@ -1105,12 +1114,12 @@ export default function Treine() {
           botao do topo continua por perto. */}
       <div
         aria-hidden={!barra}
-        className={`fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#080f1d]/95 px-4 py-3 backdrop-blur transition-transform duration-300 lg:hidden ${
+        className={`fixed inset-x-0 bottom-0 z-40 border-t border-white/[0.06] bg-bg/90 px-4 py-3 backdrop-blur-xl transition-transform duration-300 lg:hidden ${
           barra ? 'translate-y-0' : 'translate-y-full'
         }`}
       >
         <a href="#comecar" tabIndex={barra ? 0 : -1}
-          className="block bg-[#E5484D] px-6 py-3.5 text-center text-base font-bold text-white">
+          className="flex h-12 items-center justify-center rounded-[14px] bg-accent px-6 text-base font-bold text-on-accent">
           Quero começar
         </a>
       </div>

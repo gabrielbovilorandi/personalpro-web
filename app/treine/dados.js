@@ -25,9 +25,10 @@ export const WHATSAPP = '5519997984847';
 // precisa do seu recorte pra não cortar cabeça nem pé.
 export const FOTOS_TOPO = [
   { src: '/matheus.jpg',           alt: 'Matheus Barbosa na academia',          pos: 'center 12%', posLg: 'top' },
-  // Ordem escolhida pelo Matheus: personal, ciclismo, corrida. A do ciclismo é
-  // 3:4 exata, que é a proporção da coluna — entra inteira, sem recorte nenhum.
-  { src: '/matheus-ciclismo.jpg',  alt: 'Matheus Barbosa pedalando na estrada', pos: 'center',     posLg: 'center' },
+  // Ordem escolhida pelo Matheus: personal, ciclismo, corrida. A do ciclismo foi
+  // trocada em 16/10 por uma que ele escolheu (trilha, rosto e bike inteiros);
+  // o original é 9:16 e foi recortado em 3:4, a proporção da coluna.
+  { src: '/matheus-ciclismo.jpg',  alt: 'Matheus Barbosa com a bike numa trilha', pos: 'center',     posLg: 'center' },
   { src: '/matheus-corrida.jpg',   alt: 'Matheus Barbosa correndo uma prova',   pos: 'center 25%', posLg: 'center 20%' },
 ];
 
@@ -448,12 +449,16 @@ export const PLANOS = [
     itens: [
       'Programa de musculação montado pra você',
       'Rotina de corrida ou ciclismo junto, se quiser',
-      'Vídeo de execução de cada exercício',
+      // Era "de cada exercício": a nota do RECEBE, acima, explica por que "de cada"
+      // não é verdade (a biblioteca de vídeo não cobre todos).
+      'Vídeo de execução dos exercícios',
       'Registro de carga treino a treino',
       'Treino baixado no celular, funciona sem internet',
       'WhatsApp direto comigo pra tirar dúvida',
       'Revisão do programa uma vez por mês',
-      'Avaliação física a cada 12 semanas',
+      // Era "Avaliação física", que no Brasil quer dizer adipômetro presencial --
+      // o mesmo motivo pelo qual o RECEBE diz só "Avaliação".
+      'Avaliação com fotos a cada 12 semanas',
     ],
   },
   {
@@ -673,23 +678,11 @@ export const PROTOCOLO_FOTOS = {
 // O `quando` do passo em que ele monta o programa está deliberadamente sem
 // prazo em dias — falta o Matheus dizer quanto tempo ele leva de verdade.
 // Inventar "em até 48h" aqui seria criar uma promessa que ele não combinou.
-// Segunda escrita, pelo mesmo motivo da seção dos compromissos: a primeira era
-// genérica. "Eu monto o seu programa — em cima do que você respondeu" não diz
-// nada que a pessoa já não tenha suposto.
-//
-// O que faltava era responder as duas perguntas que quem está decidindo tem de
-// verdade e não pergunta em voz alta: QUANDO eu começo a treinar, e O QUE ele
-// vai me perguntar. Por isso cada etapa agora carrega um "quando" na frente e
-// diz, em concreto, o que acontece nela.
-//
-// O `quando` do passo em que ele monta o programa está deliberadamente sem
-// prazo em dias — falta o Matheus dizer quanto tempo ele leva de verdade.
-// Inventar "em até 48h" aqui seria criar uma promessa que ele não combinou.
 export const PASSOS = [
   {
     quando: 'Agora',
     t: 'Você preenche os seus dados aqui',
-    d: 'Nome, WhatsApp e se quer corrida ou ciclismo junto. Leva um minuto.',
+    d: 'Nome, contato, o plano e se quer corrida ou ciclismo junto. Leva um minuto.',
   },
   {
     // Falava em "mando a cobrança", e o Matheus cortou com razão: dinheiro no

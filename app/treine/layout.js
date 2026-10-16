@@ -1,10 +1,7 @@
-import { Outfit } from 'next/font/google';
-
-// O site passou pra Sora + Manrope no redesign Grafite & Lima (10/2026), mas ESTA
-// pagina nao: ela e a consultoria pessoal do Matheus, com identidade propria. Mantem
-// o Outfit e o fundo navy que sempre teve. As regras de isolamento estao no
-// globals.css, sob a classe .treine-escopo.
-const outfit = Outfit({ subsets: ['latin'], display: 'swap' });
+// Desde 16/10/2026 a página segue o padrão Grafite & Lima do app (Sora + Manrope,
+// fundo grafite, acento lima), a pedido do Matheus: quem compra a consultoria
+// já vê a cara do app que vai usar. Antes era Outfit + navy + o vermelho dele,
+// isolados do resto do site pela classe .treine-escopo (está no histórico do git).
 
 // Metadata da página de consultoria.
 //
@@ -23,11 +20,11 @@ export const metadata = {
   metadataBase: new URL('https://personalpro.app.br'),
   title: 'Treine com Matheus Barbosa | Consultoria online',
   description:
-    'Consultoria online de musculação, corrida e ciclismo. Treino no aplicativo, com vídeo de cada exercício. Sem fidelidade.',
+    'Consultoria online de musculação, corrida e ciclismo. Treino no aplicativo, com vídeo de execução. Sem fidelidade.',
   openGraph: {
     title: 'Treine com Matheus Barbosa',
     description:
-      'Consultoria online de musculação, corrida e ciclismo. Treino no aplicativo, com vídeo de cada exercício. Sem fidelidade.',
+      'Consultoria online de musculação, corrida e ciclismo. Treino no aplicativo, com vídeo de execução. Sem fidelidade.',
     type: 'website',
     locale: 'pt_BR',
     url: '/treine',
@@ -35,7 +32,7 @@ export const metadata = {
     // manda esse link o dia inteiro -- e onde a foto decide se a pessoa toca
     // ou passa reto. 1200x630 e o recorte das duas plataformas.
     images: [{
-      url: '/og-treine.jpg',
+      url: '/og-treine-v3.jpg',
       width: 1200,
       height: 630,
       alt: 'Matheus Barbosa — consultoria online de musculação, corrida e ciclismo',
@@ -44,13 +41,13 @@ export const metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Treine com Matheus Barbosa',
-    images: ['/og-treine.jpg'],
+    images: ['/og-treine-v3.jpg'],
   },
 };
 
 export default function TreineLayout({ children }) {
   return (
-    <div className={`treine-escopo ${outfit.className}`} style={{ background: '#080f1d', color: '#f1f5f9', minHeight: '100%' }}>
+    <div className="min-h-full bg-bg text-ink">
       {children}
     </div>
   );
