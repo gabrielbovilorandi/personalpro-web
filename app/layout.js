@@ -1,6 +1,5 @@
 import './globals.css';
 import { Sora, Manrope } from 'next/font/google';
-import { AuthProvider } from '@/lib/AuthContext';
 import { ToastProvider } from '@/components/Toast';
 import { ConfirmProvider } from '@/components/Confirm';
 
@@ -20,11 +19,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="pt-BR" className={`h-full ${sora.variable} ${manrope.variable}`}>
       <body className="h-full bg-[#0A0B0D] text-white antialiased">
-        <AuthProvider>
-          <ToastProvider>
-            <ConfirmProvider>{children}</ConfirmProvider>
-          </ToastProvider>
-        </AuthProvider>
+        <ToastProvider>
+          <ConfirmProvider>{children}</ConfirmProvider>
+        </ToastProvider>
       </body>
     </html>
   );
