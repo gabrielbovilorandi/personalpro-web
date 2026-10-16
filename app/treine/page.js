@@ -1101,7 +1101,7 @@ export default function Treine() {
         </section>
 
         <footer className="mt-20 border-t border-white/[0.06] pt-8 text-sm text-ink-3">
-          <p className="font-medium text-ink-2">Matheus Wruck Barbosa · {CREF}</p>
+          <p className="font-medium text-ink-2">Matheus Barbosa · {CREF}</p>
           <p className="mt-1">
             O treino é entregue pelo aplicativo PersonalPro, para Android e iPhone.
           </p>
