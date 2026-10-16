@@ -226,239 +226,71 @@ export const NUMEROS = [
   { n: '+200', oq: 'alunos atendidos' },
 ];
 
+// ── REESCRITA DE 16/10/2026: CURTA E DIRETA ─────────────────────────────────
+// O Matheus: "muito texto o aluno desiste. precisa ser direto." Tudo daqui pra
+// baixo foi reescrito com uma regra só: uma linha por item, sem explicação do
+// porquê. As versões longas (e o raciocínio de cada frase) estão no histórico
+// do git. O que NÃO mudou: preços, a escada por frequência de revisão, as
+// promessas de serviço dele (24h, revisão, garantia de 12 semanas) e o tom de
+// exigir a verdade do aluno.
+//
+// SAÍRAM porque o app não faz mais: relatório mensal em PDF, treino de
+// musculação baixado em PDF e "o treino abre sem internet". O que o app faz de
+// verdade sem sinal é guardar a carga registrada e enviar quando a rede volta
+// (utils/filaOffline.js no app) -- é isso que a página diz agora.
+//
+// Regra que continua valendo: linha de plano só entra depois que existe.
+
 // ── AS TELAS DO APLICATIVO ───────────────────────────────────────────────────
-// A seção só aparece quando houver imagem aqui.
-//
-// É a maior falta da página hoje. Os dois concorrentes que ele mandou de
-// referência mostram a plataforma deles em telas de celular; esta página
-// descreve a dele em texto e não mostra nada. E a dele é a mais forte das três
-// — o aplicativo é PRÓPRIO, enquanto os outros alugam plataforma de terceiro.
-// Descrever software é o jeito mais difícil de vender software.
-//
-// AS IMAGENS PRECISAM SER DA TELA DO ALUNO, não da tela dele de personal: a de
-// personal tem nome de aluno na lista, e nome de cliente não vai pra página
-// pública (foi o cuidado que a gente já teve no Reels, onde a lista rolava e a
-// tarja curta deixava escapar quem entrava depois).
-//
-// TELAS DO APP NOVO (v3, desde 16/10/2026). As antigas mostravam o app de
-// antes do redesign -- verde, grade de atalhos -- e numa página no visual do
-// app novo pareciam outro produto. Estas são as capturas que o Gabriel fez pro
-// e-mail de convite (hosting/politica/email/ no repo do app), com uma aluna de
-// demonstração ("Ana"), sem nome de aluno real. 480x840.
-//
-// Ficou sem tela de corrida/ciclismo: o app novo ainda não tem captura de
-// endurance com dado de demonstração, e montar uma exigiria entrar na conta
-// de um aluno real. A corrida e o ciclismo seguem no texto, nos depoimentos e
-// nos planos. Quando houver captura, entra aqui como a segunda.
+// Capturas do app v3 que o Gabriel fez pro e-mail de convite (aluna de
+// demonstração "Ana", nenhum aluno real). 480x840. Sem tela de endurance: não
+// existe captura de demonstração; quando houver, entra como a segunda.
 /** @type {{src:string, titulo:string, d:string}[]} */
 export const TELAS_APP = [
-  {
-    src: '/app/treino-v3.jpg',
-    titulo: 'O treino do dia',
-    d: 'Séries, repetições e carga de cada exercício, com o vídeo de execução e o cronômetro do treino na tela.',
-  },
-  {
-    src: '/app/recordes-v3.jpg',
-    titulo: 'Cada carga que subiu, registrada',
-    d: 'No fim do treino: duração, volume e os recordes do dia, comparados com a vez anterior.',
-  },
-  {
-    src: '/app/inicio-v3.jpg',
-    titulo: 'Onde você acompanha tudo',
-    d: 'O treino de hoje, o próximo, a sua semana e os seus recordes, logo ao abrir.',
-  },
+  { src: '/app/treino-v3.jpg', titulo: 'O treino do dia', d: 'Carga, séries e o vídeo de cada execução.' },
+  { src: '/app/recordes-v3.jpg', titulo: 'Seus recordes', d: 'Cada carga que subiu, comparada com a vez anterior.' },
+  { src: '/app/inicio-v3.jpg', titulo: 'Sua semana', d: 'O treino de hoje, o próximo e a sua frequência.' },
 ];
 
-// O registro profissional, no rodapé.
-//
-// Existiu uma seção inteira "quem vai montar o seu treino", com foto,
-// formação e um texto explicando por que o CREF pesa mais à distância. O
-// Matheus olhou e mandou tirar. Ficou só o número, no rodapé: é a única
-// coisa na página que prova que ele pode prescrever treino, e ali não
-// atrapalha ninguém.
-//
-// A formação (Bacharelado e Licenciatura pela UNIMEP, pós em Biomecânica,
-// Cinesiologia e Treinamento Físico) está no histórico do git, caso volte.
+// Só o número, no rodapé: a seção "quem vai montar o seu treino" saiu a
+// pedido dele. Formação (UNIMEP, pós em Biomecânica) está no histórico.
 export const CREF = 'CREF 167779-G/SP';
-// ── CONTEÚDO FIXO ────────────────────────────────────────────────────────────
 
-// Faz a pessoa se reconhecer. É a seção que mais funciona na página que ele
-// mandou de referência: quem lê para numa das linhas e a partir dali está
-// lendo sobre ela mesma.
+// ── PRA QUEM É ───────────────────────────────────────────────────────────────
 export const PARA_VOCE = [
-  'Treina há anos e o corpo parou de responder.',
-  'Já tentou seguir treino de internet e travou na primeira semana.',
-  'Tem pouco tempo e precisa que cada sessão valha a pena.',
-  'Mora longe, viaja a trabalho, ou não tem horário fixo.',
+  'Treina há anos e parou de evoluir.',
+  'Já tentou treino de internet e largou.',
+  'Tem pouco tempo e quer que cada treino conte.',
   'Quer correr ou pedalar sem largar a musculação.',
-  'Está voltando depois de meses parado e não sabe por onde começar.',
+  'Está voltando depois de um tempo parado.',
 ];
 
-// Etiqueta + título curto + UMA linha. Era parágrafo antes, e o Matheus tinha
-// razão: quem chega de Instagram passa o olho, não lê. Cada item aqui tem que
-// caber num relance.
-//
-// Tudo o que está escrito aqui é recurso que existe no aplicativo hoje. Não
-// entra nada de "em breve" nem nada que dependa de estar presente — avaliação
-// com as 7 dobras, por exemplo, ficou de fora porque exige adipômetro na mão,
-// e consultoria é à distância.
+// ── O QUE RECEBE ─────────────────────────────────────────────────────────────
+// Só o que o app faz hoje. "Vídeo de execução" e não "de cada exercício": a
+// biblioteca de vídeo não cobre todos.
 export const RECEBE = [
-  {
-    tag: 'Plano',
-    t: 'Programa 100% seu',
-    d: 'Montado no seu objetivo, nos seus dias e no que tem no seu lugar de treino.',
-  },
-  {
-    tag: 'Plataforma',
-    // Era "vídeo de CADA exercício". A biblioteca de vídeo é um mapa por nome
-    // de exercício e não cobre a lista inteira -- boa parte dos exercícios do
-    // motor só existe como personalizado, sem vídeo associado. "Com vídeo de
-    // execução" é verdade; "de cada" não era.
-    t: 'Treino no aplicativo, com vídeo de execução',
-    d: 'Séries, repetições, carga e descanso na tela. Você abre e executa.',
-  },
-  {
-    // Era "Periodização de 12 meses — a carga e os métodos sobem mês a mês".
-    // Três problemas num card só:
-    //
-    // 1. Contradizia o card logo acima. "Programa 100% seu" e um plano de 12
-    //    meses pronto não podem ser a mesma coisa, e quem lê os dois seguidos
-    //    fica com a sensação de treino de esteira, que é o oposto do que ele
-    //    vende.
-    // 2. Ao lado de "sem fidelidade", "12 meses" lê como prazo de contrato.
-    // 3. Não era verdade: o ritmo de troca de bloco virou configurável
-    //    (30/45/60 dias ou manual), então não é "mês a mês"; e nem todo bloco
-    //    sobe carga — tem semana de descarga.
-    tag: 'Progressão',
-    t: 'O treino muda quando precisa mudar',
-    d: 'Não é a mesma planilha todo mês. Eu troco o estímulo conforme você responde.',
-  },
-  {
-    tag: 'Endurance',
-    t: 'Ciclismo e corrida junto',
-    d: 'Rotina periodizada semana a semana, no mesmo valor. Com prova marcada, o plano é montado pra ela.',
-  },
-  {
-    // "Ilimitado" e "24h" respondem medos diferentes e por isso ficam os
-    // dois. Ilimitado responde "posso incomodar?"; as 24 horas respondem "vou
-    // ficar no vácuo?". Quem já foi abandonado por consultoria tem os dois.
-    //
-    // O concorrente da cidade só diz "ilimitado" porque não pode prometer
-    // tempo: são duas pessoas para 500 alunos. Aqui o prazo é justamente onde
-    // ele ganha deles — tirar o número seria abrir mão da vantagem.
-    tag: 'Suporte',
-    t: 'WhatsApp direto comigo, sem limite',
-    d: 'Pergunte quantas vezes quiser. Eu respondo em até 24 horas, todo dia, inclusive fim de semana.',
-  },
-  {
-    // "Avaliação FÍSICA" ficou de fora de propósito, mesmo tendo sido a
-    // sugestão inicial. No Brasil o termo significa o protocolo presencial com
-    // adipômetro (as 7 dobras) e consultoria é à distância — prometer isso e
-    // entregar comparação de foto é o tipo de coisa que o aluno cobra na
-    // primeira vez. "Avaliação" sem o sobrenome descreve o que de fato
-    // acontece.
-    //
-    // E o ciclo virou 12 SEMANAS em toda a página, no lugar de 90 dias: a
-    // garantia já falava em 12 semanas, então havia dois números pro mesmo
-    // ciclo. São 84 dias em vez de 90 — seis dias de diferença que não mudam
-    // nada no corpo e resolvem a incoerência.
-    tag: 'Evolução',
-    t: 'Avaliação a cada 12 semanas',
-    d: 'Suas fotos comparadas lado a lado com as anteriores, e o plano refeito a partir dali.',
-  },
-  {
-    tag: 'Registro',
-    t: 'Sua carga guardada, treino a treino',
-    d: 'Você vê a evolução de cada exercício, e eu também.',
-  },
-  {
-    // "Pra imprimir e levar na academia" saiu: ninguem imprime treino, e o
-    // item soava velho ao lado de tudo que vem antes dele.
-    //
-    // O valor real do PDF nao e papel, e AUSENCIA DE REDE. Academia com sinal
-    // ruim no subsolo, viagem, plano de dados no fim do mes -- o treino ja
-    // esta baixado e abre do mesmo jeito. E o mesmo motivo pra estrada e pra
-    // trilha, onde nao existe sinal nenhum.
-    tag: 'Offline',
-    t: 'Sem sinal na academia? O treino abre igual',
-    d: 'Baixe antes e ele fica no seu celular. Subsolo, viagem, estrada, trilha — o treino não depende de internet pra aparecer.',
-  },
+  { t: 'Treino montado pra você', d: 'No seu objetivo, nos seus dias e no que tem onde você treina.' },
+  { t: 'No app, com vídeo de execução', d: 'Séries, carga e descanso na tela. Abriu, treinou.' },
+  { t: 'Corrida e ciclismo no mesmo valor', d: 'Planilha semanal por zona. Com prova marcada, o plano vai até ela.' },
+  { t: 'WhatsApp direto comigo', d: 'Resposta em até 24 horas, todo dia.' },
+  { t: 'Sua carga registrada', d: 'Treino a treino. Sem sinal na academia, ela sobe quando a internet voltar.' },
+  { t: 'Avaliação a cada 12 semanas', d: 'Fotos lado a lado com as anteriores e o plano refeito.' },
 ];
 
-// Os três planos.
-//
-// A ESCADA É POR CADÊNCIA DE CHECK-IN. Segunda versão desta seção, e a primeira
-// estava com o eixo errado: separava os planos por OBJETO entregue (relatório,
-// PDF, chamada). O Matheus reclamou com razão -- "não vejo diferença pra essa
-// mudança de preço" -- e o cartão dele provava: o Essencial tinha 8 itens e o
-// Completo, 4. O plano barato parecia mais completo que o caro.
-//
-// A correção veio de olhar como quem vive disso monta a oferta: RP Strength,
-// 3D Muscle Journey e Barbell Medicine não escalonam por conteúdo, escalonam
-// por FREQUÊNCIA DE REVISÃO. No 3DMJ o off-season é quinzenal (US$ 400) e o de
-// competição é semanal (US$ 500); na RP o topo é uma chamada semanal. É a
-// mesma entrega, olhada mais vezes.
-//
-// Isso corrige um erro meu, que fica registrado: eu tinha dito que ele "deu de
-// graça" o WhatsApp no plano barato. Errado -- comunicação direta com o coach
-// está em TODOS os tiers dessas consultorias, inclusive nos de US$ 500.
-// Ninguém cobra pelo canal. O que se cobra é o olhar periódico.
-//
-// A escada, então, é uma frase por plano:
-//   Essencial  -- "eu monto, você executa."        revisão mensal
-//   Completo   -- "a cada 15 dias eu olho e mexo."  revisão quinzenal
-//   Individual -- "meia hora por mês, só sua."       quinzenal + consulta ao vivo
-//
-// O Individual chegou a ser escrito com revisão SEMANAL, e o Matheus fez a
-// conta do tempo dele: dava ~70 min por aluno/mês, contra ~30 do Completo.
-// Preferiu quinzenal nos dois e concentrar o degrau todo na chamada -- que
-// é a coisa que o Completo não tem de jeito nenhum, e a única da página
-// inteira em que ele aparece ao vivo. Cadência igual nos dois não achata a
-// escada: o degrau mudou de eixo.
-//
-// O QUE NÃO PODE SER FEITO continua valendo: fatiar por modalidade, deixando
-// corrida e ciclismo num plano separado. Hoje o endurance entra no mesmo valor,
-// e "a maioria cobra à parte ou simplesmente não faz" é das frases mais fortes
-// da página. Fatiando por modalidade, ele VIRA a maioria.
-//
-// O que muda por plano no endurance é a PROFUNDIDADE, não o acesso: no
-// Essencial a rotina entra junto; no Completo as zonas saem de teste (VDOT na
-// corrida, 20 min no ciclismo -- o que o motor do app calcula de verdade) e
-// existe periodização até a data de uma prova. O tier mais caro do mundo
-// inteiro é o que tem data marcada, e essa é a coisa mais bem posicionada que
-// ele já tem.
-//
-// Cadência quinzenal e aplicação do teste foram confirmadas pelo Matheus em
-// 01/09/2026. Linha de plano só entra depois que a entrega existe.
-//
-// Valores decididos por ele em 31/08. Tinha proposto começar em 139,90 e voltou
-// pros 149,90 por um motivo prático: os alunos atuais pagam isso, e publicar
-// mais barato criaria uma conversa ruim com quem já está com ele.
-//
-// Nomes em português de propósito. O concorrente usa Light/Standard/Plus e
-// funciona pra ELES porque Just Move é uma marca, que carrega o sentido que o
-// nome genérico não tem. Aqui quem está sendo vendido é o Matheus, numa página
-// inteira na voz dele — três palavras em inglês seriam as únicas estrangeiras
-// no meio.
+// ── PLANOS ───────────────────────────────────────────────────────────────────
+// A escada é por FREQUÊNCIA DE REVISÃO, não por conteúdo (o porquê está no
+// histórico, 01/09). Endurance no mesmo valor em todos -- fatiar por
+// modalidade é o que ele NÃO faz. Valores dele (31/08).
 export const PLANOS = [
   {
     nome: 'Essencial',
     preco: 'R$ 149,90',
-    // Não usar a palavra "completo" aqui: é o nome do plano do meio, e dizer
-    // que o Essencial já é o completo esvazia o de cima antes de a pessoa ler.
-    resumo: 'Você tem o programa inteiro. Eu reviso uma vez por mês.',
+    resumo: 'Eu monto, você executa. Reviso uma vez por mês.',
     itens: [
-      'Programa de musculação montado pra você',
-      'Rotina de corrida ou ciclismo junto, se quiser',
-      // Era "de cada exercício": a nota do RECEBE, acima, explica por que "de cada"
-      // não é verdade (a biblioteca de vídeo não cobre todos).
-      'Vídeo de execução dos exercícios',
-      'Registro de carga treino a treino',
-      'Treino baixado no celular, funciona sem internet',
-      'WhatsApp direto comigo pra tirar dúvida',
-      'Revisão do programa uma vez por mês',
-      // Era "Avaliação física", que no Brasil quer dizer adipômetro presencial --
-      // o mesmo motivo pelo qual o RECEBE diz só "Avaliação".
+      'Treino no app, com vídeo de execução',
+      'Corrida ou ciclismo junto, se quiser',
+      'Revisão do programa todo mês',
+      'WhatsApp comigo, resposta em 24h',
       'Avaliação com fotos a cada 12 semanas',
     ],
   },
@@ -466,309 +298,94 @@ export const PLANOS = [
     nome: 'Completo',
     preco: 'R$ 219,90',
     destaque: 'Mais escolhido',
-    // Terceira escrita deste resumo, e as duas anteriores caíram pelo mesmo
-    // tipo de defeito.
-    //
-    // "Eu vou atrás dos seus números, sem você precisar pedir" não dizia
-    // frequência nenhuma -- podia ser uma vez por ano.
-    //
-    // "A cada 15 dias eu abro os seus números e mexo, sem você pedir" ganhou a
-    // frequência mas o Matheus cortou o rabo da frase: "sem você pedir" é
-    // promessa de vendedor, e "os seus números" é vago a ponto de ele mesmo
-    // perguntar quais seriam.
-    //
-    // O que existe de verdade é ESPECÍFICO, e por isso entra com nome: o app
-    // grava cada série de cada exercício, todo dia, desde sempre
-    // (`historicoCargas`), e o relatório já separa o que subiu do que travou
-    // (`progressaoPorExercicio`). Dizer "histórico de carga" é mais forte que
-    // "seus números" justamente porque é uma coisa só, que existe e tem nome.
     resumo: 'A cada 15 dias eu abro o seu histórico de carga e mexo no que travou.',
     herda: 'Essencial',
     itens: [
-      // O primeiro item é o degrau. Vem antes de tudo porque é o que a pessoa
-      // está comprando; o resto sustenta.
-      'Revisão a cada 15 dias, não uma vez por mês',
-      // O item mais usado do mercado pra justificar o tier do meio, e o que
-      // responde o medo real de quem treina sozinho: "estou fazendo certo?".
-      // Ele já faz isso ao vivo no Individual -- aqui é assíncrono.
-      //
-      // Eu propus um teto ("até 3 exercícios por mês") porque sem número o
-      // combinado é ilimitado, e um aluno sozinho poderia consumir mais tempo
-      // que um Individual inteiro. O Matheus recusou, e a razão dele é
-      // melhor: ninguém sai mandando tudo do nada -- manda o exercício em que
-      // tem dúvida. Pôr número onde não existe problema cria burocracia e faz
-      // a pessoa contar vídeo em vez de tirar a dúvida.
-      //
-      // Se um dia virar problema de volume, o conserto é este item aqui.
-      'Ficou em dúvida num exercício? Grava e eu corrijo por vídeo',
-      'Relatório de evolução todo mês, em PDF',
-      // Diferença técnica de verdade, e o motor do app calcula: VDOT (Daniels)
-      // na corrida, teste de 20 min (Coggan) no ciclismo.
-      'Suas zonas de corrida e ciclismo saem de teste, não de estimativa',
-      'Preparação para prova alvo, com o plano até o dia',
-      'Ajuste do treino sempre que precisar, sem limite',
+      'Revisão a cada 15 dias',
+      'Correção de execução por vídeo',
+      'Zonas de corrida e ciclismo por teste',
+      'Plano até a sua prova',
+      'Ajuste sempre que precisar',
     ],
   },
   {
     nome: 'Individual',
     preco: 'R$ 279,90',
-    // A CHAMADA NÃO É NA ACADEMIA, e essa correção é do Matheus: "se acha que
-    // o cara vai me ligar ao vivo na academia? isso faz sentido?". Não faz --
-    // ninguém filma a série com o celular apoiado no banco e gente esperando
-    // o aparelho. Eu tinha escrito sem imaginar a cena.
-    //
-    // O modelo que funciona é o da RP Strength: a pessoa está EM CASA,
-    // sentada, e a chamada é uma consulta -- veem juntos os vídeos que ela
-    // gravou durante o mês, a evolução da carga, e fecham o mês seguinte.
-    // O vídeo continua sendo gravado na academia, como no Completo; o que
-    // muda é ter meia hora de conversa em cima dele.
-    resumo: 'Meia hora por mês, só sua: a gente senta e olha o seu mês junto.',
+    // A chamada é em CASA, não na academia (correção dele, 01/09).
+    resumo: 'Meia hora por mês, só sua, por vídeo.',
     herda: 'Completo',
     itens: [
-      'Videochamada de 30 minutos, todo mês, marcada com você',
-      'A gente vê os seus vídeos juntos e eu explico o que mudar',
-      'Sua evolução aberta na tela, exercício por exercício',
-      'O mês seguinte decidido ali, com você junto',
+      'Videochamada de 30 min todo mês',
+      'Seus vídeos e sua evolução, vistos juntos',
+      'O mês seguinte decidido com você',
     ],
-    // A preparação para prova entra nos DOIS de cima, mas o card do Individual
-    // não repete: ele já diz "tudo do Completo, mais".
   },
 ];
 
-// Vale pros três planos, e por isso fica fora dos cards: repetir em cada um
-// gastaria três vezes o espaço pra dizer a mesma coisa.
 export const VALE_PARA_TODOS = [
-  'Sem fidelidade — cancela quando quiser',
-  'Resposta em até 24 horas, todo dia',
+  'Sem fidelidade',
+  'Resposta em até 24h',
   'Garantia de 12 semanas',
 ];
 
-// O ACORDO, nas duas direções.
-//
-// Terceira escrita desta seção, e a mudança agora é estrutural, não de texto.
-// Ela era "O que eu preciso de você": quatro coisas que o ALUNO tem que fazer,
-// nenhuma que o Matheus se compromete a fazer, tudo isso antes da pessoa
-// pagar. Por melhor que estivesse escrita, a estrutura era de contrato de
-// academia — e foi isso que continuou incomodando ele mesmo depois de eu
-// reescrever o texto duas vezes.
-//
-// Agora são as duas colunas do mesmo acordo, e a DELE vem primeiro. Isso é o
-// que separa quem está seguro do que entrega de quem só cobra: publicar as
-// próprias obrigações antes de listar as do outro.
-//
-// Nada na coluna dele é promessa nova. Tudo já estava dito em algum canto da
-// página (24h, ajuste quando precisar, garantia das 12 semanas, sem fidelidade) —
-// só nunca tinha aparecido junto, como compromisso assumido.
-export const ABERTURA_ACORDO =
-  'Eu não estou do seu lado na academia. O que a gente combina aqui é o que faz ' +
-  'isso funcionar mesmo assim — e a minha parte vem primeiro.';
-
+// ── O COMBINADO ──────────────────────────────────────────────────────────────
+// Duas colunas, a DELE primeiro: publicar as próprias obrigações antes das do
+// aluno é o que separa quem está seguro do que entrega de quem só cobra. O
+// lado do aluno EXIGE a verdade -- "não vou te dar sermão" foi cortado por
+// soar frouxo.
 export const MINHA_PARTE = [
-  {
-    t: 'Te responder em até 24 horas, sempre',
-    d: 'Todo dia, inclusive fim de semana, quantas vezes você precisar. Não é robô e não é atendente: sou eu.',
-  },
-  {
-    // ESTA PROMESSA ENCOLHEU quando os planos ganharam níveis de ajuste, e a
-    // correção veio do Matheus: no Essencial o ajuste é mensal, e "sem limite"
-    // é do Completo pra cima. A versão anterior dizia "não tem limite de
-    // ajuste" pra todo mundo, o que passou a contradizer o próprio card de
-    // preço logo abaixo.
-    //
-    // O que sobra aqui é o que vale em QUALQUER plano: imprevisto não espera o
-    // mês virar. Se machucou ou trocou de academia, eu mexo na hora — isso
-    // nunca foi item de plano, é o mínimo de quem acompanha alguém.
-    t: 'Mexer no seu treino quando a sua vida mudar',
-    d: 'Machucou, trocou de academia, mudou o horário, viajou. Isso eu ajusto em qualquer plano, sem esperar o mês virar e sem cobrar a mais.',
-  },
-  {
-    t: 'Olhar os seus números antes de mudar qualquer coisa',
-    d: 'Toda alteração sai do que você registrou, não de um calendário que virou a página sozinho.',
-  },
-  {
-    t: 'Refazer tudo do zero se não funcionar',
-    d: 'Doze semanas seguindo o plano e sem evolução, eu remonto o seu planejamento inteiro sem cobrar nada.',
-  },
+  'Te responder em até 24 horas, todo dia.',
+  'Ajustar na hora se você machucar, viajar ou trocar de academia.',
+  'Mexer no treino a partir dos seus números, não do calendário.',
+  'Refazer tudo do zero se não funcionar em 12 semanas.',
 ];
 
-// A contrapartida do aluno.
-//
-// Segunda escrita destes itens. A primeira era "mande foto, anote a carga,
-// avise se doer", e o Matheus cortou: senso comum. Ele estava certo — qualquer
-// personal diria as mesmas frases, então elas não diziam nada sobre ELE.
-//
-// O que faltava era o porquê específico: o que ele faz com cada informação, e
-// o que dá errado de concreto quando ela não chega. Genérico é o que qualquer
-// um copia; específico não dá pra copiar.
 export const SUA_PARTE = [
-  {
-    t: 'Fotos a cada 12 semanas',
-    d: 'A balança mente. Peso parado com o corpo diferente é a coisa mais comum que eu vejo, e é a foto que mostra isso — não o número.',
-    // Fica visível, não escondido no protocolo: é a dúvida que trava a pessoa,
-    // e responder antes de ela perguntar vale mais que qualquer instrução.
-    extra: 'Ficam guardadas na sua conta dentro do aplicativo, visíveis só pra você e pra mim.',
-  },
-  {
-    // "Bloco" saiu: é palavra de dentro da profissão. O aluno sabe o que é o
-    // treino do mês seguinte; não sabe o que é um bloco de periodização.
-    t: 'A carga que você usou de verdade',
-    d: 'Se você fez 12 repetições onde eu pedi 8, o peso está leve e eu preciso saber. Sem esse registro, eu monto o treino do mês seguinte no escuro e você fica meses no mesmo lugar.',
-  },
-  {
-    // Era "quase sempre a SOLUÇÃO ERA trocar um exercício", e o Matheus
-    // corrigiu: solução é ajuste. "Solução" trata a dor como um problema que
-    // ficou grande; a palavra certa é a que diz que quase sempre é pequeno —
-    // e é exatamente por ser pequeno que vale avisar no mesmo dia.
-    t: 'Me avisar no dia em que doer',
-    d: 'Dor que aparece na terça e me chega no domingo já virou uma semana inteira de treino errado. E quase sempre o ajuste é pequeno: trocar um exercício.',
-  },
-  {
-    // Terceira escrita deste item, e a correção veio do Matheus: "cara de
-    // personal frouxo".
-    //
-    // Ele estava certo e o erro era de fundo. A versão anterior terminava em
-    // "não vou te dar sermão", escrita pra tirar a vergonha de quem sumiu — mas
-    // o efeito é o contrário do que ele vende: soa como o personal que deixa
-    // passar. Quem paga por acompanhamento não está comprando tolerância.
-    //
-    // O pedido real nunca foi "não se cobre". Era EXIGIR A VERDADE, e exigir é
-    // forte. A consequência também mudou de lado: antes falava do sentimento
-    // dele ("atrapalha o meu trabalho"), agora fala do estrago no treino do
-    // aluno, que é o que interessa a quem lê.
-    t: 'A verdade sobre a sua semana',
-    d: 'Se você não treinou, me diz que não treinou. Eu trabalho com o que aconteceu, não com o que você gostaria de ter feito. Semana ruim eu remonto em dez minutos; semana inventada me faz montar o mês inteiro em cima de um dado falso.',
-  },
+  'Fotos a cada 12 semanas.',
+  'Registrar a carga que você fez de verdade.',
+  'Me avisar no dia em que doer.',
+  'Não treinou? Me diz que não treinou.',
 ];
 
-// O passo a passo das fotos, atrás de um clique. Quem está decidindo não
-// precisa; quem já decidiu quer exatamente isso.
-//
-// ERA TEXTO E VIROU FOTO, por sugestão do Matheus: "fica mais prático pros
-// novos alunos verem". Ele tem razão -- "de frente, corpo relaxado" não
-// responde a dúvida que a pessoa realmente tem, que é "está certo assim?".
-// Uma foto responde.
-//
-// São de um aluno real, com a CABEÇA PIXELIZADA nas três. Pixelização e não
-// desfoque: desfoque fraco ainda deixa reconhecer, que foi a lição do Reels.
-// A tarja cobre a cabeça inteira, não só o rosto -- mais segura, e fica com
-// cara de escolha em vez de remendo.
+// O passo a passo das fotos, atrás de um clique: quem está decidindo não
+// precisa; quem já decidiu quer exatamente isso. Cabeça PIXELIZADA nas três
+// (pixelização, não desfoque -- lição do Reels).
 export const PROTOCOLO_FOTOS = {
-  // Só o rótulo. A orientação escrita de cada ângulo saiu a pedido do Matheus
-  // -- a foto já mostra, e legenda repetindo o que a imagem diz é ruído.
   modelo: [
     { src: '/como-tirar/frontal.jpg', rotulo: 'Frontal' },
     { src: '/como-tirar/lateral.jpg', rotulo: 'Lateral' },
     { src: '/como-tirar/posterior.jpg', rotulo: 'Posterior' },
   ],
   roupa:
-    'De preferência roupa de piscina, que é o que mostra melhor a composição ' +
-    'corporal. Se você não se sentir à vontade, top e shorts para mulheres e ' +
-    'shorts para homens resolvem. E procure repetir o mesmo lugar, a mesma ' +
-    'luz e a mesma distância nas próximas — é o que deixa a comparação justa.',
+    'Roupa de piscina, ou top e shorts. Mesmo lugar, mesma luz e mesma ' +
+    'distância nas próximas: é o que deixa a comparação justa.',
 };
 
-// Segunda escrita, pelo mesmo motivo da seção dos compromissos: a primeira era
-// genérica. "Eu monto o seu programa — em cima do que você respondeu" não diz
-// nada que a pessoa já não tenha suposto.
-//
-// O que faltava era responder as duas perguntas que quem está decidindo tem de
-// verdade e não pergunta em voz alta: QUANDO eu começo a treinar, e O QUE ele
-// vai me perguntar. Por isso cada etapa agora carrega um "quando" na frente e
-// diz, em concreto, o que acontece nela.
-//
-// O `quando` do passo em que ele monta o programa está deliberadamente sem
-// prazo em dias — falta o Matheus dizer quanto tempo ele leva de verdade.
-// Inventar "em até 48h" aqui seria criar uma promessa que ele não combinou.
+// ── COMO FUNCIONA ────────────────────────────────────────────────────────────
+// Responde a pergunta que ninguém faz em voz alta: QUANDO eu começo. Sem prazo
+// em dias pra montar o programa -- ele não combinou nenhum.
 export const PASSOS = [
-  {
-    quando: 'Agora',
-    t: 'Você preenche os seus dados aqui',
-    d: 'Nome, contato, o plano e se quer corrida ou ciclismo junto. Leva um minuto.',
-  },
-  {
-    // Falava em "mando a cobrança", e o Matheus cortou com razão: dinheiro no
-    // primeiro contato esfria a conversa. A tranquilidade que a frase queria
-    // passar — que ninguém paga às cegas — continua aqui, mas dita pelo lado
-    // que interessa a quem lê: primeiro a gente conversa.
-    quando: 'No mesmo dia',
-    t: 'Eu te chamo no WhatsApp',
-    d: 'A gente conversa sobre o seu objetivo, a sua rotina e o que você já treinou até aqui. Nada é decidido antes dessa conversa.',
-  },
-  {
-    quando: 'Quando você quiser começar',
-    t: 'Chega o seu acesso ao aplicativo',
-    d: 'Com o programa já montado em cima do que você me contou: os dias que você tem, o tempo por sessão e o que existe no lugar onde você treina.',
-  },
-  {
-    quando: 'Nas primeiras semanas',
-    t: 'A gente acerta a carga',
-    d: 'É o ajuste mais importante e quase ninguém fala dele. O primeiro programa é um chute educado — só quando eu vejo os pesos que você conseguiu de verdade é que ele vira o seu.',
-  },
-  {
-    quando: 'A cada 12 semanas',
-    t: 'Avaliação com as suas fotos',
-    d: 'Comparo com as anteriores e refaço o planejamento a partir dali. É também quando vale a garantia.',
-  },
+  { quando: 'Agora', t: 'Você preenche o formulário', d: 'Leva um minuto.' },
+  // "Mando a cobrança" saiu: dinheiro no primeiro contato esfria.
+  { quando: 'No mesmo dia', t: 'Eu te chamo no WhatsApp', d: 'Objetivo, rotina e o que você já treinou. Nada é decidido antes.' },
+  { quando: 'Quando quiser começar', t: 'Seu treino chega no app', d: 'Montado nos seus dias e no seu tempo.' },
+  { quando: 'Primeiras semanas', t: 'A gente acerta a carga', d: 'O primeiro treino é ponto de partida. Com os seus pesos reais, ele vira seu.' },
 ];
 
 export const FAQ = [
-  {
-    q: 'Preciso de academia?',
-    r: 'Não necessariamente. Dá pra montar com academia completa, academia simples ou halteres em casa. Você me diz o que tem na avaliação, e eu monto com isso.',
-  },
-  {
-    q: 'Tem fidelidade?',
-    r: 'Não. É mensal e você cancela quando quiser, sem multa e sem precisar justificar. O acesso vale até o fim do mês já pago, e a cobrança do mês seguinte não acontece.',
-  },
-  {
-    q: 'A corrida e o ciclismo custam à parte?',
-    r: 'Não. Entram no mesmo valor, se você quiser.',
-  },
-  {
-    q: 'Sou iniciante. Serve pra mim?',
-    r: 'Serve. O ponto de partida é o seu — quem nunca treinou não começa no mesmo lugar de quem treina há cinco anos, e o programa respeita isso.',
-  },
-  {
-    q: 'E se eu não conseguir seguir alguma semana?',
-    r: 'Você me avisa e eu remonto. O que quebra o acompanhamento não é a semana que você perdeu — é a semana perdida que eu só descubro um mês depois, com o treino seguinte já montado em cima de um dado que não era verdade.',
-  },
-  {
-    // Pergunta do próprio Matheus: quem quer treinar com ele PRESENCIAL não
-    // tinha por onde falar. A página inteira diz "consultoria online" e o
-    // formulário manda uma mensagem de consultoria -- essa pessoa chegava e
-    // ia embora sem caminho.
-    //
-    // Sem valor nem cidade escritos aqui: ele não me disse nenhum dos dois, e
-    // inventar preço de presencial numa página pública é criar uma conversa
-    // ruim antes dela começar.
-    q: 'Você atende presencial também?',
-    // "a gente vê horário, local e valor por lá" saiu a pedido do Matheus:
-    // detalhe de horário e preço morre no WhatsApp, não numa página pública.
-    // O que a resposta precisa fazer aqui é só uma coisa -- dizer que existe e
-    // apontar o caminho.
-    r: 'Atendo. Esta página é da consultoria online — se você prefere treinar comigo pessoalmente, é só me chamar no WhatsApp.',
-  },
-  {
-    q: 'As fotos são obrigatórias?',
-    r: 'São como eu enxergo a sua evolução à distância — sem elas, o ajuste vira chute. Você manda no primeiro dia e a cada 12 semanas. Elas ficam guardadas na sua conta dentro do aplicativo, visíveis só pra você e pra mim.',
-  },
+  { q: 'Preciso de academia?', r: 'Não. Monto com academia completa, simples ou halteres em casa.' },
+  { q: 'Tem fidelidade?', r: 'Não. É mensal: cancelou, o mês seguinte não é cobrado.' },
+  { q: 'Corrida e ciclismo custam à parte?', r: 'Não. Entram no mesmo valor.' },
+  { q: 'Sou iniciante. Serve?', r: 'Serve. O ponto de partida é o seu.' },
+  { q: 'As fotos são obrigatórias?', r: 'São. Sem elas o ajuste vira chute. Ficam no app, só entre você e eu.' },
+  // Sem valor nem cidade: detalhe de presencial é conversa de WhatsApp.
+  { q: 'Atende presencial?', r: 'Atendo. Me chama no WhatsApp.' },
 ];
 
 // ── GARANTIA ─────────────────────────────────────────────────────────────────
-// Doze semanas, e o prazo está preso às FOTOS de propósito: 12 semanas dão 84
-// dias, então a reavaliação dos 90 cai logo em seguida e existem duas séries
-// de foto pra comparar.
-//
-// Chegou a virar 8 semanas em 31/08 e voltou no mesmo dia, quando o Matheus
-// lembrou disso. Vale registrar por quê, pra ninguém encurtar de novo sem
-// perceber o efeito colateral: em 8 semanas não existe foto nova nenhuma, e a
-// garantia perde o árbitro. Mexer no número aqui obriga a mexer também no que
-// serve de prova.
+// Doze semanas, presa às FOTOS: é quando existe medida dos dois lados. Em 8
+// semanas não há foto nova e a garantia perde o árbitro -- não encurtar.
 export const GARANTIA = {
-  titulo: 'Doze semanas, e a minha parte se não funcionar',
-  texto:
-    'Se depois de 12 semanas seguindo o programa você não tiver evoluído, eu ' +
-    'refaço o seu planejamento inteiro do zero, sem custo nenhum. É por isso ' +
-    'que as fotos e o registro de carga importam: nessa altura a gente tem os ' +
-    'dois lados pra comparar, e não precisa ficar no achismo.',
+  titulo: 'Garantia de 12 semanas',
+  texto: 'Seguiu o plano e não evoluiu? Eu refaço o seu planejamento do zero, sem custo.',
 };
