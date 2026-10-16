@@ -512,21 +512,16 @@ export default function Treine() {
                     aria-hidden={i !== tela}
                     className="grid w-full shrink-0 items-center gap-8 sm:grid-cols-[auto_1fr]"
                   >
-                    <div className="mx-auto w-[220px] rounded-[2rem] border-[6px] border-surface-2 bg-black shadow-2xl sm:mx-0 sm:w-[240px]">
+                    <div className="mx-auto w-[220px] overflow-hidden rounded-[2rem] border-[6px] border-surface-2 bg-bg shadow-2xl shadow-black/60 sm:mx-0 sm:w-[240px]">
                       <img
                         src={t.src}
                         alt={t.titulo}
                         loading={i === 0 ? undefined : "lazy"}
-                        // A moldura usa a proporcao REAL dos prints (560x1100 em
-                        // media), e nao 9/19.5 de aparelho: com 9/19.5 o cover
-                        // escalava pela altura e cortava as LATERAIS -- comeu o "S"
-                        // de "SEU TREINO" e de "SUA SEMANA" na tela de corrida.
-                        //
-                        // E object-contain, nao cover: as tres tem proporcao um
-                        // pouco diferente entre si (0,493 a 0,530), e contain
-                        // garante que nenhuma perca nada. A sobra fica preta,
-                        // invisivel dentro da moldura preta.
-                        className="aspect-[560/1100] w-full rounded-[1.6rem] object-contain"
+                        // A moldura usa a proporcao REAL dos prints, e nao
+                        // 9/19.5 de aparelho: com 9/19.5 o cover escalava pela
+                        // altura e cortava as LATERAIS (ja comeu letra de titulo).
+                        // As tres telas do app novo tem o mesmo tamanho, 480x840.
+                        className="aspect-[480/840] w-full rounded-[1.6rem] object-cover"
                       />
                     </div>
 

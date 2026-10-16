@@ -27,8 +27,10 @@ export const FOTOS_TOPO = [
   { src: '/matheus.jpg',           alt: 'Matheus Barbosa na academia',          pos: 'center 12%', posLg: 'top' },
   // Ordem escolhida pelo Matheus: personal, ciclismo, corrida. A do ciclismo foi
   // trocada em 16/10 por uma que ele escolheu (trilha, rosto e bike inteiros);
-  // o original é 9:16 e foi recortado em 3:4, a proporção da coluna.
-  { src: '/matheus-ciclismo.jpg',  alt: 'Matheus Barbosa com a bike numa trilha', pos: 'center',     posLg: 'center' },
+  // o original é 9:16 e foi recortado em 3:4, a proporção da coluna. Nome de
+  // arquivo novo de propósito: com o nome antigo, o navegador de quem já tinha
+  // visitado continuava mostrando a foto da estrada (o Matheus viu isso).
+  { src: '/matheus-trilha.jpg',     alt: 'Matheus Barbosa com a bike numa trilha', pos: 'center',     posLg: 'center' },
   { src: '/matheus-corrida.jpg',   alt: 'Matheus Barbosa correndo uma prova',   pos: 'center 25%', posLg: 'center 20%' },
 ];
 
@@ -238,33 +240,32 @@ export const NUMEROS = [
 // pública (foi o cuidado que a gente já teve no Reels, onde a lista rolava e a
 // tarja curta deixava escapar quem entrava depois).
 //
-// Recorte: 9:19.5 (proporção de celular moderno). Print da tela inteira, sem a
-// barra de status se der.
+// TELAS DO APP NOVO (v3, desde 16/10/2026). As antigas mostravam o app de
+// antes do redesign -- verde, grade de atalhos -- e numa página no visual do
+// app novo pareciam outro produto. Estas são as capturas que o Gabriel fez pro
+// e-mail de convite (hosting/politica/email/ no repo do app), com uma aluna de
+// demonstração ("Ana"), sem nome de aluno real. 480x840.
+//
+// Ficou sem tela de corrida/ciclismo: o app novo ainda não tem captura de
+// endurance com dado de demonstração, e montar uma exigiria entrar na conta
+// de um aluno real. A corrida e o ciclismo seguem no texto, nos depoimentos e
+// nos planos. Quando houver captura, entra aqui como a segunda.
 /** @type {{src:string, titulo:string, d:string}[]} */
 export const TELAS_APP = [
-  // Prints reais da conta de uma aluna. O "Olá, Gabriela" foi cortado fora do
-  // painel -- nome de aluna não vai pra página pública, mesmo cuidado do Reels.
-  //
-  // A de CORRIDA saiu de um quadro das gravações do Reels, e teve uma emenda:
-  // naquela versão o app repetia a descrição do treino duas vezes (o bug
-  // corrigido em cea4fe8, que vai na 1.3.32). Recortei a repetição e emendei o
-  // que sobrou. Não é maquiagem -- é a tela como ela fica na versão que está
-  // subindo pras lojas agora; publicar com o bug seria mostrar um defeito que
-  // já não existe.
   {
-    src: '/app/treino.jpg',
+    src: '/app/treino-v3.jpg',
     titulo: 'O treino do dia',
-    d: 'Séries, repetições, carga e descanso na tela — e o vídeo de execução dentro do próprio exercício.',
+    d: 'Séries, repetições e carga de cada exercício, com o vídeo de execução e o cronômetro do treino na tela.',
   },
   {
-    src: '/app/corrida.jpg',
-    titulo: 'A corrida e o ciclismo',
-    d: 'Cada treino com o pace alvo, a zona e a frequência cardíaca. A semana inteira, baixada — na estrada não tem sinal.',
+    src: '/app/recordes-v3.jpg',
+    titulo: 'Cada carga que subiu, registrada',
+    d: 'No fim do treino: duração, volume e os recordes do dia, comparados com a vez anterior.',
   },
   {
-    src: '/app/painel.jpg',
+    src: '/app/inicio-v3.jpg',
     titulo: 'Onde você acompanha tudo',
-    d: 'Sua frequência da semana, as fotos de evolução, o seu plano, e eu a um toque de distância.',
+    d: 'O treino de hoje, o próximo, a sua semana e os seus recordes, logo ao abrir.',
   },
 ];
 
