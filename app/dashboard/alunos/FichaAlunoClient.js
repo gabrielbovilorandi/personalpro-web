@@ -1,11 +1,15 @@
 'use client';
+import { valorNum, valorMensalAsaas } from '@/lib/financeiro';
+import { calcStatus } from '@/lib/statusAluno';
+import RelatorioMensalModal from './RelatorioMensalModal';
+import { RITMOS_PROGRAMA, ritmoSelecionado, viraSozinho, diasDoBloco, diasParaProximoMes, diasNoBlocoAtual, rotuloRitmo } from '@/lib/programaMusculacao';
 import { useEffect, useState, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   buscarAluno, buscarTreinos, atualizarAluno, excluirAluno,
-  buscarAvaliacoes, excluirAvaliacao, buscarHistoricoDoAluno,
-  atribuirProgramaMuscular, removerProgramaMuscular, sincronizarProgramaMuscular, listarProgramas,
+  buscarAvaliacoes, tsAvaliacao, excluirAvaliacao, buscarHistoricoDoAluno,
+  atribuirProgramaMuscular, removerProgramaMuscular, sincronizarProgramaMuscular, listarProgramas, definirRitmoPrograma, definirMesPrograma,
   buscarFotosEvolucao, uploadFotoEvolucao, salvarFotosEvolucao, deletarSessaoFotos,
   buscarPresencasDoAluno, registrarPresenca,
 } from '@/lib/firestore';
@@ -14,8 +18,10 @@ import {
   Phone, Mail, Calendar, Plus, ArrowUpRight, ClipboardList, Trash2,
   TrendingUp, Weight, Camera, CalendarDays, CheckCircle2, XCircle,
   ChevronRight, ChevronDown, Play,
+  MessageCircle,
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { mapaPresencaAgenda } from '@/lib/presencaAgenda';
 import { useToast } from '@/components/Toast';
 import ConfirmModal from '@/components/ConfirmModal';
 import { METODOS } from '@/lib/treinoData';
@@ -26,11 +32,11 @@ function TreinoCard({ treino }) {
   const [open, setOpen] = useState(false);
   const exs = treino.exercicios || [];
   return (
-    <div className="rounded-2xl bg-[#0d1b2e] ring-1 ring-white/[0.06] overflow-hidden">
+    <div className="rounded-[22px] bg-[#141619] ring-1 ring-white/[0.06] overflow-hidden">
       <div className="flex items-center gap-2 p-4">
         <button onClick={() => setOpen(o => !o)} className="flex items-center gap-3 flex-1 min-w-0 text-left">
-          <div className="w-9 h-9 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0">
-            <Dumbbell size={16} className="text-blue-400" strokeWidth={1.8} />
+          <div className="w-9 h-9 rounded-[14px] bg-accent/10 flex items-center justify-center shrink-0">
+            <Dumbbell size={16} className="text-accent" strokeWidth={1.8} />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-[13px] font-semibold text-white/80 truncate">{treino.nome}</p>
@@ -54,7 +60,7 @@ function TreinoCard({ treino }) {
             const pausa  = sets[0]?.pausa || ex.pausa || '';
             const metodo = ex.metodo ? METODOS[ex.metodo] : null;
             return (
-              <div key={i} className="rounded-xl bg-white/[0.03] ring-1 ring-white/[0.05] p-3">
+              <div key={i} className="rounded-[14px] bg-white/[0.03] ring-1 ring-white/[0.05] p-3">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <p className="text-[13px] font-semibold text-white/85">{ex.nome}</p>
@@ -62,7 +68,7 @@ function TreinoCard({ treino }) {
                   </div>
                   {ex.metodo && (
                     <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full shrink-0"
-                      style={metodo ? { background: metodo.cor + '22', color: metodo.cor } : { background: 'rgba(96,165,250,0.15)', color: '#60a5fa' }}>
+                      style={metodo ? { background: metodo.cor + '22', color: metodo.cor } : { background: 'rgba(198,244,50,0.15)', color: '#C6F432' }}>
                       {ex.metodo}
                     </span>
                   )}
@@ -72,7 +78,7 @@ function TreinoCard({ treino }) {
                   {pausa && <span><span className="text-white/30">Descanso:</span> {pausa}</span>}
                   {ex.videoUrl && (
                     <a href={ex.videoUrl} target="_blank" rel="noreferrer"
-                      className="inline-flex items-center gap-1 text-blue-400/80 hover:text-blue-400 transition-colors">
+                      className="inline-flex items-center gap-1 text-accent/80 hover:text-accent transition-colors">
                       <Play size={11} /> Ver vídeo
                     </a>
                   )}
@@ -95,7 +101,7 @@ function Field({ label, value, field, form, setForm, editing, type = 'text', ico
           type={type}
           value={form[field] || ''}
           onChange={e => setForm(f => ({ ...f, [field]: e.target.value }))}
-          className="w-full px-3 py-2.5 rounded-xl bg-white/[0.05] border border-white/[0.08] text-white text-[13px] focus:outline-none focus:border-blue-500/60 focus:bg-white/[0.07] transition-all"
+          className="w-full px-3 py-2.5 rounded-[14px] bg-white/[0.05] border border-white/[0.08] text-white text-[13px] focus:outline-none focus:border-accent/60 focus:bg-white/[0.07] transition-all"
         />
       ) : (
         <div className="flex items-center gap-2">
@@ -117,7 +123,7 @@ function SelectField({ label, field, form, setForm, editing, options }) {
         <select
           value={form[field] || ''}
           onChange={e => setForm(f => ({ ...f, [field]: e.target.value }))}
-          className="w-full px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white text-[13px] focus:outline-none focus:border-blue-500/60 transition-all"
+          className="w-full px-3 py-2.5 rounded-[14px] bg-white/[0.04] border border-white/[0.08] text-white text-[13px] focus:outline-none focus:border-accent/60 transition-all"
         >
           {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
@@ -152,9 +158,8 @@ const LABEL_TIPO_AVAL = {
 
 function CardAvaliacao({ av, onExcluir }) {
   const [aberto, setAberto] = useState(false);
-  const data = av.criadoEm?.seconds
-    ? new Date(av.criadoEm.seconds * 1000).toLocaleDateString('pt-BR')
-    : '—';
+  const ts = tsAvaliacao(av);
+  const data = ts ? new Date(ts).toLocaleDateString('pt-BR') : '—';
   const tipo = LABEL_TIPO_AVAL[av.tipoAvaliacao] || 'Avaliação';
   const m = metricasAvaliacao(av);
   const itens = [
@@ -164,11 +169,11 @@ function CardAvaliacao({ av, onExcluir }) {
   ].filter(Boolean);
 
   return (
-    <div className="rounded-2xl bg-[#0d1b2e] ring-1 ring-white/[0.06] overflow-hidden">
+    <div className="rounded-[22px] bg-[#141619] ring-1 ring-white/[0.06] overflow-hidden">
       <div onClick={() => setAberto(o => !o)} className="w-full flex items-center justify-between p-4 hover:bg-white/[0.02] transition-colors cursor-pointer select-none">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-green-500/10 flex items-center justify-center">
-            <ClipboardList size={15} className="text-green-400" />
+          <div className="w-9 h-9 rounded-[14px] bg-accent/10 flex items-center justify-center">
+            <ClipboardList size={15} className="text-accent" />
           </div>
           <div className="text-left">
             <p className="text-[13px] font-semibold text-white/80">{tipo} · {data}</p>
@@ -185,7 +190,7 @@ function CardAvaliacao({ av, onExcluir }) {
       {aberto && itens.length > 0 && (
         <div className="px-4 pb-4 grid grid-cols-3 gap-2 border-t border-white/[0.04] pt-3">
           {itens.map(it => (
-            <div key={it.label} className="rounded-xl bg-white/[0.03] px-3 py-2">
+            <div key={it.label} className="rounded-[14px] bg-white/[0.03] px-3 py-2">
               <p className="text-[10px] text-white/30 mb-0.5">{it.label}</p>
               <p className="text-[14px] font-bold text-white">{it.val}</p>
             </div>
@@ -201,6 +206,54 @@ function CardAvaliacao({ av, onExcluir }) {
   );
 }
 
+// ── Card do programa: mês, ritmo e avanço manual (porte do card do app) ───────
+function CardPrograma({ aluno, onMudou }) {
+  const toast = useToast();
+  const meta = aluno.programaMuscular;
+  const [ocupado, setOcupado] = useState(false);
+  const mes = Number(meta.mesAtual) || 1;
+  const auto = viraSozinho(meta);
+  const faltam = diasParaProximoMes(meta);
+
+  async function mudarRitmo(dias) {
+    if (ocupado || dias === ritmoSelecionado(meta)) return;
+    setOcupado(true);
+    try { await definirRitmoPrograma(aluno, dias); toast('Ritmo atualizado.'); await onMudou(); }
+    catch (e) { toast(`Erro ao mudar o ritmo: ${e?.code || e?.message || 'desconhecido'}`, 'error'); }
+    finally { setOcupado(false); }
+  }
+  async function avancar() {
+    if (ocupado || mes >= 12) return;
+    setOcupado(true);
+    try { await definirMesPrograma(aluno, mes + 1); toast(`Programa avançou para o Mês ${mes + 1}.`); await onMudou(); }
+    catch (e) { toast(`Erro ao avançar o mês: ${e?.code || e?.message || 'desconhecido'}`, 'error'); }
+    finally { setOcupado(false); }
+  }
+
+  return (
+    <div className="rounded-[22px] bg-[#141619] ring-1 ring-white/[0.06] p-4 space-y-3">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-[13px] font-semibold text-white/85">Mês {mes} de 12 · troca {rotuloRitmo(meta).toLowerCase()}</p>
+          <p className="text-[11px] text-white/35 mt-0.5">
+            {!auto ? `No Mês ${mes} há ${diasNoBlocoAtual(meta)} dias` : mes >= 12 ? 'Último bloco do programa' : faltam > 0 ? `Próximo bloco em ${faltam} dias` : 'Próximo bloco libera na próxima abertura'}
+          </p>
+        </div>
+        {mes < 12 && (
+          <button onClick={avancar} disabled={ocupado}
+            className="px-3 py-1.5 rounded-[14px] border border-white/[0.1] text-[12px] font-semibold text-white/70 hover:text-white disabled:opacity-40 transition-all">Avançar mês</button>
+        )}
+      </div>
+      <div className="grid grid-cols-4 gap-1.5">
+        {RITMOS_PROGRAMA.map(r => (
+          <button key={r.dias} type="button" onClick={() => mudarRitmo(r.dias)} disabled={ocupado}
+            className={`py-1.5 rounded-[14px] text-[11px] font-semibold ring-1 transition-all ${ritmoSelecionado(meta) === r.dias ? 'bg-accent/15 text-accent ring-accent/30' : 'text-white/40 ring-white/[0.08] hover:text-white/70'}`}>{r.label}</button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ── Atribuir Programa Modal ───────────────────────────────────────────────────
 function AtribuirProgramaModal({ aluno, onSalvo, onFechar }) {
   const toast = useToast();
@@ -208,6 +261,8 @@ function AtribuirProgramaModal({ aluno, onSalvo, onFechar }) {
   const [programaId, setProgramaId] = useState('');
   const [mes, setMes] = useState(1);
   const [salvando, setSalvando] = useState(false);
+  // Ritmo de troca de bloco POR ALUNO (30/45/60 dias ou manual). Parte do que o aluno já tem.
+  const [ritmo, setRitmo] = useState(aluno?.programaMuscular ? ritmoSelecionado(aluno.programaMuscular) : 30);
 
   useEffect(() => {
     listarProgramas().then(lista => {
@@ -220,7 +275,7 @@ function AtribuirProgramaModal({ aluno, onSalvo, onFechar }) {
     if (!programaId) return;
     setSalvando(true);
     try {
-      await atribuirProgramaMuscular(aluno, programaId, mes);
+      await atribuirProgramaMuscular(aluno, programaId, mes, { diasPorBloco: ritmo });
       toast('Programa atribuído com sucesso.');
       onSalvo();
     } catch (e) {
@@ -232,7 +287,7 @@ function AtribuirProgramaModal({ aluno, onSalvo, onFechar }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}>
-      <div className="w-full max-w-md rounded-2xl bg-[#0d1b2e] ring-1 ring-white/[0.08] overflow-hidden flex flex-col">
+      <div className="w-full max-w-md rounded-[22px] bg-[#141619] ring-1 ring-white/[0.08] overflow-hidden flex flex-col">
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06]">
           <h2 className="text-[15px] font-bold text-white">Atribuir programa muscular</h2>
           <button onClick={onFechar} className="p-1.5 rounded-lg hover:bg-white/[0.06] text-white/40 hover:text-white transition-all">
@@ -243,7 +298,7 @@ function AtribuirProgramaModal({ aluno, onSalvo, onFechar }) {
           <div>
             <label className="block text-[10px] font-semibold text-white/30 uppercase tracking-wider mb-1.5">Programa</label>
             <select value={programaId} onChange={e => setProgramaId(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white text-[13px] focus:outline-none focus:border-blue-500/60 transition-all">
+              className="w-full px-3 py-2.5 rounded-[14px] bg-white/[0.04] border border-white/[0.08] text-white text-[13px] focus:outline-none focus:border-accent/60 transition-all">
               {programas.map(p => <option key={p.id} value={p.id}>{p.nome}</option>)}
             </select>
             {programaId && programas.find(p => p.id === programaId)?.desc && (
@@ -255,18 +310,30 @@ function AtribuirProgramaModal({ aluno, onSalvo, onFechar }) {
           <div>
             <label className="block text-[10px] font-semibold text-white/30 uppercase tracking-wider mb-1.5">Mês inicial (1–12)</label>
             <input type="number" min={1} max={12} value={mes} onChange={e => setMes(Number(e.target.value))}
-              className="w-full px-3 py-2.5 rounded-xl bg-white/[0.05] border border-white/[0.08] text-white text-[13px] focus:outline-none focus:border-blue-500/60 transition-all" />
+              className="w-full px-3 py-2.5 rounded-[14px] bg-white/[0.05] border border-white/[0.08] text-white text-[13px] focus:outline-none focus:border-accent/60 transition-all" />
+          </div>
+          <div>
+            <label className="block text-[10px] font-semibold text-white/30 uppercase tracking-wider mb-1.5">Trocar de bloco</label>
+            <div className="grid grid-cols-4 gap-1.5">
+              {RITMOS_PROGRAMA.map(r => (
+                <button key={r.dias} type="button" onClick={() => setRitmo(r.dias)}
+                  className={`py-2 rounded-[14px] text-[12px] font-semibold ring-1 transition-all ${ritmo === r.dias ? 'bg-accent/15 text-accent ring-accent/30' : 'text-white/45 ring-white/[0.08] hover:text-white/75'}`}>
+                  {r.label}
+                </button>
+              ))}
+            </div>
+            <p className="text-[11px] text-white/30 mt-1.5">{RITMOS_PROGRAMA.find(r => r.dias === ritmo)?.desc}</p>
           </div>
           <p className="text-[11px] text-amber-400/70 leading-relaxed">
             Atenção: os treinos de programa existentes deste aluno serão substituídos.
           </p>
         </div>
         <div className="px-6 py-4 border-t border-white/[0.06] flex justify-end gap-2">
-          <button onClick={onFechar} className="px-4 py-2 rounded-xl border border-white/[0.08] text-[13px] text-white/50 hover:text-white hover:border-white/15 transition-all">
+          <button onClick={onFechar} className="px-4 py-2 rounded-[14px] border border-white/[0.08] text-[13px] text-white/50 hover:text-white hover:border-white/15 transition-all">
             Cancelar
           </button>
           <button onClick={atribuir} disabled={salvando || !programaId}
-            className="px-5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-[13px] font-semibold text-white disabled:opacity-40 transition-all shadow-lg shadow-sky-900/30">
+            className="px-5 py-2 rounded-[14px] bg-accent hover:bg-accent-hover text-[13px] font-semibold text-on-accent disabled:opacity-40 transition-all shadow-lg shadow-black/30">
             {salvando ? 'Atribuindo...' : 'Atribuir'}
           </button>
         </div>
@@ -283,16 +350,18 @@ const POSICOES = [
 ];
 
 function ComparacaoModal({ sessA, sessB, onFechar }) {
-  const fmtData = sess => sess?.criadoEm?.seconds
+  // A data ESCOLHIDA pelo personal (`data`, DD/MM/AAAA), não a do upload: sessão lançada com
+  // data passada aparecia com a data de hoje.
+  const fmtData = sess => sess?.data || (sess?.criadoEm?.seconds
     ? new Date(sess.criadoEm.seconds * 1000).toLocaleDateString('pt-BR')
-    : '—';
+    : '—');
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(6px)' }}>
-      <div className="w-full max-w-4xl rounded-2xl bg-[#0a1425] ring-1 ring-white/[0.08] overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="w-full max-w-4xl rounded-[22px] bg-[#0a1425] ring-1 ring-white/[0.08] overflow-hidden flex flex-col max-h-[90vh]">
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06] shrink-0">
           <h2 className="text-[15px] font-bold text-white flex items-center gap-2">
-            <Camera size={15} className="text-blue-400" />
+            <Camera size={15} className="text-accent" />
             Comparação
           </h2>
           <button onClick={onFechar} className="p-1.5 rounded-lg hover:bg-white/[0.06] text-white/40 hover:text-white transition-all">
@@ -304,8 +373,8 @@ function ComparacaoModal({ sessA, sessB, onFechar }) {
           {/* Cabeçalhos */}
           <div className="grid grid-cols-2 gap-4 mb-5">
             {[sessA, sessB].map((sess, i) => (
-              <div key={i} className={`rounded-xl px-4 py-2.5 text-center ring-1 ${i === 0 ? 'bg-blue-500/10 ring-blue-500/20' : 'bg-blue-500/10 ring-blue-500/20'}`}>
-                <p className="text-[10px] font-semibold uppercase tracking-wider mb-0.5" style={{ color: i === 0 ? '#60a5fa' : '#c084fc' }}>
+              <div key={i} className={`rounded-[14px] px-4 py-2.5 text-center ring-1 ${i === 0 ? 'bg-accent/10 ring-accent/20' : 'bg-accent/10 ring-accent/20'}`}>
+                <p className="text-[10px] font-semibold uppercase tracking-wider mb-0.5" style={{ color: i === 0 ? '#C6F432' : '#c084fc' }}>
                   {i === 0 ? 'ANTES' : 'DEPOIS'}
                 </p>
                 <p className="text-[13px] font-bold text-white">{fmtData(sess)}</p>
@@ -323,7 +392,7 @@ function ComparacaoModal({ sessA, sessB, onFechar }) {
                 <p className="text-[10px] font-semibold text-white/25 uppercase tracking-wider mb-3">{label}</p>
                 <div className="grid grid-cols-2 gap-4">
                   {[fotoA, fotoB].map((foto, i) => (
-                    <div key={i} className="rounded-2xl overflow-hidden bg-white/[0.03] ring-1 ring-white/[0.06] flex items-center justify-center" style={{ minHeight: 220 }}>
+                    <div key={i} className="rounded-[22px] overflow-hidden bg-white/[0.03] ring-1 ring-white/[0.06] flex items-center justify-center" style={{ minHeight: 220 }}>
                       {foto
                         ? <img src={foto} alt={label} className="w-full object-contain max-h-80" />
                         : <p className="text-[12px] text-white/20 p-8 text-center">Sem foto nesta sessão</p>
@@ -424,7 +493,7 @@ function FotosTab({ alunoId }) {
 
       {/* Nova sessão (só mostra fora do modo comparação) */}
       {!comparando && (
-        <div className="rounded-2xl bg-[#0d1b2e] ring-1 ring-white/[0.06] p-5">
+        <div className="rounded-[22px] bg-[#141619] ring-1 ring-white/[0.06] p-5">
           <p className="text-[11px] font-semibold text-white/30 uppercase tracking-wider mb-4">Nova sessão de fotos</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {POSICOES.map(({ key, label }) => (
@@ -433,7 +502,7 @@ function FotosTab({ alunoId }) {
                 <input ref={refs[key]} type="file" accept="image/*" className="hidden"
                   onChange={e => handleFile(key, e.target.files[0])} />
                 <button onClick={() => refs[key].current.click()}
-                  className="w-24 h-32 rounded-xl border-2 border-dashed border-white/[0.10] hover:border-blue-500/40 bg-white/[0.02] hover:bg-blue-500/5 transition-all overflow-hidden flex items-center justify-center">
+                  className="w-24 h-32 rounded-[14px] border-2 border-dashed border-white/[0.10] hover:border-accent/40 bg-white/[0.02] hover:bg-accent/5 transition-all overflow-hidden flex items-center justify-center">
                   {previews[key]
                     ? <img src={previews[key]} alt={label} className="w-full h-full object-cover" />
                     : <Camera size={20} className="text-white/20" />}
@@ -443,7 +512,7 @@ function FotosTab({ alunoId }) {
           </div>
           <div className="flex justify-end mt-4">
             <button onClick={salvarFotos} disabled={salvando}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-[12px] font-semibold text-white disabled:opacity-40 transition-all">
+              className="flex items-center gap-1.5 px-4 py-2 rounded-[14px] bg-accent hover:bg-accent-hover text-[12px] font-semibold text-on-accent disabled:opacity-40 transition-all">
               {salvando ? 'Salvando...' : 'Salvar fotos'}
             </button>
           </div>
@@ -451,7 +520,7 @@ function FotosTab({ alunoId }) {
       )}
 
       {/* Histórico */}
-      <div className="rounded-2xl bg-[#0d1b2e] ring-1 ring-white/[0.06] overflow-hidden">
+      <div className="rounded-[22px] bg-[#141619] ring-1 ring-white/[0.06] overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.05]">
           <p className="text-[11px] font-semibold text-white/30 uppercase tracking-wider">
             {comparando ? `Histórico — selecione 2 sessões (${selecionadas.length}/2)` : 'Histórico'}
@@ -459,14 +528,14 @@ function FotosTab({ alunoId }) {
           <div className="flex items-center gap-2">
             {comparando && selecionadas.length === 2 && (
               <button onClick={() => setVerComparacao(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-[12px] font-semibold text-white transition-all">
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-[14px] bg-accent hover:bg-accent-hover text-[12px] font-semibold text-on-accent transition-all">
                 Ver comparação
               </button>
             )}
             {historico.length >= 2 && (
               <button
                 onClick={() => { setComparando(v => !v); setSelecionadas([]); }}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12px] font-semibold transition-all ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[14px] text-[12px] font-semibold transition-all ${
                   comparando
                     ? 'bg-white/[0.08] text-white/60 hover:bg-white/[0.12]'
                     : 'border border-white/[0.10] text-white/40 hover:text-white hover:border-white/20'
@@ -479,7 +548,7 @@ function FotosTab({ alunoId }) {
 
         {carregando ? (
           <div className="flex justify-center py-10">
-            <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+            <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
           </div>
         ) : historico.length === 0 ? (
           <div className="text-center py-10">
@@ -490,9 +559,9 @@ function FotosTab({ alunoId }) {
         ) : (
           <div className="divide-y divide-white/[0.04]">
             {historico.map((sess, idx) => {
-              const data = sess.criadoEm?.seconds
+              const data = sess.data || (sess.criadoEm?.seconds
                 ? new Date(sess.criadoEm.seconds * 1000).toLocaleDateString('pt-BR')
-                : '—';
+                : '—');
               const fotos = sess.fotos || {};
               const selecionada = selecionadas.includes(sess.id);
               const ordemSel = selecionadas.indexOf(sess.id);
@@ -504,16 +573,16 @@ function FotosTab({ alunoId }) {
                     comparando
                       ? selecionada
                         ? ordemSel === 0
-                          ? 'bg-blue-500/10 ring-inset ring-1 ring-blue-500/30 cursor-pointer'
-                          : 'bg-blue-500/10 ring-inset ring-1 ring-blue-500/30 cursor-pointer'
+                          ? 'bg-accent/10 ring-inset ring-1 ring-accent/30 cursor-pointer'
+                          : 'bg-accent/10 ring-inset ring-1 ring-accent/30 cursor-pointer'
                         : 'hover:bg-white/[0.03] cursor-pointer'
                       : ''
                   }`}>
                   {/* Indicador de seleção */}
                   {comparando && (
                     <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 font-bold text-[12px] ring-2 transition-all ${
-                      selecionada && ordemSel === 0 ? 'bg-blue-500 ring-blue-500/50 text-white' :
-                      selecionada && ordemSel === 1 ? 'bg-blue-500 ring-blue-500/50 text-white' :
+                      selecionada && ordemSel === 0 ? 'bg-accent ring-accent/50 text-on-accent' :
+                      selecionada && ordemSel === 1 ? 'bg-accent ring-accent/50 text-on-accent' :
                       'ring-white/[0.12] text-white/20 bg-transparent'
                     }`}>
                       {selecionada ? (ordemSel === 0 ? 'A' : 'B') : (idx + 1)}
@@ -524,7 +593,7 @@ function FotosTab({ alunoId }) {
                     <div className="flex items-center gap-2 mb-2">
                       <p className="text-[12px] font-semibold text-white/60">{data}</p>
                       {selecionada && (
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${ordemSel === 0 ? 'bg-blue-500/20 text-blue-400' : 'bg-blue-500/20 text-blue-400'}`}>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${ordemSel === 0 ? 'bg-accent/20 text-accent' : 'bg-accent/20 text-accent'}`}>
                           {ordemSel === 0 ? 'ANTES' : 'DEPOIS'}
                         </span>
                       )}
@@ -532,7 +601,7 @@ function FotosTab({ alunoId }) {
                     <div className="flex gap-2">
                       {POSICOES.map(({ key, label }) => fotos[key] ? (
                         <div key={key} className="flex flex-col items-center gap-1">
-                          <img src={fotos[key]} alt={label} className="w-20 h-28 object-cover rounded-xl" />
+                          <img src={fotos[key]} alt={label} className="w-20 h-28 object-cover rounded-[14px]" />
                           <p className="text-[9px] text-white/25 uppercase">{label}</p>
                         </div>
                       ) : null)}
@@ -541,7 +610,7 @@ function FotosTab({ alunoId }) {
 
                   {!comparando && (
                     <button onClick={e => { e.stopPropagation(); setConfirmSessaoId(sess.id); }}
-                      className="p-2 rounded-xl hover:bg-red-500/10 text-white/20 hover:text-red-400 transition-all shrink-0">
+                      className="p-2 rounded-[14px] hover:bg-red-500/10 text-white/20 hover:text-red-400 transition-all shrink-0">
                       <Trash2 size={14} />
                     </button>
                   )}
@@ -558,7 +627,7 @@ function FotosTab({ alunoId }) {
 const DIAS_SEMANA = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const MESES_PT = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
-function FrequenciaTab({ alunoId }) {
+function FrequenciaTab({ alunoId, alunoNome }) {
   const toast = useToast();
   const hoje = new Date();
   const [mes, setMes]     = useState(hoje.getMonth());
@@ -571,8 +640,15 @@ function FrequenciaTab({ alunoId }) {
     setLoading(true);
     buscarPresencasDoAluno(alunoId)
       .then(lista => {
+        // Um dia pode ter vários docs (um por modalidade). Só a aula do personal e a
+        // musculação do app contam; Yoga/corrida avulsa não acendem a frequência.
+        const porDia = {};
+        lista.forEach(p => { (porDia[p.data] = porDia[p.data] || []).push(p); });
         const map = {};
-        lista.forEach(p => { map[p.data] = p.presente; });
+        Object.entries(porDia).forEach(([dia, docs]) => {
+          const r = mapaPresencaAgenda(docs)[alunoId];
+          if (r !== undefined) map[dia] = r;
+        });
         setPresencas(map);
       })
       .finally(() => setLoading(false));
@@ -593,7 +669,7 @@ function FrequenciaTab({ alunoId }) {
       if (novoVal === null) {
         setPresencas(p => { const c = { ...p }; delete c[dataStr]; return c; });
       } else {
-        await registrarPresenca(alunoId, dataStr, novoVal);
+        await registrarPresenca(alunoId, dataStr, novoVal, alunoNome);
         setPresencas(p => ({ ...p, [dataStr]: novoVal }));
       }
     } catch { toast('Erro ao registrar presença.', 'error'); }
@@ -616,16 +692,16 @@ function FrequenciaTab({ alunoId }) {
   return (
     <div className="space-y-5">
       {/* Header do calendário */}
-      <div className="rounded-2xl bg-[#0d1b2e] ring-1 ring-white/[0.06] p-5">
+      <div className="rounded-[22px] bg-[#141619] ring-1 ring-white/[0.06] p-5">
         <div className="flex items-center justify-between mb-5">
-          <button onClick={() => navMes(-1)} className="w-8 h-8 rounded-xl hover:bg-white/[0.06] flex items-center justify-center text-white/40 hover:text-white transition-all">
+          <button onClick={() => navMes(-1)} className="w-8 h-8 rounded-[14px] hover:bg-white/[0.06] flex items-center justify-center text-white/40 hover:text-white transition-all">
             <ChevronLeft size={16} />
           </button>
           <div className="text-center">
             <p className="text-[15px] font-bold text-white">{MESES_PT[mes]} {ano}</p>
             {pct !== null && (
               <p className="text-[11px] text-white/35 mt-0.5">
-                <span className="text-emerald-400 font-semibold">{totalP}✓</span>
+                <span className="text-accent font-semibold">{totalP}✓</span>
                 {' · '}
                 <span className="text-red-400 font-semibold">{totalF}✗</span>
                 {' · '}
@@ -633,14 +709,14 @@ function FrequenciaTab({ alunoId }) {
               </p>
             )}
           </div>
-          <button onClick={() => navMes(1)} className="w-8 h-8 rounded-xl hover:bg-white/[0.06] flex items-center justify-center text-white/40 hover:text-white transition-all">
+          <button onClick={() => navMes(1)} className="w-8 h-8 rounded-[14px] hover:bg-white/[0.06] flex items-center justify-center text-white/40 hover:text-white transition-all">
             <ChevronRight size={16} />
           </button>
         </div>
 
         {loading ? (
           <div className="flex justify-center py-10">
-            <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+            <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
           </div>
         ) : (
           <>
@@ -662,16 +738,16 @@ function FrequenciaTab({ alunoId }) {
                   <button key={dia} onClick={() => !isFuturo && !isSalvando && togglePresenca(dataStr)}
                     disabled={isFuturo || isSalvando}
                     title={estado === true ? 'Presente — clique para falta' : estado === false ? 'Faltou — clique para remover' : 'Sem registro — clique para presença'}
-                    className={`relative aspect-square rounded-xl flex items-center justify-center text-[12px] font-semibold transition-all ${
+                    className={`relative aspect-square rounded-[14px] flex items-center justify-center text-[12px] font-semibold transition-all ${
                       isFuturo    ? 'opacity-25 cursor-not-allowed text-white/25' :
-                      estado === true  ? 'bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/30 hover:bg-emerald-500/30' :
+                      estado === true  ? 'bg-accent/20 text-accent ring-1 ring-accent/30 hover:bg-accent/30' :
                       estado === false ? 'bg-red-500/20 text-red-400 ring-1 ring-red-500/20 hover:bg-red-500/30' :
                       'bg-white/[0.04] text-white/40 hover:bg-white/[0.08] hover:text-white'
                     }`}>
                     {isSalvando
                       ? <div className="w-3 h-3 border border-white/40 border-t-transparent rounded-full animate-spin" />
                       : dia}
-                    {estado === true  && <CheckCircle2 size={8} className="absolute top-1 right-1 text-emerald-400" />}
+                    {estado === true  && <CheckCircle2 size={8} className="absolute top-1 right-1 text-accent" />}
                     {estado === false && <XCircle size={8} className="absolute top-1 right-1 text-red-400" />}
                   </button>
                 );
@@ -684,7 +760,7 @@ function FrequenciaTab({ alunoId }) {
       {/* Legenda */}
       <div className="flex items-center gap-4 px-1">
         <div className="flex items-center gap-1.5 text-[11px] text-white/40">
-          <div className="w-3 h-3 rounded-sm bg-emerald-500/25 ring-1 ring-emerald-500/30" />
+          <div className="w-3 h-3 rounded-sm bg-accent/25 ring-1 ring-accent/30" />
           Presente
         </div>
         <div className="flex items-center gap-1.5 text-[11px] text-white/40">
@@ -718,6 +794,7 @@ export default function FichaAluno() {
   const [saving,    setSaving]    = useState(false);
   const [aba,       setAba]       = useState('dados');
   const [atribuirPrograma, setAtribuirPrograma] = useState(false);
+  const [relatorioAberto, setRelatorioAberto] = useState(false);
   const [confirmExcluirId, setConfirmExcluirId] = useState(null);
   const [confirmAluno, setConfirmAluno] = useState(false);
   const [confirmRemoverPrograma, setConfirmRemoverPrograma] = useState(false);
@@ -766,9 +843,23 @@ export default function FichaAluno() {
     try {
       const { id: _, ...dados } = form;
       await atualizarAluno(id, dados);
+      // Valor OU plano mudou e há cobrança recorrente no Asaas: atualiza a assinatura. O Asaas
+      // cobra MENSAL, então vai a mensalidade (preço ÷ meses do plano), não o preço do plano.
+      let avisoAsaas = '';
+      const mensalAntiga = valorMensalAsaas(aluno?.valor || 0, aluno?.plano);
+      const mensalNova   = valorMensalAsaas(form.valor || 0, form.plano);
+      if (valorNum(form.valor) && mensalNova !== mensalAntiga && aluno?.asaasSubscriptionId) {
+        try {
+          const { atualizarValorAssinaturaAsaas } = await import('@/lib/asaas');
+          await atualizarValorAssinaturaAsaas(aluno.asaasSubscriptionId, mensalNova);
+          avisoAsaas = ' A cobrança recorrente no Asaas foi atualizada.';
+        } catch {
+          avisoAsaas = ' ⚠️ O valor foi salvo, mas não consegui atualizar a cobrança no Asaas: ajuste no painel.';
+        }
+      }
       setAluno(form);
       setEditing(false);
-      toast('Dados atualizados com sucesso.');
+      toast(`Dados atualizados com sucesso.${avisoAsaas}`, avisoAsaas.includes('⚠️') ? 'error' : undefined);
     } catch { toast('Erro ao salvar alterações.', 'error'); }
     finally { setSaving(false); }
   }
@@ -788,23 +879,23 @@ export default function FichaAluno() {
 
   if (loading) return (
     <div className="flex items-center justify-center h-full">
-      <div className="w-7 h-7 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+      <div className="w-7 h-7 border-2 border-accent border-t-transparent rounded-full animate-spin" />
     </div>
   );
 
   if (!aluno) return <div className="p-8 text-white/35">Aluno não encontrado.</div>;
 
   const hoje = new Date();
-  let statusVenc = 'ok';
-  if (aluno.vencimento) {
-    const [d, m, y] = aluno.vencimento.split('/');
-    const diff = Math.ceil((new Date(+y, m - 1, +d) - hoje) / 86400000);
-    if (diff < 0) statusVenc = 'vencido';
-    else if (diff <= 7) statusVenc = 'vencendo';
-  }
+  // Mesma regra do app e da lista (lib/statusAluno): cobrança automática só é atrasada
+  // quando o Asaas marcou vencido.
+  const stPlano = calcStatus(aluno);
+  const statusVenc = stPlano === 'pendente' ? 'vencido' : stPlano === 'vencendo' ? 'vencendo' : 'ok';
+  const wppAluno = (() => { const d = String(aluno.telefone || '').replace(/\D/g, ''); return d ? (d.length <= 11 ? '55' + d : d) : ''; })();
+  const DIAS_ORDEM = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
 
   return (
     <div className="px-4 pt-5 pb-6 md:p-8 max-w-5xl mx-auto w-full">
+      {relatorioAberto && <RelatorioMensalModal aluno={aluno} onFechar={() => setRelatorioAberto(false)} />}
       {atribuirPrograma && (
         <AtribuirProgramaModal
           aluno={aluno}
@@ -841,24 +932,24 @@ export default function FichaAluno() {
 
       <div className="flex items-start justify-between mb-6">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500/25 to-sky-500/25 flex items-center justify-center text-xl font-bold text-blue-400 ring-1 ring-blue-500/20">
-            {aluno.nome?.[0]}
+          <div className="w-14 h-14 rounded-full overflow-hidden bg-surface-2 flex items-center justify-center text-xl font-semibold text-ink ring-1 ring-accent/20 font-display">
+            {aluno.fotoPerfil ? <img src={aluno.fotoPerfil} alt="" className="w-full h-full object-cover" /> : aluno.nome?.[0]}
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white tracking-tight">{aluno.nome}</h1>
+            <h1 className="text-xl font-semibold text-white tracking-tight font-display">{aluno.nome}</h1>
             <div className="flex items-center gap-2 mt-1">
               {aluno.email && <p className="text-[12px] text-white/40">{aluno.email}</p>}
               <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ring-1 ${
                 statusVenc === 'vencido'  ? 'bg-red-500/15 text-red-400 ring-red-500/20' :
                 statusVenc === 'vencendo' ? 'bg-amber-500/15 text-amber-400 ring-amber-500/20' :
-                'bg-green-500/15 text-green-400 ring-green-500/20'
+                'bg-accent/15 text-accent ring-accent/20'
               }`}>
                 {statusVenc === 'vencido' ? 'Vencido' : statusVenc === 'vencendo' ? 'Vence em breve' : 'Ativo'}
               </span>
               <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ring-1 ${
                 aluno.tipoServico === 'online'
-                  ? 'bg-blue-500/15 text-blue-400 ring-blue-500/20'
-                  : 'bg-blue-500/15 text-blue-400 ring-blue-500/20'
+                  ? 'bg-accent/15 text-accent ring-accent/20'
+                  : 'bg-accent/15 text-accent ring-accent/20'
               }`}>
                 {aluno.tipoServico === 'online' ? 'Online' : 'Presencial'}
               </span>
@@ -867,24 +958,28 @@ export default function FichaAluno() {
         </div>
 
         <div className="flex items-center gap-2">
+          {wppAluno && (
+            <a href={`https://wa.me/${wppAluno}`} target="_blank" rel="noopener noreferrer" title="Abrir conversa no WhatsApp"
+              className="w-9 h-9 rounded-full bg-accent/10 hover:bg-accent/20 flex items-center justify-center text-accent transition-all"><MessageCircle size={16} /></a>
+          )}
           <button onClick={() => setConfirmAluno(true)}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-red-500/20 text-[12px] text-red-400/60 hover:text-red-400 hover:border-red-500/40 transition-all">
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-[14px] border border-red-500/20 text-[12px] text-red-400/60 hover:text-red-400 hover:border-red-500/40 transition-all">
             <Trash2 size={13} /> Excluir
           </button>
           {editing ? (
             <>
               <button onClick={() => { setEditing(false); setForm(aluno); }}
-                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-white/[0.08] text-[12px] text-white/50 hover:text-white hover:border-white/15 transition-all">
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-[14px] border border-white/[0.08] text-[12px] text-white/50 hover:text-white hover:border-white/15 transition-all">
                 <X size={13} /> Cancelar
               </button>
               <button onClick={salvar} disabled={saving}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-[12px] font-semibold text-white disabled:opacity-40 transition-all shadow-lg shadow-blue-900/30">
+                className="flex items-center gap-1.5 px-4 py-2 rounded-[14px] bg-accent hover:bg-accent-hover text-[12px] font-semibold text-on-accent disabled:opacity-40 transition-all shadow-lg shadow-black/30">
                 <Save size={13} /> {saving ? 'Salvando...' : 'Salvar'}
               </button>
             </>
           ) : (
             <button onClick={() => setEditing(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-white/[0.08] text-[12px] text-white/50 hover:text-white hover:border-white/15 transition-all">
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-[14px] border border-white/[0.08] text-[12px] text-white/50 hover:text-white hover:border-white/15 transition-all">
               <Pencil size={13} /> Editar
             </button>
           )}
@@ -909,7 +1004,7 @@ export default function FichaAluno() {
             }
           }}
             className={`flex items-center gap-2 px-4 py-2.5 text-[13px] font-medium border-b-2 -mb-px transition-all whitespace-nowrap ${
-              aba === key ? 'border-blue-500 text-blue-400' : 'border-transparent text-white/35 hover:text-white/60'
+              aba === key ? 'border-accent text-accent' : 'border-transparent text-white/35 hover:text-white/60'
             }`}>
             <Icon size={13} />
             {label}
@@ -921,7 +1016,52 @@ export default function FichaAluno() {
       </div>
 
       {aba === 'dados' && (
-        <div className="rounded-2xl bg-[#0d1b2e] ring-1 ring-white/[0.06] p-6">
+        <div className="space-y-4">
+        {/* Resumo do plano, frequência e termo: a mesma ordem da ficha do app */}
+        <div className="rounded-[22px] bg-[#141619] ring-1 ring-white/[0.06] p-5">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-[10px] font-semibold text-white/35 uppercase tracking-wider">Plano {aluno.plano || '—'}</p>
+              <p className="text-[15px] text-white/80 mt-2">Vence em: <span className="text-accent font-semibold">{aluno.vencimento || '—'}</span>{aluno.valor ? <span className="text-white/35"> · R$ {aluno.valor}</span> : null}</p>
+            </div>
+            <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full ${statusVenc === 'vencido' ? 'bg-red-500/15 text-red-400' : statusVenc === 'vencendo' ? 'bg-amber-500/15 text-amber-400' : 'bg-accent/12 text-accent'}`}>
+              {statusVenc === 'vencido' ? 'Atrasado' : statusVenc === 'vencendo' ? 'Vencendo' : 'Ativo'}
+            </span>
+          </div>
+          {aluno.cobrancaAutomatica && (
+            <div className="mt-4 flex items-center gap-2 rounded-[14px] bg-accent/[0.07] ring-1 ring-accent/15 px-3.5 py-2.5 text-[12px]">
+              <CheckCircle2 size={14} className="text-accent shrink-0" />
+              <span className="text-accent font-medium">Cobrança automática ativa</span>
+              <span className="text-red-400/80">· cancelar em Finanças</span>
+            </div>
+          )}
+        </div>
+        {aluno.tipoServico !== 'online' && (
+          <div className="rounded-[22px] bg-[#141619] ring-1 ring-white/[0.06] p-5">
+            <p className="text-[10px] font-semibold text-white/35 uppercase tracking-wider mb-3">Frequência semanal</p>
+            <div className="flex gap-3">
+              {DIAS_ORDEM.map(dia => {
+                const ativoDia = Array.isArray(aluno.dias) && aluno.dias.includes(dia);
+                return (
+                  <div key={dia} className="flex flex-col items-center gap-1.5">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-[13px] font-semibold ${ativoDia ? 'bg-accent text-on-accent' : 'bg-white/[0.05] text-white/35'}`}>{dia[0]}</div>
+                    <span className={`text-[10px] ${ativoDia ? 'text-accent' : 'text-white/30'}`}>{dia}</span>
+                  </div>
+                );
+              })}
+            </div>
+            {Array.isArray(aluno.dias) && aluno.dias.length > 0 && (
+              <p className="text-[12px] text-white/35 mt-3">{aluno.dias.length} dia{aluno.dias.length !== 1 ? 's' : ''} de treino por semana{aluno.horario ? `  ·  ${aluno.horario}` : ''}</p>
+            )}
+          </div>
+        )}
+        {aluno.tipoServico !== 'online' && (
+          <div className={`rounded-[14px] px-4 py-3 text-[13px] font-medium flex items-center gap-2 ring-1 ${aluno.termoAceito ? 'bg-accent/[0.06] ring-accent/15 text-accent' : 'bg-amber-500/[0.06] ring-amber-500/15 text-amber-400'}`}>
+            <ClipboardList size={14} />{aluno.termoAceito ? `Termo aceito${aluno.termoAceitoEm ? ` em ${new Date(aluno.termoAceitoEm).toLocaleString('pt-BR')}` : ''}` : 'Termo pendente'}
+          </div>
+        )}
+        <button onClick={() => setRelatorioAberto(true)} className="flex items-center gap-2 text-[13px] font-medium text-accent hover:text-accent-pale transition-colors"><ClipboardList size={14} /> Relatório mensal para o aluno</button>
+        <div className="rounded-[22px] bg-[#141619] ring-1 ring-white/[0.06] p-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
             <Field label="Nome completo" field="nome" form={form} setForm={setForm} editing={editing} icon={User} />
             <Field label="E-mail" field="email" form={form} setForm={setForm} editing={editing} icon={Mail} />
@@ -932,15 +1072,16 @@ export default function FichaAluno() {
             <Field label="Observações" field="observacoes" form={form} setForm={setForm} editing={editing} />
           </div>
         </div>
+        </div>
       )}
 
       {aba === 'plano' && (
-        <div className="rounded-2xl bg-[#0d1b2e] ring-1 ring-white/[0.06] p-6">
+        <div className="rounded-[22px] bg-[#141619] ring-1 ring-white/[0.06] p-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
             <Field label="Plano" field="plano" form={form} setForm={setForm} editing={editing} />
             <Field label="Frequência semanal" field="frequencia" form={form} setForm={setForm} editing={editing} type="number" />
             <Field label="Vencimento (DD/MM/AAAA)" field="vencimento" form={form} setForm={setForm} editing={editing} />
-            <Field label="Valor mensal (R$)" field="valor" form={form} setForm={setForm} editing={editing} type="number" />
+            <Field label="Valor mensal (R$)" field="valor" form={form} setForm={setForm} editing={editing} type="text" />
           </div>
         </div>
       )}
@@ -949,7 +1090,7 @@ export default function FichaAluno() {
         <div className="space-y-3">
           <div className="flex justify-end gap-2">
             <button onClick={() => setAtribuirPrograma(true)}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-sky-500/30 bg-sky-500/10 hover:bg-sky-500/20 text-[12px] font-semibold text-sky-300 hover:text-sky-200 transition-all">
+              className="flex items-center gap-1.5 px-4 py-2 rounded-[14px] border border-accent/30 bg-accent/10 hover:bg-accent/20 text-[12px] font-semibold text-sky-300 hover:text-sky-200 transition-all">
               <Dumbbell size={13} /> Atribuir programa
             </button>
             {/* Mostra o botão se o aluno TEM treinos de programa, mesmo sem o
@@ -961,17 +1102,20 @@ export default function FichaAluno() {
                 inofensivo se o campo não existir, então isso cura os órfãos. */}
             {(aluno?.programaMuscular || treinos.some(t => t.origem === 'programa')) && (
               <button onClick={() => setConfirmRemoverPrograma(true)}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-[12px] font-semibold text-red-300 hover:text-red-200 transition-all">
+                className="flex items-center gap-1.5 px-4 py-2 rounded-[14px] border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-[12px] font-semibold text-red-300 hover:text-red-200 transition-all">
                 <Trash2 size={13} /> Remover programa
               </button>
             )}
             <Link href={`/dashboard/treinos?id=novo&alunoId=${id}`}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-[12px] font-semibold text-white transition-all shadow-lg shadow-blue-900/30">
+              className="flex items-center gap-1.5 px-4 py-2 rounded-[14px] bg-accent hover:bg-accent-hover text-[12px] font-semibold text-on-accent transition-all shadow-lg shadow-black/30">
               <Plus size={13} /> Novo treino
             </Link>
           </div>
+          {aluno?.programaMuscular?.programaId && (
+            <CardPrograma aluno={aluno} onMudou={carregar} />
+          )}
           {treinos.length === 0 ? (
-            <div className="rounded-2xl bg-[#0d1b2e] ring-1 ring-white/[0.06] p-12 text-center">
+            <div className="rounded-[22px] bg-[#141619] ring-1 ring-white/[0.06] p-12 text-center">
               <Dumbbell size={28} className="text-white/15 mx-auto mb-3" strokeWidth={1.5} />
               <p className="text-[13px] text-white/30">Nenhum treino cadastrado para este aluno.</p>
             </div>
@@ -983,14 +1127,14 @@ export default function FichaAluno() {
 
       {aba === 'avaliacoes' && (
         <div className="space-y-3">
-          <div className="flex items-center gap-2 rounded-xl bg-blue-500/[0.07] ring-1 ring-blue-500/20 px-4 py-2.5">
-            <ClipboardList size={14} className="text-blue-400 shrink-0" />
-            <p className="text-[12px] text-blue-300/80">
+          <div className="flex items-center gap-2 rounded-[14px] bg-accent/[0.07] ring-1 ring-accent/20 px-4 py-2.5">
+            <ClipboardList size={14} className="text-accent shrink-0" />
+            <p className="text-[12px] text-accent-pale/80">
               As avaliações físicas são feitas pelo <strong>app PersonalPro</strong> (Pollock, InBody, etc.). Aqui você acompanha o histórico.
             </p>
           </div>
           {avaliacoes.length === 0 ? (
-            <div className="rounded-2xl bg-[#0d1b2e] ring-1 ring-white/[0.06] p-12 text-center">
+            <div className="rounded-[22px] bg-[#141619] ring-1 ring-white/[0.06] p-12 text-center">
               <ClipboardList size={28} className="text-white/15 mx-auto mb-3" strokeWidth={1.5} />
               <p className="text-[13px] text-white/30">Nenhuma avaliação registrada ainda.</p>
             </div>
@@ -1005,7 +1149,7 @@ export default function FichaAluno() {
       {aba === 'evolucao' && (() => {
         if (avaliacoes.length === 0) {
           return (
-            <div className="rounded-2xl bg-[#0d1b2e] ring-1 ring-white/[0.06] p-12 text-center">
+            <div className="rounded-[22px] bg-[#141619] ring-1 ring-white/[0.06] p-12 text-center">
               <TrendingUp size={28} className="text-white/15 mx-auto mb-3" strokeWidth={1.5} />
               <p className="text-[13px] text-white/30">Nenhuma avaliação registrada para mostrar a evolução.</p>
             </div>
@@ -1014,12 +1158,10 @@ export default function FichaAluno() {
 
         // Ordena cronologicamente (mais antigas primeiro) para o gráfico
         const sorted = [...avaliacoes]
-          .sort((a, b) => (a.criadoEm?.seconds || 0) - (b.criadoEm?.seconds || 0));
+          .sort((a, b) => tsAvaliacao(a) - tsAvaliacao(b));
 
         const chartData = sorted.map(av => {
-          const d = av.criadoEm?.seconds
-            ? new Date(av.criadoEm.seconds * 1000)
-            : null;
+          const d = tsAvaliacao(av) ? new Date(tsAvaliacao(av)) : null;
           const label = d
             ? d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }).replace('.', '')
             : '—';
@@ -1037,26 +1179,26 @@ export default function FichaAluno() {
         return (
           <div className="space-y-6">
             {/* Gráfico */}
-            <div className="rounded-2xl bg-[#0d1b2e] ring-1 ring-white/[0.06] p-6">
+            <div className="rounded-[22px] bg-[#141619] ring-1 ring-white/[0.06] p-6">
               <p className="text-[12px] font-semibold text-white/40 uppercase tracking-wider mb-5">Evolução ao longo do tempo</p>
               <ResponsiveContainer width="100%" height={260}>
                 <LineChart data={chartData} margin={{ top: 4, right: 16, bottom: 0, left: -16 }}>
                   <XAxis dataKey="data" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} />
                   <Tooltip
-                    contentStyle={{ background: '#0d1b2e', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, fontSize: 12, color: '#fff' }}
+                    contentStyle={{ background: '#141619', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, fontSize: 12, color: '#fff' }}
                     labelStyle={{ color: 'rgba(255,255,255,0.5)', marginBottom: 4 }}
                   />
                   <Legend wrapperStyle={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', paddingTop: 12 }} />
-                  <Line type="monotone" dataKey="Peso" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3, fill: '#3b82f6' }} connectNulls />
+                  <Line type="monotone" dataKey="Peso" stroke="#C6F432" strokeWidth={2} dot={{ r: 3, fill: '#C6F432' }} connectNulls />
                   <Line type="monotone" dataKey="%Gordura" stroke="#f97316" strokeWidth={2} dot={{ r: 3, fill: '#f97316' }} connectNulls />
-                  <Line type="monotone" dataKey="Massa Magra" stroke="#22c55e" strokeWidth={2} dot={{ r: 3, fill: '#22c55e' }} connectNulls />
+                  <Line type="monotone" dataKey="Massa Magra" stroke="#7DD3FC" strokeWidth={2} dot={{ r: 3, fill: '#7DD3FC' }} connectNulls />
                 </LineChart>
               </ResponsiveContainer>
             </div>
 
             {/* Tabela últimas 5 */}
-            <div className="rounded-2xl bg-[#0d1b2e] ring-1 ring-white/[0.06] overflow-hidden">
+            <div className="rounded-[22px] bg-[#141619] ring-1 ring-white/[0.06] overflow-hidden">
               <div className="px-6 py-4 border-b border-white/[0.05]">
                 <p className="text-[12px] font-semibold text-white/40 uppercase tracking-wider">Últimas avaliações</p>
               </div>
@@ -1083,13 +1225,13 @@ export default function FichaAluno() {
                       const pos = inverted ? val < 0 : val > 0;
                       const neg = inverted ? val > 0 : val < 0;
                       return (
-                        <span className={`text-[11px] font-semibold ${pos ? 'text-green-400' : neg ? 'text-red-400' : 'text-white/30'}`}>
+                        <span className={`text-[11px] font-semibold ${pos ? 'text-accent' : neg ? 'text-red-400' : 'text-white/30'}`}>
                           {val > 0 ? '+' : ''}{val.toFixed(1)}
                         </span>
                       );
                     };
-                    const data = av.criadoEm?.seconds
-                      ? new Date(av.criadoEm.seconds * 1000).toLocaleDateString('pt-BR')
+                    const data = tsAvaliacao(av)
+                      ? new Date(tsAvaliacao(av)).toLocaleDateString('pt-BR')
                       : '—';
                     const mAv   = metricasAvaliacao(av);
                     const mPrev = prev ? metricasAvaliacao(prev) : {};
@@ -1113,7 +1255,7 @@ export default function FichaAluno() {
         );
       })()}
 
-      {aba === 'frequencia' && <FrequenciaTab alunoId={id} />}
+      {aba === 'frequencia' && <FrequenciaTab alunoId={id} alunoNome={aluno?.nome || ''} />}
 
       {aba === 'fotos' && <FotosTab alunoId={id} />}
 
@@ -1121,13 +1263,13 @@ export default function FichaAluno() {
         if (!histLoaded) {
           return (
             <div className="flex items-center justify-center py-16">
-              <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+              <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
             </div>
           );
         }
         if (historico.length === 0) {
           return (
-            <div className="rounded-2xl bg-[#0d1b2e] ring-1 ring-white/[0.06] p-12 text-center">
+            <div className="rounded-[22px] bg-[#141619] ring-1 ring-white/[0.06] p-12 text-center">
               <Weight size={28} className="text-white/15 mx-auto mb-3" strokeWidth={1.5} />
               <p className="text-[13px] text-white/30">Nenhum histórico de cargas registrado ainda.</p>
             </div>
@@ -1173,12 +1315,12 @@ function agruparSeries(series) {
 function AcordiaoCarga({ nome, entradas }) {
   const [aberto, setAberto] = useState(false);
   return (
-    <div className="rounded-2xl bg-[#0d1b2e] ring-1 ring-white/[0.06] overflow-hidden">
+    <div className="rounded-[22px] bg-[#141619] ring-1 ring-white/[0.06] overflow-hidden">
       <button onClick={() => setAberto(o => !o)}
         className="w-full flex items-center justify-between p-4 hover:bg-white/[0.02] transition-colors">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-sky-500/10 flex items-center justify-center">
-            <Weight size={14} className="text-sky-400" />
+          <div className="w-8 h-8 rounded-[14px] bg-accent/10 flex items-center justify-center">
+            <Weight size={14} className="text-accent" />
           </div>
           <div className="text-left">
             <p className="text-[13px] font-semibold text-white/80">{nome}</p>

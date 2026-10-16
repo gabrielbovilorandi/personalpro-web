@@ -4,9 +4,9 @@ import Link from 'next/link';
 import {
   buscarTemplatesGlobais, buscarTemplatesTreinos,
   copiarTemplateGlobal, clonarTemplateParaAlunos, excluirTreino, buscarAlunos,
-  atribuirProgramaMuscular,
+  atribuirProgramaMuscular, buscarExerciciosOcultos,
 } from '@/lib/firestore';
-import { listarProgramas } from '@/lib/programaMusculacao';
+import { listarProgramas, RITMOS_PROGRAMA, ritmoSelecionado, gerarProgramaMes, blocoDoMes, BLOCOS } from '@/lib/programaMusculacao';
 import { BookOpen, Plus, X, Dumbbell, Copy, Users, Trash2, Check, Zap, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useToast } from '@/components/Toast';
 import ConfirmModal from '@/components/ConfirmModal';
@@ -19,19 +19,101 @@ function gruposDoTemplate(t) {
   return null;
 }
 
+// ── Prévia do programa: composição de cada mês, sem atribuir a ninguém ──────────
+// (porte da PreviaPrograma do app: mês, bloco, treinos e exercícios com série/método)
+function ModalPreviaPrograma({ programa, onFechar, onAtribuir }) {
+  const [mes, setMes] = useState(1);
+  const [aberto, setAberto] = useState(0);
+  // Respeita os exercícios que o personal ocultou, como na geração de verdade.
+  const [ocultos, setOcultos] = useState(new Set());
+  useEffect(() => { buscarExerciciosOcultos().then(setOcultos).catch(() => {}); }, []);
+  const treinos = gerarProgramaMes(programa.id, mes, ocultos);
+  const bloco = blocoDoMes(mes);
+  const resumo = (ex) => {
+    const ss = Array.isArray(ex.series) ? ex.series : [];
+    if (!ss.length) return '';
+    const reps = [...new Set(ss.map(x => x.reps).filter(Boolean))];
+    const carga = ss.find(x => x.carga)?.carga;
+    return [`${ss.length}×${reps.join('/') || '—'}`, carga, ss[0]?.pausa].filter(Boolean).join('  ·  ');
+  };
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)' }}>
+      <div className="w-full max-w-2xl max-h-[88vh] rounded-[22px] bg-[#141619] ring-1 ring-white/[0.08] overflow-hidden flex flex-col">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06] shrink-0">
+          <div>
+            <h2 className="text-[15px] font-bold text-white">Prévia do programa</h2>
+            <p className="text-[12px] text-white/40 mt-0.5">{programa.nome}</p>
+          </div>
+          <button onClick={onFechar} className="p-1.5 rounded-lg hover:bg-white/[0.06] text-white/40 hover:text-white transition-all"><X size={16} /></button>
+        </div>
+        <div className="px-6 pt-4 shrink-0">
+          <div className="grid grid-cols-6 sm:grid-cols-12 gap-1.5">
+            {Array.from({ length: 12 }, (_, i) => i + 1).map(m => {
+              const b = blocoDoMes(m);
+              return (
+                <button key={m} onClick={() => { setMes(m); setAberto(0); }} title={`Mês ${m} · ${b.nome}`}
+                  className={`py-2 rounded-[14px] text-[12px] font-semibold ring-1 transition-all ${mes === m ? 'bg-accent/15 text-accent ring-accent/30' : 'text-white/45 ring-white/[0.08] hover:text-white/75'}`}>{m}</button>
+              );
+            })}
+          </div>
+          <div className="mt-3 rounded-[14px] bg-white/[0.03] ring-1 ring-white/[0.06] px-4 py-3">
+            <p className="text-[12px] font-semibold text-white/80">Bloco {bloco.id} · {bloco.nome} <span className="text-white/35 font-normal">(meses {bloco.meses}) · {bloco.rir}</span></p>
+            <p className="text-[11px] text-white/35 mt-1 leading-relaxed">{bloco.foco}</p>
+          </div>
+        </div>
+        <div className="overflow-y-auto px-6 py-4 space-y-2">
+          {treinos.map((t, i) => (
+            <div key={i} className="rounded-[14px] bg-white/[0.03] ring-1 ring-white/[0.06] overflow-hidden">
+              <button onClick={() => setAberto(aberto === i ? -1 : i)} className="w-full flex items-center justify-between px-4 py-3 text-left">
+                <div>
+                  <p className="text-[13px] font-semibold text-white/85">{t.nome}</p>
+                  <p className="text-[11px] text-white/35">{t.foco} · {t.exercicios.length} exercícios</p>
+                </div>
+                <ChevronRight size={14} className={`text-white/30 transition-transform ${aberto === i ? 'rotate-90' : ''}`} />
+              </button>
+              {aberto === i && (
+                <div className="border-t border-white/[0.05] divide-y divide-white/[0.04]">
+                  {t.exercicios.map((ex, j) => (
+                    <div key={j} className="flex items-center gap-3 px-4 py-2.5">
+                      <span className="text-[11px] text-white/25 w-4">{j + 1}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[12px] text-white/75 truncate">{ex.nome}</p>
+                        <p className="text-[10px] text-accent/70">{resumo(ex)}</p>
+                      </div>
+                      {ex.metodo && <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-400 shrink-0">{ex.metodo}</span>}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+        <div className="px-6 py-4 border-t border-white/[0.06] flex justify-end gap-2 shrink-0">
+          <button onClick={onFechar} className="px-4 py-2 rounded-[14px] border border-white/[0.08] text-[13px] text-white/50 hover:text-white transition-all">Fechar</button>
+          <button onClick={() => onAtribuir(mes)} className="px-5 py-2 rounded-[14px] bg-accent hover:bg-accent-hover text-[13px] font-semibold text-on-accent transition-all">Atribuir a partir do Mês {mes}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Modal: Gerar programa automático para aluno ────────────────────────────
-function ModalGerarPrograma({ programa, alunos, onFechar, onConcluido }) {
+function ModalGerarPrograma({ programa, alunos, mesInicial = 1, onFechar, onConcluido }) {
   const toast = useToast();
   const [alunoId, setAlunoId] = useState('');
-  const [mes, setMes] = useState(1);
+  const [mes, setMes] = useState(mesInicial);
   const [gerando, setGerando] = useState(false);
+  // null = não mexe no ritmo do aluno (preserva o que ele já tem; aluno novo nasce em 30 dias).
+  const [ritmo, setRitmo] = useState(null);
+  const ritmoDoAluno = alunos.find(a => a.id === alunoId)?.programaMuscular;
+  const ritmoMostrado = ritmo !== null ? ritmo : (ritmoDoAluno ? ritmoSelecionado(ritmoDoAluno) : 30);
 
   async function gerar() {
     if (!alunoId) { toast('Selecione um aluno.', 'error'); return; }
     setGerando(true);
     try {
       const aluno = alunos.find(a => a.id === alunoId);
-      await atribuirProgramaMuscular(aluno, programa.id, mes);
+      await atribuirProgramaMuscular(aluno, programa.id, mes, ritmo !== null ? { diasPorBloco: ritmo } : null);
       toast(`Programa "${programa.nome}" gerado a partir do Mês ${mes} para ${aluno.nome.split(' ')[0]}!`);
       onConcluido();
     } catch { toast('Erro ao gerar programa.', 'error'); }
@@ -41,7 +123,7 @@ function ModalGerarPrograma({ programa, alunos, onFechar, onConcluido }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)' }}>
-      <div className="w-full max-w-md rounded-2xl bg-[#0d1b2e] ring-1 ring-white/[0.08] overflow-hidden">
+      <div className="w-full max-w-md rounded-[22px] bg-[#141619] ring-1 ring-white/[0.08] overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06]">
           <div>
             <h2 className="text-[15px] font-bold text-white">Gerar programa</h2>
@@ -55,7 +137,7 @@ function ModalGerarPrograma({ programa, alunos, onFechar, onConcluido }) {
           <div>
             <label className="block text-[10px] font-semibold text-white/30 uppercase tracking-wider mb-2">Aluno</label>
             <select value={alunoId} onChange={e => setAlunoId(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white text-[13px] focus:outline-none focus:border-blue-500/60 transition-all">
+              className="w-full px-3 py-2.5 rounded-[14px] bg-white/[0.04] border border-white/[0.08] text-white text-[13px] focus:outline-none focus:border-accent/60 transition-all">
               <option value="">Selecione um aluno...</option>
               {alunos.map(a => <option key={a.id} value={a.id}>{a.nome}</option>)}
             </select>
@@ -70,7 +152,7 @@ function ModalGerarPrograma({ programa, alunos, onFechar, onConcluido }) {
                 <ChevronLeft size={14} />
               </button>
               <div className="flex-1 h-2 bg-white/[0.06] rounded-full overflow-hidden">
-                <div className="h-full bg-blue-500 rounded-full transition-all" style={{ width: `${(mes / 12) * 100}%` }} />
+                <div className="h-full bg-accent rounded-full transition-all" style={{ width: `${(mes / 12) * 100}%` }} />
               </div>
               <button onClick={() => setMes(m => Math.min(12, m + 1))}
                 className="p-1.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.10] text-white/60 hover:text-white transition-all">
@@ -82,13 +164,25 @@ function ModalGerarPrograma({ programa, alunos, onFechar, onConcluido }) {
             </p>
           </div>
         </div>
+        <div className="px-6 pb-5 -mt-1">
+          <label className="block text-[10px] font-semibold text-white/30 uppercase tracking-wider mb-2">Trocar de bloco</label>
+          <div className="grid grid-cols-4 gap-1.5">
+            {RITMOS_PROGRAMA.map(r => (
+              <button key={r.dias} type="button" onClick={() => setRitmo(r.dias)}
+                className={`py-2 rounded-[14px] text-[12px] font-semibold ring-1 transition-all ${ritmoMostrado === r.dias ? 'bg-accent/15 text-accent ring-accent/30' : 'text-white/45 ring-white/[0.08] hover:text-white/75'}`}>
+                {r.label}
+              </button>
+            ))}
+          </div>
+          <p className="text-[11px] text-white/30 mt-1.5">{RITMOS_PROGRAMA.find(r => r.dias === ritmoMostrado)?.desc}</p>
+        </div>
         <div className="px-6 py-4 border-t border-white/[0.06] flex justify-end gap-2">
           <button onClick={onFechar}
-            className="px-4 py-2 rounded-xl border border-white/[0.08] text-[13px] text-white/50 hover:text-white hover:border-white/15 transition-all">
+            className="px-4 py-2 rounded-[14px] border border-white/[0.08] text-[13px] text-white/50 hover:text-white hover:border-white/15 transition-all">
             Cancelar
           </button>
           <button onClick={gerar} disabled={gerando || !alunoId}
-            className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-[13px] font-semibold text-white disabled:opacity-40 transition-all shadow-lg shadow-blue-900/30">
+            className="px-5 py-2 rounded-[14px] bg-accent hover:bg-accent-hover text-[13px] font-semibold text-on-accent disabled:opacity-40 transition-all shadow-lg shadow-black/30">
             {gerando ? 'Gerando...' : 'Gerar programa'}
           </button>
         </div>
@@ -120,7 +214,7 @@ function ModalUsarTemplate({ template, alunos, onFechar, onConfirmar }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)' }}>
-      <div className="w-full max-w-md rounded-2xl bg-[#0d1b2e] ring-1 ring-white/[0.08] overflow-hidden flex flex-col max-h-[80vh]">
+      <div className="w-full max-w-md rounded-[22px] bg-[#141619] ring-1 ring-white/[0.08] overflow-hidden flex flex-col max-h-[80vh]">
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06]">
           <div>
             <h2 className="text-[15px] font-bold text-white">Aplicar template</h2>
@@ -137,15 +231,15 @@ function ModalUsarTemplate({ template, alunos, onFechar, onConfirmar }) {
           )}
           {alunos.map(a => (
             <button key={a.id} onClick={() => toggle(a.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-[14px] transition-all ${
                 selecionados.includes(a.id)
-                  ? 'bg-blue-600/20 ring-1 ring-blue-500/40'
+                  ? 'bg-accent/20 ring-1 ring-accent/40'
                   : 'bg-white/[0.03] ring-1 ring-white/[0.05] hover:bg-white/[0.06]'
               }`}>
               <div className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 transition-all ${
-                selecionados.includes(a.id) ? 'bg-blue-600' : 'bg-white/[0.08]'
+                selecionados.includes(a.id) ? 'bg-accent' : 'bg-white/[0.08]'
               }`}>
-                {selecionados.includes(a.id) && <Check size={11} className="text-white" />}
+                {selecionados.includes(a.id) && <Check size={11} className="text-on-accent" />}
               </div>
               <span className="text-[13px] text-white/75">{a.nome}</span>
             </button>
@@ -153,11 +247,11 @@ function ModalUsarTemplate({ template, alunos, onFechar, onConfirmar }) {
         </div>
         <div className="px-6 py-4 border-t border-white/[0.06] flex justify-end gap-2">
           <button onClick={onFechar}
-            className="px-4 py-2 rounded-xl border border-white/[0.08] text-[13px] text-white/50 hover:text-white hover:border-white/15 transition-all">
+            className="px-4 py-2 rounded-[14px] border border-white/[0.08] text-[13px] text-white/50 hover:text-white hover:border-white/15 transition-all">
             Cancelar
           </button>
           <button onClick={confirmar} disabled={salvando || selecionados.length === 0}
-            className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-[13px] font-semibold text-white disabled:opacity-40 transition-all shadow-lg shadow-blue-900/30">
+            className="px-5 py-2 rounded-[14px] bg-accent hover:bg-accent-hover text-[13px] font-semibold text-on-accent disabled:opacity-40 transition-all shadow-lg shadow-black/30">
             {salvando ? 'Aplicando...' : `Aplicar (${selecionados.length})`}
           </button>
         </div>
@@ -171,11 +265,11 @@ function CardTemplate({ template, tipo, onUsar, onSalvar, onExcluir }) {
   const qtd = template.exercicios?.length || 0;
 
   return (
-    <div className="rounded-2xl bg-[#0d1b2e] ring-1 ring-white/[0.06] p-5 flex flex-col gap-4 hover:ring-white/[0.10] transition-all">
+    <div className="rounded-[22px] bg-[#141619] ring-1 ring-white/[0.06] p-5 flex flex-col gap-4 hover:ring-white/[0.10] transition-all">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0">
-            <BookOpen size={17} className="text-blue-400" strokeWidth={1.8} />
+          <div className="w-10 h-10 rounded-[14px] bg-accent/10 flex items-center justify-center shrink-0">
+            <BookOpen size={17} className="text-accent" strokeWidth={1.8} />
           </div>
           <div className="min-w-0">
             <p className="text-[14px] font-semibold text-white/85 truncate">{template.nome}</p>
@@ -199,17 +293,17 @@ function CardTemplate({ template, tipo, onUsar, onSalvar, onExcluir }) {
         {tipo === 'global' ? (
           <>
             <button onClick={() => onUsar(template)}
-              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-[12px] font-semibold text-white transition-all shadow-lg shadow-blue-900/30">
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-[14px] bg-accent hover:bg-accent-hover text-[12px] font-semibold text-on-accent transition-all shadow-lg shadow-black/30">
               <Users size={12} /> Usar template
             </button>
             <button onClick={() => onSalvar(template)}
-              className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-white/[0.08] text-[12px] text-white/50 hover:text-white hover:border-white/15 transition-all">
+              className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-[14px] border border-white/[0.08] text-[12px] text-white/50 hover:text-white hover:border-white/15 transition-all">
               <Copy size={12} /> Salvar
             </button>
           </>
         ) : (
           <Link href={`/dashboard/treinos?id=${template.id}`}
-            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-white/[0.08] text-[12px] text-white/50 hover:text-white hover:border-white/15 transition-all">
+            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-[14px] border border-white/[0.08] text-[12px] text-white/50 hover:text-white hover:border-white/15 transition-all">
             Editar
           </Link>
         )}
@@ -227,6 +321,7 @@ export default function BibliotecaPage() {
   const [loading, setLoading]   = useState(true);
   const [modalTemplate, setModalTemplate] = useState(null);
   const [modalPrograma, setModalPrograma] = useState(null);
+  const [previaPrograma, setPreviaPrograma] = useState(null);
   const [confirmExcluir, setConfirmExcluir] = useState(null);
   const [salvando, setSalvando] = useState(null); // id do template sendo salvo
 
@@ -278,9 +373,17 @@ export default function BibliotecaPage() {
           onConfirmar={clonarTemplateParaAlunos}
         />
       )}
+      {previaPrograma && (
+        <ModalPreviaPrograma
+          programa={previaPrograma}
+          onFechar={() => setPreviaPrograma(null)}
+          onAtribuir={(m) => { setModalPrograma({ ...previaPrograma, mesInicial: m }); setPreviaPrograma(null); }}
+        />
+      )}
       {modalPrograma && (
         <ModalGerarPrograma
           programa={modalPrograma}
+          mesInicial={modalPrograma.mesInicial || 1}
           alunos={alunos}
           onFechar={() => setModalPrograma(null)}
           onConcluido={() => setModalPrograma(null)}
@@ -296,18 +399,18 @@ export default function BibliotecaPage() {
 
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Biblioteca</h1>
+          <h1 className="text-2xl font-semibold text-white tracking-tight font-display">Biblioteca</h1>
           <p className="text-[13px] text-white/35 mt-1">Templates de treino prontos para usar</p>
         </div>
         <Link href="/dashboard/treinos?id=novo&template=true"
-          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-[13px] font-semibold text-white transition-all shadow-lg shadow-blue-900/30">
+          className="flex items-center gap-1.5 px-4 py-2 rounded-[14px] bg-accent hover:bg-accent-hover text-[13px] font-semibold text-on-accent transition-all shadow-lg shadow-black/30">
           <Plus size={14} /> Novo modelo
         </Link>
       </div>
 
       {loading ? (
         <div className="flex items-center justify-center py-24">
-          <div className="w-7 h-7 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-7 h-7 border-2 border-accent border-t-transparent rounded-full animate-spin" />
         </div>
       ) : (
         <div className="space-y-10">
@@ -315,7 +418,7 @@ export default function BibliotecaPage() {
           <section>
             <div className="flex items-center gap-2 mb-4">
               <h2 className="text-[15px] font-bold text-white">Programas Automáticos</h2>
-              <span className="bg-emerald-500/15 text-emerald-400 text-[10px] font-semibold px-2 py-0.5 rounded-full ring-1 ring-emerald-500/20">
+              <span className="bg-accent/15 text-accent text-[10px] font-semibold px-2 py-0.5 rounded-full ring-1 ring-accent/20">
                 {programas.length} programas · 12 meses
               </span>
             </div>
@@ -324,10 +427,10 @@ export default function BibliotecaPage() {
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {programas.map(p => (
-                <button key={p.id} onClick={() => setModalPrograma(p)}
-                  className="group rounded-2xl bg-[#0d1b2e] ring-1 ring-white/[0.06] p-5 text-left hover:ring-emerald-500/30 hover:bg-emerald-900/10 transition-all">
-                  <div className="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-3 group-hover:bg-emerald-500/20 transition-all">
-                    <Zap size={16} className="text-emerald-400" strokeWidth={1.8} />
+                <div key={p.id} role="button" tabIndex={0} onClick={() => setModalPrograma(p)} onKeyDown={e => { if (e.key === 'Enter') setModalPrograma(p); }}
+                  className="group cursor-pointer rounded-[22px] bg-[#141619] ring-1 ring-white/[0.06] p-5 text-left hover:ring-accent/30 hover:bg-accent/10 transition-all">
+                  <div className="w-9 h-9 rounded-[14px] bg-accent/10 flex items-center justify-center mb-3 group-hover:bg-accent/20 transition-all">
+                    <Zap size={16} className="text-accent" strokeWidth={1.8} />
                   </div>
                   <p className="text-[13px] font-semibold text-white/85 leading-snug">{p.nome}</p>
                   <p className="text-[11px] text-white/35 mt-1 line-clamp-2">{p.desc || ''}</p>
@@ -335,9 +438,11 @@ export default function BibliotecaPage() {
                     <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/[0.05] text-white/40">
                       {p.freq}×/semana
                     </span>
-                    <span className="text-[10px] text-emerald-400/60 ml-auto">Gerar →</span>
+                    <button type="button" onClick={e => { e.stopPropagation(); setPreviaPrograma(p); }}
+                      className="ml-auto text-[10px] font-semibold text-white/45 hover:text-white transition-colors">Ver composição</button>
+                    <span className="text-[10px] text-accent/60">Gerar →</span>
                   </div>
-                </button>
+                </div>
               ))}
             </div>
           </section>
@@ -347,7 +452,7 @@ export default function BibliotecaPage() {
             <section>
               <div className="flex items-center gap-2 mb-4">
                 <h2 className="text-[15px] font-bold text-white">Biblioteca Personal Pro</h2>
-                <span className="bg-blue-500/15 text-blue-400 text-[10px] font-semibold px-2 py-0.5 rounded-full ring-1 ring-blue-500/20">
+                <span className="bg-accent/15 text-accent text-[10px] font-semibold px-2 py-0.5 rounded-full ring-1 ring-accent/20">
                   {globais.length} templates
                 </span>
               </div>
@@ -375,7 +480,7 @@ export default function BibliotecaPage() {
               </span>
             </div>
             {pessoais.length === 0 ? (
-              <div className="rounded-2xl bg-[#0d1b2e] ring-1 ring-white/[0.06] p-12 text-center">
+              <div className="rounded-[22px] bg-[#141619] ring-1 ring-white/[0.06] p-12 text-center">
                 <Dumbbell size={28} className="text-white/15 mx-auto mb-3" strokeWidth={1.5} />
                 <p className="text-[13px] text-white/30">Nenhum modelo criado ainda.</p>
                 <p className="text-[11px] text-white/20 mt-1">Crie um novo modelo ou salve um template da biblioteca global.</p>

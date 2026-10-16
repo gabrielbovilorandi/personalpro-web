@@ -1,26 +1,49 @@
 ﻿'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { buscarAlunos, buscarPagamentos, buscarSessoes, buscarConfigApp, salvarConfigApp, buscarFeriasPendentes, atualizarStatusFerias, aprovarFeriasEEstenderPlano } from '@/lib/firestore';
+import { buscarAlunos, buscarPagamentos, buscarSessoes, buscarConfigApp, salvarConfigApp, buscarFeriasPorStatus, buscarTreinosBiblioteca, buscarPresencasDesde, atualizarStatusFerias, aprovarFeriasEEstenderPlano } from '@/lib/firestore';
 import { usePersonal } from '@/lib/AuthContext';
 import { Users, TrendingUp, AlertTriangle, Clock, ArrowUpRight, CheckCircle2, CalendarDays, Cake, MessageCircle, Megaphone, X, Percent, ChevronDown, Umbrella } from 'lucide-react';
 import { useToast } from '@/components/Toast';
 import { useConfirm } from '@/components/Confirm';
+import { valorNum, valorMensalAsaas, resumoFinanceiro } from '@/lib/financeiro';
+import { calcStatus } from '@/lib/statusAluno';
+import { alunosDeFeriasNoDia } from '@/lib/presencaAgenda';
+
+const DIAS_ABREV = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+const DIAS_MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+// Alerta de aluno sumido (mesmos limiares do Início do app).
+const LIMIAR_SUMIDO_DIAS = 7;
+const JANELA_SUMIDO_DIAS = 45;
+const isoLocal = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const isoDiasAtras = (n) => { const d = new Date(); d.setDate(d.getDate() - n); return isoLocal(d); };
+const diasEntreISO = (a, b) => Math.round((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 86400000);
+const diasAteBR = (br) => {
+  const [d, m, a] = String(br || '').split('/').map(Number);
+  if (!d || !m || !a) return null;
+  const h = new Date(); h.setHours(0, 0, 0, 0);
+  return Math.round((new Date(a, m - 1, d) - h) / 86400000);
+};
+const brParaDate = (br) => { const [d, m, a] = String(br || '').split('/').map(Number); return (d && m && a) ? new Date(a, m - 1, d) : null; };
+function minutosDoHorario(h) {
+  const m = /^(\d{1,2})\s*[:hH]\s*(\d{2})?/.exec(String(h || '').trim());
+  return m ? Number(m[1]) * 60 + Number(m[2] || 0) : null;
+}
 
 function KpiCard({ icon: Icon, label, value, sub, accent, href }) {
   const theme = {
-    blue:  { wrap: 'ring-blue-500/12',  icon: 'bg-blue-500/12 text-blue-400' },
-    green: { wrap: 'ring-green-500/12', icon: 'bg-green-500/12 text-green-400' },
+    blue:  { wrap: 'ring-white/[0.06]',  icon: 'bg-white/[0.07] text-white/70' },
+    green: { wrap: 'ring-accent/12', icon: 'bg-accent/12 text-accent' },
     amber: { wrap: 'ring-amber-500/12', icon: 'bg-amber-500/12 text-amber-400' },
     red:   { wrap: 'ring-red-500/12',   icon: 'bg-red-500/12 text-red-400' },
   };
   const t = theme[accent] || theme.blue;
   const conteudo = (
     <>
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-5 ${t.icon}`}>
+      <div className={`w-10 h-10 rounded-[14px] flex items-center justify-center mb-5 ${t.icon}`}>
         <Icon size={18} strokeWidth={1.8} />
       </div>
-      <p className="text-[32px] font-bold text-white tracking-tight leading-none mb-2">{value}</p>
+      <p className="text-[32px] font-semibold text-white tracking-tight leading-none mb-2 font-display">{value}</p>
       <p className="text-[11px] font-semibold text-white/35 uppercase tracking-widest">{label}</p>
       {sub && <p className="text-[11px] text-white/25 mt-1.5 truncate">{sub}</p>}
     </>
@@ -30,13 +53,13 @@ function KpiCard({ icon: Icon, label, value, sub, accent, href }) {
   // navega pra tela de alunos já com o filtro certo aplicado.
   if (href) {
     return (
-      <Link href={href} className={`block rounded-2xl bg-[#0d1b2e] ring-1 ${t.wrap} p-6 transition-colors hover:bg-[#102238]`}>
+      <Link href={href} className={`block rounded-[22px] bg-[#141619] ring-1 ${t.wrap} p-6 transition-colors hover:bg-[#1B1E23]`}>
         {conteudo}
       </Link>
     );
   }
   return (
-    <div className={`rounded-2xl bg-[#0d1b2e] ring-1 ${t.wrap} p-6`}>
+    <div className={`rounded-[22px] bg-[#141619] ring-1 ${t.wrap} p-6`}>
       {conteudo}
     </div>
   );
@@ -64,6 +87,12 @@ export default function DashboardPage() {
   const [sessoes,    setSessoes]    = useState([]);
   const [config,     setConfig]     = useState({});
   const [ferias,     setFerias]     = useState([]);
+  const [feriasAprovadas, setFeriasAprovadas] = useState([]);
+  const [treinosAtribuidos, setTreinosAtribuidos] = useState([]);
+  const [presencasRecentes, setPresencasRecentes] = useState([]);
+  const [sumidoOff, setSumidoOff] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('sumido_off') || '[]'); } catch { return []; }
+  });
   const [loading,    setLoading]    = useState(true);
   const [aprovandoId, setAprovandoId] = useState(null);
 
@@ -85,12 +114,14 @@ export default function DashboardPage() {
     setReajusteDone(done);
     if (new Date().getMonth() === 11 && !done) setShowReajuste(true);
 
-    Promise.allSettled([buscarAlunos(), buscarPagamentos(), buscarSessoes(), buscarConfigApp(), buscarFeriasPendentes()])
-      .then(([ra, rp, rs, rc, rf]) => {
+    Promise.allSettled([buscarAlunos(), buscarPagamentos(), buscarSessoes(), buscarConfigApp(), buscarFeriasPorStatus(), buscarTreinosBiblioteca(), buscarPresencasDesde(isoDiasAtras(JANELA_SUMIDO_DIAS))])
+      .then(([ra, rp, rs, rc, rf, rt, rpr]) => {
+        if (rt.status === 'fulfilled') setTreinosAtribuidos(rt.value.filter(t => t.template !== true));
+        if (rpr.status === 'fulfilled') setPresencasRecentes(rpr.value);
         if (ra.status === 'fulfilled') setAlunos(ra.value);
         if (rp.status === 'fulfilled') setPagamentos(rp.value);
         if (rs.status === 'fulfilled') setSessoes(rs.value);
-        if (rf.status === 'fulfilled') setFerias(rf.value);
+        if (rf.status === 'fulfilled') { setFerias(rf.value.pendentes); setFeriasAprovadas(rf.value.aprovadas); }
         if (rc.status === 'fulfilled') {
           const cfg = rc.value || {};
           setConfig(cfg);
@@ -105,16 +136,14 @@ export default function DashboardPage() {
   const mesAtual = hoje.getMonth();       // 0-11
   const anoAtual = hoje.getFullYear();
 
-  const ativos        = alunos.filter(a => a.status !== 'inativo');
-  const inadimplentes = alunos.filter(a => {
-    if (!a.vencimento) return false;
-    const [d,m,y] = a.vencimento.split('/');
-    return new Date(+y, m-1, +d) < hoje;
-  });
+  const ativos        = alunos.filter(a => a.ativo !== false);
+  // Mesma regra do status "Atrasado" do app (lib/statusAluno): aluno com cobrança
+  // automática só é atrasado se o Asaas marcou vencido; inativo nunca entra.
+  const inadimplentes = ativos.filter(a => calcStatus(a) === 'pendente');
   // Aluno com cobrança automática (Asaas) renova sozinho — mostrar ele aqui
   // é alarme falso (achado pelo dono: Paulo aparecia em "vencendo" mesmo já
   // ativo/recorrente, sem precisar de nenhuma ação manual do personal).
-  const vencendo = alunos.filter(a => {
+  const vencendo = ativos.filter(a => {
     if (!a.vencimento || a.cobrancaAutomatica) return false;
     const [d,m,y] = a.vencimento.split('/');
     const diff = (new Date(+y, m-1, +d) - hoje) / 86400000;
@@ -131,7 +160,7 @@ export default function DashboardPage() {
     const [d,m,y] = a.vencimento.split('/');
     return new Date(+y, m-1, +d).getTime();
   };
-  const previaAlunos = [...alunos].sort((a, b) => {
+  const previaAlunos = [...ativos].sort((a, b) => {
     const va = msVenc(a), vb = msVenc(b);
     if (va !== vb) return va - vb;
     return (a.nome || '').localeCompare(b.nome || '', 'pt-BR');
@@ -139,16 +168,66 @@ export default function DashboardPage() {
   // Pagamentos são salvos como DD/MM/YYYY (mesmo formato lido no Financeiro) —
   // filtra por mês+ano parseando a data BR, não por prefixo YYYY-MM (que nunca
   // casava, deixando a receita do mês sempre zerada no painel).
-  const receitaMes = pagamentos
-    .filter(p => {
-      const [, mo, a] = (p.data || '').split('/').map(Number);
-      return mo === mesAtual + 1 && a === anoAtual;
-    })
-    .reduce((s,p) => s + Number(p.valor||0), 0);
+  // "Recebido" = dinheiro que JÁ caiu na conta no mês; é o mesmo número do Financeiro
+  // e do Início do app (antes aqui somava por data de registro e divergia dos dois).
+  const resumoMes = resumoFinanceiro(pagamentos, hoje);
+  const receitaMes = resumoMes.recebido;
+  const faturadoMes = resumoMes.faturado;
+  const pctRecebido = faturadoMes > 0 ? Math.max(0, Math.min(1, receitaMes / faturadoMes)) : 0;
+  const iniciais = (n) => String(n || '?').trim().split(/\s+/).slice(0, 2).map(x => x[0]).join('').toUpperCase();
 
-  const hojeISO = hoje.toISOString().split('T')[0];
-  const sessoesHoje = sessoes.filter(s => s.data === hojeISO)
-    .sort((a,b) => (a.horario||'').localeCompare(b.horario||''));
+  // hoje.toISOString() é UTC: depois das 21h no Brasil já vira o dia seguinte.
+  const hojeISO = `${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}-${String(hoje.getDate()).padStart(2,'0')}`;
+  const diaSemanaHoje = DIAS_ABREV[hoje.getDay()];
+  const deFeriasHoje = alunosDeFeriasNoDia(feriasAprovadas, hoje);
+  // Aulas fixas (dias da semana do aluno) + sessões avulsas/reposições do dia, como a
+  // Agenda e o Início do app. Férias aprovadas tiram o aluno do dia.
+  const fixasHoje = ativos
+    .filter(a => a.tipoServico !== 'online' && Array.isArray(a.dias) && a.dias.includes(diaSemanaHoje) && !deFeriasHoje.has(a.id))
+    .map(a => ({
+      id: `fixa_${a.id}`, alunoId: a.id, status: null,
+      horario: (Array.isArray(a.agendaSemanal) ? a.agendaSemanal.find(e => e.dia === diaSemanaHoje)?.horario : null) || a.horario || '',
+    }));
+  const avulsasHoje = sessoes.filter(s => s.data === hojeISO && !deFeriasHoje.has(s.alunoId));
+  const sessoesHoje = [...fixasHoje, ...avulsasHoje]
+    .sort((a, b) => (minutosDoHorario(a.horario) ?? 24 * 60) - (minutosDoHorario(b.horario) ?? 24 * 60));
+  const agoraMin = new Date().getHours() * 60 + new Date().getMinutes();
+  // Treinos AVULSOS (não programa) que vencem em ≤7 dias: depois disso arquivam sozinhos e
+  // somem da rotina do aluno, então o personal precisa renovar antes.
+  const treinosVencendo = treinosAtribuidos
+    .filter(t => {
+      if (t.origem === 'programa' || t.arquivado || !t.dataFim) return false;
+      const dias = diasAteBR(t.dataFim);
+      return dias !== null && dias >= 0 && dias <= 7;
+    })
+    .sort((x, y) => diasAteBR(x.dataFim) - diasAteBR(y.dataFim));
+
+  // Aluno sumido: última atividade (qualquer modalidade) há 7+ dias. Quem está de férias
+  // aprovadas (ou terminou há < 7 dias) não é sumido: é folga autorizada.
+  const ultimaPresencaPorAluno = {};
+  presencasRecentes.forEach(p => {
+    if (p.presente === false || !p.alunoId || !p.data) return;
+    if (!ultimaPresencaPorAluno[p.alunoId] || p.data > ultimaPresencaPorAluno[p.alunoId]) ultimaPresencaPorAluno[p.alunoId] = p.data;
+  });
+  const emFeriasSet = new Set(feriasAprovadas.filter(f => {
+    const ini = brParaDate(f.dataInicio), fim = brParaDate(f.dataFim);
+    if (!ini || !fim) return false;
+    const fimComGraca = new Date(fim); fimComGraca.setDate(fimComGraca.getDate() + LIMIAR_SUMIDO_DIAS);
+    return ini <= hoje && hoje <= fimComGraca;
+  }).map(f => f.alunoId));
+  const alunosSumidos = ativos
+    .filter(a => !emFeriasSet.has(a.id))
+    .map(a => ({ aluno: a, ultima: ultimaPresencaPorAluno[a.id] || null }))
+    .filter(x => x.ultima && diasEntreISO(x.ultima, hojeISO) >= LIMIAR_SUMIDO_DIAS)
+    .filter(x => !sumidoOff.includes(`${x.aluno.id}_${x.ultima}`))
+    .sort((x, y) => (x.ultima < y.ultima ? -1 : 1));
+  function dispensarSumido(alunoId, ultima) {
+    const novo = [...sumidoOff, `${alunoId}_${ultima}`];
+    setSumidoOff(novo);
+    try { localStorage.setItem('sumido_off', JSON.stringify(novo)); } catch {}
+  }
+
+  const proximaId = sessoesHoje.find(s => { const m = minutosDoHorario(s.horario); return m !== null && m >= agoraMin; })?.id;
   const alunosMap = Object.fromEntries(alunos.map(a => [a.id, a]));
 
   // Aniversariantes próximos 7 dias (usa dataNascimento ou nascimento)
@@ -220,7 +299,11 @@ export default function DashboardPage() {
 
   async function aplicarReajuste() {
     const pct = parseFloat(pctReajuste.replace(',','.'));
-    if (!pct || pct <= 0) { toast('Informe um percentual válido.', 'error'); return; }
+    if (!Number.isFinite(pct) || pct < 0.1 || pct > 50) { toast('Digite um percentual entre 0,1% e 50%.', 'error'); return; }
+    const previa = alunos
+      .filter(x => x.status !== 'inativo' && x.ativo !== false && valorNum(x.valor) > 0)
+      .map(x => ({ aluno: x, novo: Math.round(valorNum(x.valor) * (1 + pct / 100) * 100) / 100 }));
+    if (previa.some(x => x.novo > 10000 || x.novo <= 0)) { toast('O reajuste geraria um valor fora do limite (R$ 0 a R$ 10.000). Nada foi alterado.', 'error'); return; }
     if (!await confirm({
       title: `Aplicar reajuste de ${pct}% em TODOS os alunos ativos?`,
       message: 'O valor mensal de cada aluno ativo com plano será recalculado. Esta ação não pode ser desfeita em massa.',
@@ -229,20 +312,42 @@ export default function DashboardPage() {
     setAplicandoR(true);
     try {
       const { atualizarAluno } = await import('@/lib/firestore');
-      for (const a of alunos.filter(a => a.status !== 'inativo' && a.valor)) {
-        const novoValor = Math.round(Number(a.valor) * (1 + pct/100) * 100) / 100;
-        await atualizarAluno(a.id, { valor: novoValor }).catch(() => {});
+      const { atualizarValorAssinaturaAsaas } = await import('@/lib/asaas');
+      const falhas = [];
+      for (const { aluno, novo } of previa) {
+        try {
+          await atualizarAluno(aluno.id, { valor: novo.toFixed(2).replace('.', ',') });
+          if (aluno.asaasSubscriptionId && aluno.cobrancaAutomatica) {
+            await atualizarValorAssinaturaAsaas(aluno.asaasSubscriptionId, valorMensalAsaas(novo, aluno.plano), true);
+          }
+        } catch (e) {
+          console.error('Reajuste falhou para', aluno.nome, e);
+          falhas.push(aluno.nome);
+        }
       }
+      // Avisa os alunos (o app faz igual). O reajuste JÁ foi aplicado: se o aviso falhar
+      // não desfaz nada, mas o personal precisa saber que ninguém foi avisado.
+      let avisoFalhou = false;
+      try {
+        const { httpsCallable } = await import('firebase/functions');
+        const { functions } = await import('@/lib/firebase');
+        await httpsCallable(functions, 'notificarAvisoAlunos')({
+          texto: `Seu plano será reajustado em ${pct}% (IPCA) a partir do mês que vem. Qualquer dúvida, fale com seu personal.`,
+          titulo: '💰 Reajuste do plano',
+        });
+      } catch (e) { console.error('Aviso do reajuste falhou', e); avisoFalhou = true; }
       const ano = new Date().getFullYear();
       localStorage.setItem(`reajuste_aviso_${ano}`, '1');
       setReajusteDone(true); setShowReajuste(false);
-      toast(`Reajuste de ${pct}% aplicado.`);
+      if (falhas.length) toast(`Reajuste aplicado, mas falhou para: ${falhas.join(', ')}. Confira o valor no Asaas.`, 'error');
+      else if (avisoFalhou) toast(`Reajuste de ${pct}% aplicado, mas o aviso aos alunos não saiu. Avise por fora.`, 'error');
+      else toast(`Reajuste de ${pct}% aplicado e alunos avisados.`);
     } catch { toast('Erro ao aplicar reajuste.', 'error'); } finally { setAplicandoR(false); }
   }
 
   if (loading) return (
     <div className="flex items-center justify-center h-full">
-      <div className="w-7 h-7 border-2 border-blue-500/60 border-t-transparent rounded-full animate-spin" />
+      <div className="w-7 h-7 border-2 border-accent/60 border-t-transparent rounded-full animate-spin" />
     </div>
   );
 
@@ -256,17 +361,17 @@ export default function DashboardPage() {
       {/* Modal Aviso */}
       {showAviso && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background:'rgba(0,0,0,0.75)', backdropFilter:'blur(4px)' }}>
-          <div className="w-full max-w-sm rounded-2xl bg-[#0d1b2e] ring-1 ring-white/[0.08] p-6">
+          <div className="w-full max-w-sm rounded-[22px] bg-[#141619] ring-1 ring-white/[0.08] p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-[15px] font-bold text-white flex items-center gap-2"><Megaphone size={15} className="text-blue-400" /> Aviso para alunos</h2>
+              <h2 className="text-[15px] font-bold text-white flex items-center gap-2"><Megaphone size={15} className="text-accent" /> Aviso para alunos</h2>
               <button onClick={() => setShowAviso(false)} className="p-1.5 text-white/40 hover:text-white"><X size={16} /></button>
             </div>
             <p className="text-[12px] text-white/40 mb-3">Aparece na tela inicial dos alunos no app.</p>
             <textarea value={tempAviso} onChange={e => setTempAviso(e.target.value)} rows={4} placeholder="Ex: Aulas suspensas na semana do carnaval. Retomaremos na segunda-feira após o feriado."
-              className="w-full px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white text-[13px] focus:outline-none focus:border-blue-500/60 transition-all resize-none mb-3" />
+              className="w-full px-3 py-2.5 rounded-[14px] bg-white/[0.04] border border-white/[0.08] text-white text-[13px] focus:outline-none focus:border-accent/60 transition-all resize-none mb-3" />
             <div className="flex gap-2">
-              <button onClick={() => setShowAviso(false)} className="flex-1 py-2.5 rounded-xl border border-white/[0.08] text-[13px] text-white/40 hover:text-white transition-all">Cancelar</button>
-              <button onClick={publicarAviso} disabled={salvandoAv} className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-[13px] font-semibold text-white disabled:opacity-40 transition-all">
+              <button onClick={() => setShowAviso(false)} className="flex-1 py-2.5 rounded-[14px] border border-white/[0.08] text-[13px] text-white/40 hover:text-white transition-all">Cancelar</button>
+              <button onClick={publicarAviso} disabled={salvandoAv} className="flex-1 py-2.5 rounded-[14px] bg-accent hover:bg-accent-hover text-[13px] font-semibold text-on-accent disabled:opacity-40 transition-all">
                 {salvandoAv ? 'Publicando...' : (tempAviso ? 'Publicar' : 'Remover aviso')}
               </button>
             </div>
@@ -277,7 +382,7 @@ export default function DashboardPage() {
       {/* Modal Reajuste Anual (Dezembro) */}
       {showReajuste && !reajusteDone && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background:'rgba(0,0,0,0.75)', backdropFilter:'blur(4px)' }}>
-          <div className="w-full max-w-sm rounded-2xl bg-[#0d1b2e] ring-1 ring-white/[0.08] p-6">
+          <div className="w-full max-w-sm rounded-[22px] bg-[#141619] ring-1 ring-white/[0.08] p-6">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-[15px] font-bold text-white flex items-center gap-2"><Percent size={15} className="text-amber-400" /> Reajuste Anual</h2>
               <button onClick={() => setShowReajuste(false)} className="p-1.5 text-white/40 hover:text-white"><X size={16} /></button>
@@ -286,11 +391,11 @@ export default function DashboardPage() {
             <div className="relative mb-4">
               <input type="text" value={pctReajuste} onChange={e => setPctReajuste(e.target.value)} placeholder="Ex: 10"
                 onKeyDown={e => { if (e.key === 'Enter' && pctReajuste && !aplicandoR) aplicarReajuste(); }}
-                className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white text-[20px] font-bold text-center focus:outline-none focus:border-blue-500/60 transition-all" />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[18px] text-white/40 font-bold">%</span>
+                className="w-full px-4 py-3 rounded-[14px] bg-white/[0.04] border border-white/[0.08] text-white text-[20px] font-semibold text-center focus:outline-none focus:border-accent/60 transition-all font-display" />
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[18px] text-white/40 font-semibold font-display">%</span>
             </div>
-            <button onClick={aplicarReajuste} disabled={aplicandoR || !pctReajuste} className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-[13px] font-bold text-white disabled:opacity-40 transition-all mb-2">
-              {aplicandoR ? 'Aplicando...' : `Aplicar a ${alunos.filter(a => a.status !== 'inativo' && a.valor).length} alunos`}
+            <button onClick={aplicarReajuste} disabled={aplicandoR || !pctReajuste} className="w-full py-3 rounded-[14px] bg-accent hover:bg-accent-hover text-[13px] font-bold text-on-accent disabled:opacity-40 transition-all mb-2">
+              {aplicandoR ? 'Aplicando...' : `Aplicar a ${ativos.filter(a => valorNum(a.valor) > 0).length} alunos`}
             </button>
             <button onClick={() => { const ano = new Date().getFullYear(); localStorage.setItem(`reajuste_aviso_${ano}`,'1'); setShowReajuste(false); setReajusteDone(true); }}
               className="w-full py-2 text-[11px] text-white/30 hover:text-white/60 transition-all">Já fiz o reajuste, não mostrar mais</button>
@@ -304,21 +409,21 @@ export default function DashboardPage() {
           <p className="text-[11px] font-medium text-white/25 uppercase tracking-widest mb-2">
             {hoje.toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', year:'numeric' })}
           </p>
-          <h1 className="text-[32px] md:text-[40px] font-black tracking-tight leading-[1.1]">
+          <h1 className="text-[32px] md:text-[40px] font-semibold tracking-tight leading-[1.1] font-display">
             <span style={{ background:'linear-gradient(135deg,#fff 20%,rgba(255,255,255,0.55) 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>
               {saudacao}{nome ? `, ${nome}` : ''}
             </span>
-            <span className="text-blue-400">.</span>
+            <span className="text-accent">.</span>
           </h1>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <button onClick={() => { setTempAviso(textoAviso); setShowAviso(true); }}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12px] font-semibold transition-all ${textoAviso ? 'bg-blue-500/15 text-blue-400 ring-1 ring-blue-500/25' : 'text-white/35 hover:text-white ring-1 ring-white/[0.08]'}`}>
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-[14px] text-[12px] font-semibold transition-all ${textoAviso ? 'bg-accent/15 text-accent ring-1 ring-accent/25' : 'text-white/35 hover:text-white ring-1 ring-white/[0.08]'}`}>
             <Megaphone size={13} /> {textoAviso ? 'Aviso ativo' : 'Avisar alunos'}
           </button>
           {new Date().getMonth() === 11 && !reajusteDone && (
             <button onClick={() => setShowReajuste(true)}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12px] font-semibold text-amber-400 ring-1 ring-amber-500/25 bg-amber-500/[0.08] transition-all">
+              className="flex items-center gap-1.5 px-3 py-2 rounded-[14px] text-[12px] font-semibold text-amber-400 ring-1 ring-amber-500/25 bg-amber-500/[0.08] transition-all">
               <Percent size={13} /> Reajuste anual
             </button>
           )}
@@ -330,30 +435,79 @@ export default function DashboardPage() {
 
       {/* Aviso ativo banner */}
       {textoAviso && (
-        <div className="flex items-start gap-3 px-4 py-3 mb-6 rounded-2xl bg-blue-500/[0.07] ring-1 ring-blue-500/15">
-          <Megaphone size={14} className="text-blue-400 shrink-0 mt-0.5" />
+        <div className="flex items-start gap-3 px-4 py-3 mb-6 rounded-[22px] bg-accent/[0.07] ring-1 ring-accent/15">
+          <Megaphone size={14} className="text-accent shrink-0 mt-0.5" />
           <div className="flex-1">
-            <p className="text-[11px] font-semibold text-blue-400 uppercase tracking-wider mb-0.5">Aviso ativo</p>
+            <p className="text-[11px] font-semibold text-accent uppercase tracking-wider mb-0.5">Aviso ativo</p>
             <p className="text-[12px] text-white/50">{textoAviso}</p>
           </div>
-          <button onClick={() => { setTempAviso(textoAviso); setShowAviso(true); }} className="text-[11px] text-blue-400/60 hover:text-blue-400 transition-colors shrink-0">Editar</button>
+          <button onClick={() => { setTempAviso(textoAviso); setShowAviso(true); }} className="text-[11px] text-accent/60 hover:text-accent transition-colors shrink-0">Editar</button>
         </div>
       )}
 
-      {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
-        <KpiCard icon={Users}         label="Alunos ativos"    value={ativos.length}       accent="blue"  href="/dashboard/alunos" />
-        <KpiCard icon={TrendingUp}    label="Receita do mês"
-          value={`R$ ${receitaMes.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} accent="green" href="/dashboard/financeiro" />
-        <KpiCard icon={Clock}         label="Vencem em 7 dias" value={vencendo.length}
-          sub={vencendo.map(a => a.nome?.split(' ')[0]).join(', ') || undefined} accent="amber" href="/dashboard/alunos?filtro=vencendo" />
-        <KpiCard icon={AlertTriangle} label="Inadimplentes"    value={inadimplentes.length} accent="red"   href="/dashboard/alunos?filtro=inadimplentes" />
+      {/* Hoje + números: mesma composição do Início do app */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6 md:mb-8">
+        <div className="lg:col-span-2 rounded-[22px] ring-1 ring-white/[0.06] p-5 relative overflow-hidden"
+          style={{ background: 'radial-gradient(120% 90% at 100% 0%, rgba(198,244,50,0.10) 0%, rgba(20,22,25,0) 60%), #141619' }}>
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-[11px] font-semibold text-white/40 uppercase tracking-wider">Hoje</span>
+            <div className="flex items-center gap-3">
+              <span className="text-[12px] text-white/45">{sessoesHoje.length} {sessoesHoje.length === 1 ? 'sessão' : 'sessões'}</span>
+              <Link href="/dashboard/agenda" className="text-[11px] text-white/30 hover:text-white/60 transition-colors">ver agenda →</Link>
+            </div>
+          </div>
+          {sessoesHoje.length === 0 ? (
+            <p className="text-[13px] text-white/30 py-6">Nenhuma sessão presencial hoje.</p>
+          ) : (
+            <div className="divide-y divide-white/[0.04]">
+              {sessoesHoje.slice(0, 8).map(sx => {
+                const aluno = alunosMap[sx.alunoId];
+                const ehProx = sx.id === proximaId;
+                return (
+                  <div key={sx.id} className="flex items-center gap-4 py-2.5">
+                    <span className={`text-[15px] font-semibold w-14 shrink-0 ${ehProx ? 'text-accent' : 'text-white/45'}`}>{sx.horario || '—'}</span>
+                    <div className="w-9 h-9 rounded-full bg-surface-2 flex items-center justify-center text-[12px] font-display font-semibold text-ink shrink-0">{iniciais(aluno?.nome)}</div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[14px] font-semibold text-white/85 truncate">{aluno?.nome || '—'}</p>
+                      {aluno?.objetivo && <p className="text-[12px] text-white/35 truncate">{aluno.objetivo}</p>}
+                    </div>
+                    {ehProx && <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-accent/12 text-accent">Próxima</span>}
+                    {!ehProx && sx.status && <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-white/[0.06] text-white/50">{sx.status}</span>}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+        <div className="grid grid-cols-2 gap-4 content-start">
+          <Link href="/dashboard/financeiro" className="rounded-[22px] bg-[#141619] ring-1 ring-white/[0.06] p-4 hover:ring-white/15 transition-all">
+            <p className="text-[10px] font-semibold text-white/35 uppercase tracking-wider mb-2">Recebido</p>
+            <p className="text-[20px] font-semibold text-white leading-none font-display">R$ {receitaMes.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}</p>
+            <div className="h-1.5 rounded-full bg-white/[0.06] mt-3 overflow-hidden"><div className="h-full rounded-full bg-accent" style={{ width: `${pctRecebido * 100}%` }} /></div>
+            <p className="text-[10px] text-white/35 mt-2 truncate">de R$ {faturadoMes.toLocaleString('pt-BR', { maximumFractionDigits: 0 })} faturado em {DIAS_MESES[hoje.getMonth()]}</p>
+          </Link>
+          <Link href="/dashboard/alunos" className="rounded-[22px] bg-[#141619] ring-1 ring-white/[0.06] p-4 hover:ring-white/15 transition-all">
+            <p className="text-[10px] font-semibold text-white/35 uppercase tracking-wider mb-2">Alunos</p>
+            <p className="text-[20px] font-semibold text-white leading-none font-display">{ativos.length}</p>
+            <p className="text-[10px] text-white/35 mt-3">{ativos.length === 1 ? 'ativo' : 'ativos'}</p>
+          </Link>
+          <Link href="/dashboard/alunos?filtro=vencendo" className="rounded-[22px] bg-[#141619] ring-1 ring-amber-500/15 p-4 hover:ring-amber-500/30 transition-all">
+            <p className="text-[10px] font-semibold text-white/35 uppercase tracking-wider mb-2">Vencem em 7 dias</p>
+            <p className="text-[20px] font-semibold text-amber-400 leading-none font-display">{vencendo.length}</p>
+            <p className="text-[10px] text-white/35 mt-3 truncate">{vencendo.map(a => a.nome?.split(' ')[0]).join(', ') || ' '}</p>
+          </Link>
+          <Link href="/dashboard/alunos?filtro=inadimplentes" className="rounded-[22px] bg-[#141619] ring-1 ring-red-500/15 p-4 hover:ring-red-500/30 transition-all">
+            <p className="text-[10px] font-semibold text-white/35 uppercase tracking-wider mb-2">Atrasados</p>
+            <p className="text-[20px] font-semibold text-red-400 leading-none font-display">{inadimplentes.length}</p>
+            <p className="text-[10px] text-white/35 mt-3">{inadimplentes.length === 0 ? 'tudo em dia' : 'mensalidade atrasada'}</p>
+          </Link>
+        </div>
       </div>
 
       {/* Corpo */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Tabela alunos — 2 colunas */}
-        <div className="md:col-span-2 rounded-2xl bg-[#0d1b2e] ring-1 ring-white/[0.06] overflow-hidden">
+        <div className="md:col-span-2 rounded-[22px] bg-[#141619] ring-1 ring-white/[0.06] overflow-hidden">
           <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.05]">
             <span className="text-[12px] font-semibold text-white/60 uppercase tracking-wider">Alunos</span>
             <Link href="/dashboard/alunos" className="flex items-center gap-1 text-[11px] text-white/30 hover:text-white/60 transition-colors">
@@ -380,7 +534,7 @@ export default function DashboardPage() {
                   <tr key={a.id} className="border-b border-white/[0.03] last:border-0 hover:bg-white/[0.025] transition-colors group">
                     <td className="px-5 py-3.5">
                       <Link href={`/dashboard/alunos?id=${a.id}`} className="flex items-center gap-3">
-                        <div className="w-7 h-7 rounded-full bg-blue-500/15 flex items-center justify-center text-[11px] font-bold text-blue-400 shrink-0">
+                        <div className="w-7 h-7 rounded-full bg-surface-2 flex items-center justify-center text-[11px] font-display font-semibold text-ink shrink-0">
                           {a.nome?.[0]}
                         </div>
                         <span className="text-[13px] font-medium text-white/75 group-hover:text-white transition-colors">{a.nome}</span>
@@ -388,7 +542,7 @@ export default function DashboardPage() {
                     </td>
                     <td className="px-4 py-3.5 text-[12px] text-white/35 hidden sm:table-cell">{a.plano || '—'}</td>
                     <td className="px-4 py-3.5">
-                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ring-1 ${a.tipoServico === 'online' ? 'bg-blue-500/12 text-blue-400 ring-blue-500/20' : 'bg-blue-500/12 text-blue-400 ring-blue-500/20'}`}>
+                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ring-1 ${a.tipoServico === 'online' ? 'bg-accent/12 text-accent ring-accent/20' : 'bg-accent/12 text-accent ring-accent/20'}`}>
                         {a.tipoServico === 'online' ? 'Online' : 'Presencial'}
                       </span>
                     </td>
@@ -405,38 +559,52 @@ export default function DashboardPage() {
 
         {/* Painéis laterais */}
         <div className="space-y-4">
-          {/* Agenda de hoje */}
-          <div className="rounded-2xl bg-[#0d1b2e] ring-1 ring-white/[0.06] overflow-hidden">
-            <div className="px-5 py-4 border-b border-white/[0.05] flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <CalendarDays size={13} className="text-blue-400" />
-                <span className="text-[12px] font-semibold text-white/60 uppercase tracking-wider">Agenda de hoje</span>
+          {/* Alunos sumidos */}
+          {alunosSumidos.length > 0 && (
+            <div className="rounded-[22px] bg-[#141619] ring-1 ring-white/[0.06] overflow-hidden">
+              <div className="px-5 py-4 border-b border-white/[0.05] flex items-center justify-between">
+                <span className="text-[12px] font-semibold text-white/60 uppercase tracking-wider">Alunos sumidos</span>
+                <span className="text-[11px] text-white/30">{alunosSumidos.length}</span>
               </div>
-              <Link href="/dashboard/agenda" className="text-[10px] text-white/25 hover:text-white/50 transition-colors">ver agenda →</Link>
-            </div>
-            <div className="p-3">
-              {sessoesHoje.length === 0 ? (
-                <div className="px-2 py-3 text-center"><p className="text-[12px] text-white/20">Nenhuma sessão hoje</p></div>
-              ) : sessoesHoje.slice(0, 5).map(s => {
-                const aluno = alunosMap[s.alunoId];
-                const statusCls = { agendado:'bg-blue-500/12 text-blue-400', realizado:'bg-green-500/12 text-green-400', faltou:'bg-red-500/12 text-red-400', cancelado:'bg-white/[0.06] text-white/30' };
-                return (
-                  <div key={s.id} className="flex items-center gap-2.5 px-2 py-2.5 rounded-lg hover:bg-white/[0.03] transition-colors">
-                    <span className="text-[11px] font-semibold text-white/40 w-11 shrink-0">{s.horario || '—'}</span>
-                    <div className="w-6 h-6 rounded-full bg-blue-500/12 flex items-center justify-center text-[10px] font-bold text-blue-400 shrink-0">
-                      {(aluno?.nome || s.alunoId || '?')[0]}
-                    </div>
-                    <span className="text-[12px] text-white/65 flex-1 truncate">{aluno?.nome?.split(' ')[0] || '—'}</span>
-                    <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${statusCls[s.status] || statusCls.agendado}`}>{s.status || 'agendado'}</span>
+              <div className="p-3">
+                {alunosSumidos.map(({ aluno, ultima }) => (
+                  <div key={aluno.id} className="flex items-center gap-2 px-2 py-2.5 rounded-lg hover:bg-white/[0.03] transition-colors">
+                    <Link href={`/dashboard/alunos?id=${aluno.id}`} className="flex-1 min-w-0">
+                      <p className="text-[12px] text-white/70 truncate">{aluno.nome}</p>
+                      <p className="text-[10px] text-white/30">Sem treinar há {diasEntreISO(ultima, hojeISO)} dias · dê um alô antes de perder</p>
+                    </Link>
+                    <button onClick={() => dispensarSumido(aluno.id, ultima)} title="Dispensar alerta"
+                      className="p-1.5 text-white/25 hover:text-white/60 transition-colors shrink-0"><X size={13} /></button>
                   </div>
-                );
-              })}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* Treinos vencendo */}
+          {treinosVencendo.length > 0 && (
+            <div className="rounded-[22px] bg-[#141619] ring-1 ring-amber-500/15 overflow-hidden">
+              <div className="px-5 py-4 border-b border-white/[0.05] flex items-center gap-2">
+                <Clock size={13} className="text-amber-400" />
+                <span className="text-[12px] font-semibold text-amber-400/70 uppercase tracking-wider">Treinos vencendo</span>
+              </div>
+              <div className="p-3">
+                {treinosVencendo.map(t => {
+                  const d = diasAteBR(t.dataFim);
+                  return (
+                    <Link key={t.id} href={`/dashboard/alunos?id=${t.alunoId}`} className="block px-2 py-2.5 rounded-lg hover:bg-white/[0.03] transition-colors">
+                      <p className="text-[12px] text-white/70 truncate">{t.alunoNome || 'Aluno'}</p>
+                      <p className="text-[10px] text-white/30 truncate">Treino “{t.nome}” {d === 0 ? 'vence hoje' : `vence em ${d} ${d === 1 ? 'dia' : 'dias'}`} · renove antes que arquive</p>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Aniversariantes 7 dias */}
           {aniversariantes.length > 0 && (
-            <div className="rounded-2xl bg-[#0d1b2e] ring-1 ring-amber-500/15 overflow-hidden">
+            <div className="rounded-[22px] bg-[#141619] ring-1 ring-amber-500/15 overflow-hidden">
               <div className="px-5 py-4 border-b border-white/[0.05] flex items-center gap-2">
                 <Cake size={13} className="text-amber-400" />
                 <span className="text-[12px] font-semibold text-amber-400/70 uppercase tracking-wider">
@@ -459,7 +627,7 @@ export default function DashboardPage() {
                       </div>
                       {wpp && (
                         <a href={wpp} target="_blank" rel="noopener noreferrer"
-                          className="p-1.5 rounded-lg bg-green-500/10 text-green-400 hover:bg-green-500/20 transition-all shrink-0"
+                          className="p-1.5 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 transition-all shrink-0"
                           title="Enviar parabéns">
                           <MessageCircle size={13} />
                         </a>
@@ -473,7 +641,7 @@ export default function DashboardPage() {
 
           {/* Férias pendentes */}
           {ferias.length > 0 && (
-            <div className="rounded-2xl bg-[#0d1b2e] ring-1 ring-amber-500/15 overflow-hidden">
+            <div className="rounded-[22px] bg-[#141619] ring-1 ring-amber-500/15 overflow-hidden">
               <div className="px-5 py-4 border-b border-white/[0.05] flex items-center gap-2">
                 <Umbrella size={13} className="text-amber-400" />
                 <span className="text-[12px] font-semibold text-amber-400/70 uppercase tracking-wider">Férias pendentes</span>
@@ -497,7 +665,7 @@ export default function DashboardPage() {
                       </div>
                       <div className="flex gap-2">
                         <button onClick={() => aprovarFerias(feria)} disabled={ocupado}
-                          className="flex-1 py-1.5 rounded-lg bg-green-500/12 text-green-400 text-[11px] font-semibold hover:bg-green-500/20 disabled:opacity-40 transition-all">
+                          className="flex-1 py-1.5 rounded-lg bg-accent/12 text-accent text-[11px] font-semibold hover:bg-accent/20 disabled:opacity-40 transition-all">
                           {ocupado ? '...' : 'Aprovar'}
                         </button>
                         <button onClick={() => recusarFerias(feria)} disabled={ocupado}
@@ -513,14 +681,14 @@ export default function DashboardPage() {
           )}
 
           {/* Vencimentos */}
-          <div className="rounded-2xl bg-[#0d1b2e] ring-1 ring-white/[0.06] overflow-hidden">
+          <div className="rounded-[22px] bg-[#141619] ring-1 ring-white/[0.06] overflow-hidden">
             <div className="px-5 py-4 border-b border-white/[0.05]">
               <span className="text-[12px] font-semibold text-white/60 uppercase tracking-wider">Vencendo em breve</span>
             </div>
             <div className="p-3">
               {vencendo.length === 0 ? (
                 <div className="flex items-center gap-2 px-2 py-3">
-                  <CheckCircle2 size={13} className="text-green-500/40 shrink-0" />
+                  <CheckCircle2 size={13} className="text-accent/40 shrink-0" />
                   <span className="text-[12px] text-white/25">Nenhum vencimento próximo</span>
                 </div>
               ) : vencendo.map(a => {
@@ -541,7 +709,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Inadimplentes */}
-          <div className="rounded-2xl bg-[#0d1b2e] ring-1 ring-white/[0.06] overflow-hidden">
+          <div className="rounded-[22px] bg-[#141619] ring-1 ring-white/[0.06] overflow-hidden">
             <div className="px-5 py-4 border-b border-white/[0.05] flex items-center gap-2">
               {inadimplentes.length > 0 && <div className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />}
               <span className="text-[12px] font-semibold text-white/60 uppercase tracking-wider">Inadimplentes</span>
@@ -549,7 +717,7 @@ export default function DashboardPage() {
             <div className="p-3">
               {inadimplentes.length === 0 ? (
                 <div className="flex items-center gap-2 px-2 py-3">
-                  <CheckCircle2 size={13} className="text-green-500/40 shrink-0" />
+                  <CheckCircle2 size={13} className="text-accent/40 shrink-0" />
                   <span className="text-[12px] text-white/25">Nenhum inadimplente</span>
                 </div>
               ) : inadimplentes.slice(0, 5).map(a => (
