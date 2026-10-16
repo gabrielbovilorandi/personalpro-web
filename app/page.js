@@ -1,9 +1,7 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useState } from 'react';
 import Image from 'next/image';
-import { usePersonal } from '@/lib/AuthContext';
+import { APP_WEB_ENTRAR } from '@/lib/appWeb';
 import {
   Users, Dumbbell, DollarSign, CalendarDays, Activity,
   ChevronDown, ChevronRight, Check, Star, ArrowRight,
@@ -159,13 +157,6 @@ function FaqItem({ q, a }) {
 }
 
 export default function LandingPage() {
-  const personal = usePersonal();
-  const router   = useRouter();
-
-  useEffect(() => {
-    if (personal) router.replace('/dashboard');
-  }, [personal, router]);
-
   return (
     <div className="min-h-full bg-bg text-white">
 
@@ -175,10 +166,10 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
           <Image src="/logo.png" alt="PersonalPro" width={130} height={36} style={{ objectFit: 'contain', height: 32, width: 'auto' }} priority />
           <div className="flex items-center gap-3">
-            <Link href="/login"
+            <a href={APP_WEB_ENTRAR}
               className="text-[13px] font-medium text-white/50 hover:text-white transition-colors px-3 py-2">
               Entrar
-            </Link>
+            </a>
             {/* A barra é fixa e acompanha a rolagem toda — era o botão mais
                 visível da página e mandava pro login web, contradizendo o
                 produto, que é um app de celular. */}
@@ -215,10 +206,10 @@ export default function LandingPage() {
             <div className="flex flex-col sm:flex-row items-center gap-3 justify-center md:justify-start">
               <p className="text-[12px] text-white/30">Grátis até 3 alunos · Sem cartão</p>
               <span className="hidden sm:block text-white/15">·</span>
-              <Link href="/login"
+              <a href={APP_WEB_ENTRAR}
                 className="text-[12px] font-medium text-accent hover:text-accent-pale transition-colors">
                 ou acesse pelo computador
-              </Link>
+              </a>
             </div>
           </div>
 
@@ -353,10 +344,10 @@ export default function LandingPage() {
           </div>
           <div className="flex items-center gap-4">
             <p className="text-[22px] font-semibold text-white/50 font-display">R$ 0</p>
-            <Link href="/login"
+            <a href={APP_WEB_ENTRAR}
               className="px-5 py-2.5 rounded-[14px] border border-white/[0.12] text-[13px] font-semibold text-white/60 hover:text-white hover:border-white/25 transition-all">
               Começar grátis
-            </Link>
+            </a>
           </div>
         </div>
 
@@ -377,10 +368,10 @@ export default function LandingPage() {
               <p className={`text-[11px] mb-1 ${p.popular ? 'text-on-accent/60' : 'text-white/30'}`}>/mês</p>
               {p.de && <p className={`text-[11px] line-through mb-3 ${p.popular ? 'text-on-accent/50' : 'text-white/20'}`}>de R$ {p.de.toFixed(2).replace('.', ',')}</p>}
               <p className={`text-[12px] leading-relaxed mb-5 flex-1 ${p.popular ? 'text-on-accent/70' : 'text-white/35'}`}>{p.desc}</p>
-              <Link href="/login"
+              <a href={APP_WEB_ENTRAR}
                 className={`flex items-center justify-center gap-1.5 py-2.5 rounded-[14px] text-[13px] font-bold transition-all ${p.popular ? 'bg-on-accent text-accent hover:bg-black' : 'bg-surface-2 text-ink hover:bg-white/[0.12]'}`}>
                 Assinar <ChevronRight size={13} />
-              </Link>
+              </a>
             </div>
           ))}
         </div>
@@ -399,10 +390,10 @@ export default function LandingPage() {
               Junte-se a personais que já usam o PersonalPro para organizar e fazer crescer sua carreira.
             </p>
             <BotoesLoja className="justify-center" />
-            <Link href="/login"
+            <a href={APP_WEB_ENTRAR}
               className="inline-block mt-5 text-[13px] font-medium text-white/40 hover:text-white/70 transition-colors">
               ou criar conta pelo computador
-            </Link>
+            </a>
           </div>
         </div>
       </section>
@@ -430,7 +421,7 @@ export default function LandingPage() {
           <div className="flex items-center gap-4">
             <a href={PLAY_URL} target="_blank" rel="noopener noreferrer" className="text-[12px] text-white/30 hover:text-white/60 transition-colors">Google Play</a>
             <a href={IOS_URL} target="_blank" rel="noopener noreferrer" className="text-[12px] text-white/30 hover:text-white/60 transition-colors">App Store</a>
-            <Link href="/login" className="text-[12px] text-white/30 hover:text-white/60 transition-colors">Entrar</Link>
+            <a href={APP_WEB_ENTRAR} className="text-[12px] text-white/30 hover:text-white/60 transition-colors">Entrar</a>
           </div>
         </div>
       </footer>
