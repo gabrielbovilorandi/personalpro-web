@@ -422,6 +422,7 @@ export default function LandingPage() {
             <a href={PLAY_URL} target="_blank" rel="noopener noreferrer" className="text-[12px] text-white/30 hover:text-white/60 transition-colors">Google Play</a>
             <a href={IOS_URL} target="_blank" rel="noopener noreferrer" className="text-[12px] text-white/30 hover:text-white/60 transition-colors">App Store</a>
             <a href={APP_WEB_ENTRAR} className="text-[12px] text-white/30 hover:text-white/60 transition-colors">Entrar</a>
+            <a href="/privacidade/" className="text-[12px] text-white/30 hover:text-white/60 transition-colors">Privacidade</a>
           </div>
         </div>
       </footer>
