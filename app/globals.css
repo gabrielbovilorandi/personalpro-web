@@ -88,8 +88,35 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
 }
 
-/* Transição padrão para links e botões */
-a, button { transition-property: color, background-color, border-color, opacity, box-shadow; transition-duration: 150ms; }
+/* Transição padrão para links e botões. NA CAMADA BASE de propósito: solta, ela
+   vencia as classes do Tailwind (que ficam em @layer utilities) e travava o que
+   a tela pedia -- as bolinhas dos carrosséis não animavam a largura e o
+   active:scale dos botões pulava sem transição (auditoria de movimento, 16/10). */
+@layer base {
+  a, button { transition-property: color, background-color, border-color, opacity, box-shadow, transform; transition-duration: 150ms; }
+}
+
+/* Âncoras (#comecar, #baixar) rolam suave -- menos pra quem pediu menos movimento. */
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
+/* Perguntas que abrem (<details class="duvida">): o conteúdo cresce em vez de
+   aparecer de uma vez. Só onde o navegador sabe animar até height:auto
+   (interpolate-size); nos outros abre como sempre abriu. */
+@supports (interpolate-size: allow-keywords) {
+  .duvida { interpolate-size: allow-keywords; }
+  .duvida::details-content {
+    height: 0;
+    opacity: 0;
+    overflow: clip;
+    transition: height 320ms cubic-bezier(0.22, 1, 0.36, 1), opacity 220ms ease-out, content-visibility 320ms allow-discrete;
+  }
+  .duvida[open]::details-content { height: auto; opacity: 1; }
+  @media (prefers-reduced-motion: reduce) {
+    .duvida::details-content { transition: none; }
+  }
+}
 
 /* Tabelas */
 table { border-collapse: collapse; width: 100%; }
@@ -105,21 +132,3 @@ table { border-collapse: collapse; width: 100%; }
 /* Icones Lucide com o mesmo traco do app (1.75). CSS vence o atributo, entao nao
    precisa mexer em nenhum <Icone strokeWidth=...>. */
 .lucide { stroke-width: 1.75; }
-
-/* ── /treine fica IDENTICO ao que era ──────────────────────────────────────────
-   A pagina de consultoria do Matheus tem identidade propria (o vermelho dele, e
-   nao a lima do app) e e o que ele manda no Instagram. O redesign do app NAO se
-   aplica a ela. Como ela herda o CSS global, este escopo (aplicado pelo layout
-   dela) devolve o que ela tinha: Outfit, titulos sem regra propria, icones com
-   traco 2, e o azul de foco e selecao de antes. */
-/* Na camada base, de proposito: assim os utilitarios da propria pagina (font-bold,
-   tracking-tight...) continuam vencendo. Fora de camada, esta regra os apagaria. */
-@layer base {
-  .treine-escopo :is(h1, h2, h3, h4) { font-family: inherit; font-weight: inherit; letter-spacing: inherit; }
-}
-/* O fundo e a cor de texto do documento tambem eram os de antes nesta pagina. */
-body:has(.treine-escopo) { background: #080f1d; color: #f1f5f9; }
-.treine-escopo .lucide { stroke-width: 2; }
-.treine-escopo ::selection { background: rgba(59, 130, 246, 0.30); color: #fff; }
-.treine-escopo :focus-visible { outline-color: rgba(59, 130, 246, 0.6); }
-.treine-escopo select option { background-color: #0d1b2e; color: #f1f5f9; }
