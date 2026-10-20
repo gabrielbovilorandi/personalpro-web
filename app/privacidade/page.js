@@ -24,7 +24,9 @@ async function carregarPolitica() {
   if (ini < 0 || fim < 0) throw new Error('Política: estrutura da página mudou (wrap/footer não encontrados)');
   const miolo = html.slice(ini + '<div class="wrap">'.length, fim);
   // Falha o build em vez de publicar uma página vazia ou com script.
-  if (!/Quem é o controlador/.test(miolo)) throw new Error('Política: texto esperado não encontrado');
+  // Confere frases que sobrevivem a revisões do texto (o título do item 1
+  // mudou na 1.2 e derrubou o build).
+  if (!/Política de Privacidade/.test(miolo) || !/LGPD/.test(miolo)) throw new Error('Política: texto esperado não encontrado');
   if (/<script/i.test(miolo)) throw new Error('Política: miolo com <script>, não publicar');
   return miolo;
 }
