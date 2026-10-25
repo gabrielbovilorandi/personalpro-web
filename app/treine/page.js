@@ -9,8 +9,8 @@
 // 25/10/2026, quarta forma desta página (aprovada pelo Gabriel e pelo Matheus
 // em cima dos rascunhos de celular):
 // - UM PLANO só, "Consultoria": R$ 109,90 nas primeiras 50 vagas (contador
-//   real, em dados.js), depois R$ 149,90, e o ciclo de 12 semanas pago de uma
-//   vez. Essencial/Completo/Individual saíram: ninguém pagava os dois de cima.
+//   real, em dados.js), depois R$ 149,90. Só mensal: o ciclo de 12 semanas
+//   pago adiantado saiu a pedido dele (assusta). Essencial/Completo/Individual saíram: ninguém pagava os dois de cima.
 // - QUIZ de 3 perguntas no lugar do formulário de seis campos. Mostra uma
 //   semana de EXEMPLO e manda as respostas pro WhatsApp.
 // - GARANTIAS juntas (7 dias do CDC, 12 semanas, sem fidelidade), "pra quem
@@ -49,12 +49,9 @@ const BOTAO_CINZA =
 // Tudo calculado de dados.js: mudou o número de vagas ou o preço lá, a página
 // inteira acompanha (cartão, quiz e mensagem do WhatsApp).
 const brl = (v) => `R$ ${v.toFixed(2).replace('.', ',')}`;
-const centavos = (v) => Math.round(v * 100) / 100;
 const RESTAM = Math.max(0, VAGAS.total - VAGAS.ocupadas);
 const TEM_VAGA = RESTAM > 0;
 const PRECO_MES = TEM_VAGA ? CONSULTORIA.lancamento : CONSULTORIA.depois;
-const CICLO_MES = centavos(CONSULTORIA.ciclo12 / 3);
-const CICLO_ECONOMIA = centavos(CONSULTORIA.lancamento * 3 - CONSULTORIA.ciclo12);
 
 // (19) 99798-4847, a partir dos dígitos do wa.me.
 const TELEFONE = (() => {
@@ -137,7 +134,7 @@ function Check() {
 // Três perguntas, uma por vez; tocar na resposta já avança. O resultado mostra
 // a semana de EXEMPLO (e diz que é exemplo), o plano com o preço e o campo de
 // nome. O botão abre o WhatsApp dele com tudo escrito.
-function Quiz({ ciclo }) {
+function Quiz() {
   const [passo, setPasso] = useState(0);
   const [resp, setResp] = useState({});
   const [nome, setNome] = useState('');
@@ -159,8 +156,6 @@ function Quiz({ ciclo }) {
   const dias = resp.dias || 4;
   const semana = SEMANA_EXEMPLO[resp.obj === 'correr' ? 'endurance' : 'musculacao'][dias];
 
-  const comCiclo = ciclo && TEM_VAGA;
-  const precoTexto = comCiclo ? `${brl(CONSULTORIA.ciclo12)} por 12 semanas` : `${brl(PRECO_MES)}/mês`;
 
   function enviar(e) {
     e.preventDefault();
@@ -171,7 +166,7 @@ function Quiz({ ciclo }) {
       `Objetivo: ${textoDe('obj')}`,
       `Dias por semana: ${textoDe('dias')}`,
       `Onde treino: ${textoDe('onde')}`,
-      `Plano: ${CONSULTORIA.nome}${comCiclo ? ', ciclo de 12 semanas' : ' mensal'} (${precoTexto})`,
+      `Plano: ${CONSULTORIA.nome} (${brl(PRECO_MES)}/mês)`,
     ].join('\n');
     window.location.href = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
   }
@@ -239,16 +234,14 @@ function Quiz({ ciclo }) {
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-bold text-accent">{CONSULTORIA.nome}</p>
                 <p className="text-sm leading-snug text-ink-2">
-                  {comCiclo
-                    ? `Ciclo de 12 semanas, pago de uma vez. Sai ${brl(CICLO_MES)}/mês.`
-                    : TEM_VAGA
-                      ? `Valor de lançamento, só pras primeiras ${VAGAS.total} vagas.`
-                      : 'Mensal, sem fidelidade.'}
+                  {TEM_VAGA
+                    ? `Valor de lançamento, só pras primeiras ${VAGAS.total} vagas.`
+                    : 'Mensal, sem fidelidade.'}
                 </p>
               </div>
               <p className="whitespace-nowrap font-display text-lg font-semibold">
-                {comCiclo ? brl(CONSULTORIA.ciclo12) : brl(PRECO_MES)}
-                <span className="font-sans text-sm font-normal text-ink-3">{comCiclo ? '' : '/mês'}</span>
+                {brl(PRECO_MES)}
+                <span className="font-sans text-sm font-normal text-ink-3">/mês</span>
               </p>
             </div>
 
@@ -286,10 +279,6 @@ function Quiz({ ciclo }) {
 }
 
 export default function Treine() {
-  // Mensal ou ciclo de 12 semanas: escolhido no cartão do plano, vai junto no
-  // resultado do quiz e na mensagem.
-  const [ciclo, setCiclo] = useState(false);
-
   // ── Fotos do topo ──────────────────────────────────────────────────────────
   // 3 s por foto, a pedido dele: quem chega precisa ver que existem várias
   // ANTES de decidir rolar.
@@ -682,7 +671,7 @@ export default function Treine() {
           <h2 className={`${TITULO_SECAO} mt-2`}>Seu plano em 1 minuto</h2>
           <p className="mt-3 text-lg text-ink-2">3 perguntas. As respostas vão direto pro meu WhatsApp.</p>
           <div className="mt-7">
-            <Quiz ciclo={ciclo} />
+            <Quiz />
           </div>
           <p className="mt-4 text-center text-sm text-ink-3">
             <a href={LINK_WHATS_DIRETO}
@@ -695,8 +684,7 @@ export default function Treine() {
         {/* ── O PLANO ──────────────────────────────────────────────────────────
             Um cartão só. O contador de vagas sai de dados.js (número REAL,
             atualizado à mão): esgotou, o preço vira o cheio e o contador some.
-            O ciclo de 12 semanas só aparece enquanto existe o valor de
-            lançamento -- é sobre ele que o desconto foi calculado. */}
+            Só mensal (25/10): pagamento adiantado assusta, disse o Matheus. */}
         <section id="plano" className="scroll-mt-6 pt-16 lg:pt-20">
           <p className={ROTULO}>Plano</p>
           <h2 className="mt-2 text-[1.75rem] font-semibold leading-tight sm:text-4xl">
@@ -705,19 +693,6 @@ export default function Treine() {
 
           <div className="mt-8 max-w-xl rounded-[22px] p-5 ring-2 ring-accent sm:p-7"
             style={{ background: 'radial-gradient(100% 60% at 100% 0%, rgba(198,244,50,0.12), transparent 60%), #141619' }}>
-
-            {TEM_VAGA && (
-              <div className="mb-5 flex gap-1 rounded-[14px] bg-bg/70 p-1" role="group" aria-label="Forma de pagamento">
-                {[[false, 'Mensal'], [true, '12 semanas']].map(([v, rot]) => (
-                  <button key={rot} type="button" onClick={() => setCiclo(v)} aria-pressed={ciclo === v} aria-label={v ? 'Ciclo de 12 semanas' : 'Mensal'}
-                    className={`h-11 flex-1 rounded-[11px] px-2 text-sm font-bold transition ${
-                      ciclo === v ? 'bg-surface-2 text-ink ring-1 ring-white/10' : 'text-ink-2 hover:text-ink'
-                    }`}>
-                    {v && <span className="hidden sm:inline">Ciclo de </span>}{rot}
-                  </button>
-                ))}
-              </div>
-            )}
 
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h3 className="text-xl">{CONSULTORIA.nome}</h3>
@@ -730,10 +705,10 @@ export default function Treine() {
 
             <div className="mt-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
               <p className="whitespace-nowrap font-display text-[2.4rem] font-semibold leading-none tracking-tight">
-                {ciclo && TEM_VAGA ? brl(CONSULTORIA.ciclo12) : brl(PRECO_MES)}
+                {brl(PRECO_MES)}
               </p>
-              <p className="text-base text-ink-2">{ciclo && TEM_VAGA ? '/12 semanas' : '/mês'}</p>
-              {TEM_VAGA && !ciclo && (
+              <p className="text-base text-ink-2">/mês</p>
+              {TEM_VAGA && (
                 <p className="text-base text-ink-3">
                   <span className="sr-only">Depois das vagas, </span>
                   <s>{brl(CONSULTORIA.depois)}</s>
@@ -741,9 +716,7 @@ export default function Treine() {
               )}
             </div>
             <p className="mt-2 text-sm font-semibold text-accent">
-              {ciclo && TEM_VAGA
-                ? `${brl(CICLO_MES)}/mês · economiza ${brl(CICLO_ECONOMIA)}`
-                : 'Mensal, cancela quando quiser'}
+              Mensal, cancela quando quiser
             </p>
 
             {TEM_VAGA && (

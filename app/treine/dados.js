@@ -298,14 +298,13 @@ export const NAO_PARA_VOCE = [
 // exercício": a biblioteca de vídeo não cobre todos.
 //
 // Preços em número (a tela formata): R$ 109,90 é o valor de lançamento, só
-// enquanto houver vaga; depois, R$ 149,90. O ciclo de 12 semanas é pago de uma
-// vez. Só existe no valor de lançamento -- com as vagas esgotadas a página
-// esconde o ciclo até ele decidir o preço novo.
+// enquanto houver vaga; depois, R$ 149,90. SÓ MENSAL: o ciclo de 12 semanas
+// pago de uma vez (R$ 299,90) chegou a entrar e saiu no mesmo dia, 25/10, a
+// pedido do Matheus -- valor alto adiantado assusta quem está decidindo.
 export const CONSULTORIA = {
   nome: 'Consultoria',
   lancamento: 109.9,
   depois: 149.9,
-  ciclo12: 299.9,
   resumo: 'Eu monto, você executa. Reviso todo mês.',
   itens: [
     'Treino montado pra você no app, com vídeo de execução',
@@ -406,7 +405,7 @@ export const SEMANA_EXEMPLO = {
 
 export const FAQ = [
   { q: 'Preciso de academia?', r: 'Não. Monto com academia completa, simples ou halteres em casa.' },
-  { q: 'Tem fidelidade?', r: 'Não. No mensal, cancelou, o mês seguinte não é cobrado. O ciclo de 12 semanas é pago de uma vez.' },
+  { q: 'Tem fidelidade?', r: 'Não. É mensal: cancelou, o mês seguinte não é cobrado.' },
   // Pergunta que o quiz levanta: "mandei a mensagem, já paguei?".
   { q: 'Pago na hora?', r: 'Não. Você manda as respostas, a gente conversa, e só depois eu mando a cobrança.' },
   { q: 'Corrida e ciclismo custam à parte?', r: 'Não. Entram no mesmo valor.' },
