@@ -9,6 +9,13 @@
 // NADA aqui pode ser inventado. Depoimento é o que a pessoa escreveu; número é
 // o que foi medido na avaliação dela. Depoimento fabricado com nome de aluno
 // real quebra a confiança de quem treina com ele e é propaganda enganosa.
+//
+// 25/10/2026, quarta versão: UM plano só (Consultoria, R$ 109,90 de
+// lançamento nas primeiras 50 vagas, depois R$ 149,90). Ninguém pagava o
+// Completo nem o Individual, e a escada de três fazia o aluno comparar em vez
+// de decidir. O formulário virou um quiz de 3 perguntas que manda as respostas
+// pro WhatsApp. Saíram PLANOS (e a lógica de `herda`), RECEBE e PASSOS; os
+// textos estão no histórico do git.
 
 // WhatsApp: (19) 99798-4847. Só dígitos, com o 55 na frente — formato do wa.me.
 export const WHATSAPP = '5519997984847';
@@ -232,14 +239,17 @@ export const NUMEROS = [
 // porquê. As versões longas (e o raciocínio de cada frase) estão no histórico
 // do git. O que NÃO mudou: preços, a escada por frequência de revisão, as
 // promessas de serviço dele (24h, revisão, garantia de 12 semanas) e o tom de
-// exigir a verdade do aluno.
+// exigir a verdade do aluno. (A escada de planos saiu depois, em 25/10: ver o
+// topo do arquivo.)
 //
 // SAÍRAM porque o app não faz mais: relatório mensal em PDF, treino de
 // musculação baixado em PDF e "o treino abre sem internet". O que o app faz de
 // verdade sem sinal é guardar a carga registrada e enviar quando a rede volta
 // (utils/filaOffline.js no app) -- é isso que a página diz agora.
 //
-// Regra que continua valendo: linha de plano só entra depois que existe.
+// Regra que continua valendo: linha de plano só entra depois que existe. Por
+// isso o link "só o app, a partir de R$ 19,90" do rascunho de 25/10 NÃO entrou:
+// esses planos ainda não existem.
 
 // ── AS TELAS DO APLICATIVO ───────────────────────────────────────────────────
 // Capturas do app v3 que o Gabriel fez pro e-mail de convite (aluna de
@@ -256,7 +266,13 @@ export const TELAS_APP = [
 // pedido dele. Formação (UNIMEP, pós em Biomecânica) está no histórico.
 export const CREF = 'CREF 167779-G/SP';
 
-// ── PRA QUEM É ───────────────────────────────────────────────────────────────
+// Identificação de quem vende, no rodapé. Não é enfeite: o Decreto 7.962/2013
+// (comércio eletrônico) exige nome e CPF/CNPJ do fornecedor na página de
+// venda. Se ele abrir CNPJ, troca aqui e o rodapé acompanha.
+export const CPF = '432.225.688-04';
+export const CIDADE = 'Piracicaba/SP';
+
+// ── PRA QUEM É (E PRA QUEM NÃO É) ────────────────────────────────────────────
 export const PARA_VOCE = [
   'Treina há anos e parou de evoluir.',
   'Já tentou treino de internet e largou.',
@@ -265,66 +281,53 @@ export const PARA_VOCE = [
   'Está voltando depois de um tempo parado.',
 ];
 
-// ── O QUE RECEBE ─────────────────────────────────────────────────────────────
-// Só o que o app faz hoje. "Vídeo de execução" e não "de cada exercício": a
-// biblioteca de vídeo não cobre todos.
-export const RECEBE = [
-  { t: 'Treino montado pra você', d: 'No seu objetivo, nos seus dias e no que tem onde você treina.' },
-  { t: 'No app, com vídeo de execução', d: 'Séries, carga e descanso na tela. Abriu, treinou.' },
-  { t: 'Corrida e ciclismo no mesmo valor', d: 'Planilha semanal por zona. Com prova marcada, o plano vai até ela.' },
-  { t: 'WhatsApp direto comigo', d: 'Resposta em até 24 horas, todo dia.' },
-  { t: 'Sua carga registrada', d: 'Treino a treino. Sem sinal na academia, ela sobe quando a internet voltar.' },
-  { t: 'Avaliação a cada 12 semanas', d: 'Fotos lado a lado com as anteriores e o plano refeito.' },
+// Dizer pra quem NÃO é filtra quem ia pedir reembolso na primeira semana. Dieta
+// é com nutricionista: ele não prescreve, e a página não pode deixar dúvida.
+export const NAO_PARA_VOCE = [
+  'Procura dieta (isso é com nutricionista).',
+  'Não quer registrar o que treinou.',
+  'Quer resultado em 2 semanas.',
 ];
 
-// ── PLANOS ───────────────────────────────────────────────────────────────────
-// A escada é por FREQUÊNCIA DE REVISÃO, não por conteúdo (o porquê está no
-// histórico, 01/09). Endurance no mesmo valor em todos -- fatiar por
-// modalidade é o que ele NÃO faz. Valores dele (31/08).
-export const PLANOS = [
-  {
-    nome: 'Essencial',
-    preco: 'R$ 149,90',
-    resumo: 'Eu monto, você executa. Reviso uma vez por mês.',
-    itens: [
-      'Treino no app, com vídeo de execução',
-      'Corrida ou ciclismo junto, se quiser',
-      'Revisão do programa todo mês',
-      'WhatsApp comigo, resposta em 24h',
-      'Avaliação com fotos a cada 12 semanas',
-    ],
-  },
-  {
-    nome: 'Completo',
-    preco: 'R$ 219,90',
-    destaque: 'Mais escolhido',
-    resumo: 'A cada 15 dias eu abro o seu histórico de carga e mexo no que travou.',
-    herda: 'Essencial',
-    itens: [
-      'Revisão a cada 15 dias',
-      'Correção de execução por vídeo',
-      'Zonas de corrida e ciclismo por teste',
-      'Plano até a sua prova',
-      'Ajuste sempre que precisar',
-    ],
-  },
-  {
-    nome: 'Individual',
-    preco: 'R$ 279,90',
-    // A chamada é em CASA, não na academia (correção dele, 01/09).
-    resumo: 'Meia hora por mês, só sua, por vídeo.',
-    herda: 'Completo',
-    itens: [
-      'Videochamada de 30 min todo mês',
-      'Seus vídeos e sua evolução, vistos juntos',
-      'O mês seguinte decidido com você',
-    ],
-  },
-];
+// ── O PLANO ──────────────────────────────────────────────────────────────────
+// Um plano só desde 25/10/2026. Os itens são SÓ o que ele já entrega hoje
+// (vinham do antigo Essencial, de RECEBE e de MINHA_PARTE). NÃO entram:
+// correção de execução por vídeo (ele confirmou que não faz parte da oferta,
+// ver o depoimento da Renata), revisão a cada 15 dias e videochamada -- eram
+// do Completo e do Individual, que saíram. "Vídeo de execução" e não "de cada
+// exercício": a biblioteca de vídeo não cobre todos.
+//
+// Preços em número (a tela formata): R$ 109,90 é o valor de lançamento, só
+// enquanto houver vaga; depois, R$ 149,90. O ciclo de 12 semanas é pago de uma
+// vez. Só existe no valor de lançamento -- com as vagas esgotadas a página
+// esconde o ciclo até ele decidir o preço novo.
+export const CONSULTORIA = {
+  nome: 'Consultoria',
+  lancamento: 109.9,
+  depois: 149.9,
+  ciclo12: 299.9,
+  resumo: 'Eu monto, você executa. Reviso todo mês.',
+  itens: [
+    'Treino montado pra você no app, com vídeo de execução',
+    'Corrida ou ciclismo junto, no mesmo valor. Com prova marcada, o plano vai até ela',
+    'Revisão do programa todo mês',
+    'WhatsApp direto comigo, resposta em até 24 h, todo dia',
+    'Ajuste na hora se você machucar, viajar ou trocar de academia',
+    'Avaliação com fotos a cada 12 semanas',
+  ],
+};
 
-export const VALE_PARA_TODOS = [
+// Vagas no valor de lançamento. ATUALIZAR À MÃO, com o número REAL de alunos
+// pagando R$ 109,90 (em 25/10/2026 o Matheus tem 10). Nunca arredondar pra
+// cima nem "dar uma ajudada": contador de escassez falso é propaganda
+// enganosa, e é o tipo de coisa que um aluno confere perguntando. Quando
+// `ocupadas` chegar em `total`, a página passa a mostrar R$ 149,90 e o
+// contador some sozinho.
+export const VAGAS = { total: 50, ocupadas: 10 };
+
+export const SELOS_PLANO = [
   'Sem fidelidade',
-  'Resposta em até 24h',
+  '7 dias pra desistir',
   'Garantia de 12 semanas',
 ];
 
@@ -341,8 +344,8 @@ export const MINHA_PARTE = [
 ];
 
 export const SUA_PARTE = [
-  'Fotos a cada 12 semanas.',
   'Registrar a carga que você fez de verdade.',
+  'Fotos a cada 12 semanas.',
   'Me avisar no dia em que doer.',
   'Não treinou? Me diz que não treinou.',
 ];
@@ -361,20 +364,51 @@ export const PROTOCOLO_FOTOS = {
     'distância nas próximas: é o que deixa a comparação justa.',
 };
 
-// ── COMO FUNCIONA ────────────────────────────────────────────────────────────
-// Responde a pergunta que ninguém faz em voz alta: QUANDO eu começo. Sem prazo
-// em dias pra montar o programa -- ele não combinou nenhum.
-export const PASSOS = [
-  { quando: 'Agora', t: 'Você preenche o formulário', d: 'Leva um minuto.' },
-  // "Mando a cobrança" saiu: dinheiro no primeiro contato esfria.
-  { quando: 'No mesmo dia', t: 'Eu te chamo no WhatsApp', d: 'Objetivo, rotina e o que você já treinou. Nada é decidido antes.' },
-  { quando: 'Quando quiser começar', t: 'Seu treino chega no app', d: 'Montado nos seus dias e no seu tempo.' },
-  { quando: 'Primeiras semanas', t: 'A gente acerta a carga', d: 'O primeiro treino é ponto de partida. Com os seus pesos reais, ele vira seu.' },
+// ── QUIZ ─────────────────────────────────────────────────────────────────────
+// Três perguntas no lugar do formulário. As respostas vão na mensagem do
+// WhatsApp: o Matheus abre a conversa já sabendo objetivo, dias e lugar. A
+// semana mostrada no resultado é EXEMPLO e a tela diz isso -- o treino de
+// verdade ele monta depois da conversa. CPF, e-mail e nascimento não são
+// pedidos: no primeiro contato afastam quem chegou do Instagram agora.
+export const QUIZ = [
+  { k: 'obj', rotulo: 'Objetivo', titulo: 'O que você quer agora?', ops: [
+    { v: 'massa', t: 'Ganhar massa e força', d: 'Musculação no centro' },
+    { v: 'secar', t: 'Perder gordura', d: 'Sem neura com balança' },
+    { v: 'correr', t: 'Correr ou pedalar melhor', d: 'Com ou sem prova marcada' },
+    { v: 'voltar', t: 'Voltar a treinar', d: 'Depois de um tempo parado' },
+  ] },
+  { k: 'dias', rotulo: 'Rotina', titulo: 'Quantos dias por semana dá pra treinar?', ops: [
+    { v: 3, t: '3 dias', d: 'Treinos que contam' },
+    { v: 4, t: '4 dias' },
+    { v: 5, t: '5 dias ou mais' },
+  ] },
+  { k: 'onde', rotulo: 'Local', titulo: 'Onde você treina?', ops: [
+    { v: 'academia', t: 'Academia completa' },
+    { v: 'simples', t: 'Academia simples' },
+    { v: 'casa', t: 'Em casa, com halteres' },
+  ] },
 ];
+
+// Semana de exemplo por número de dias. Endurance (correr/pedalar) tem a
+// sua; os outros objetivos usam a de musculação.
+export const SEMANA_EXEMPLO = {
+  musculacao: {
+    3: [['Seg', 'Treino A: superiores'], ['Qua', 'Treino B: inferiores'], ['Sex', 'Treino C: corpo todo']],
+    4: [['Seg', 'Treino A: superiores'], ['Ter', 'Treino B: inferiores'], ['Qui', 'Treino C: costas e braços'], ['Sex', 'Treino D: pernas e glúteos']],
+    5: [['Seg', 'Treino A: superiores'], ['Ter', 'Treino B: inferiores'], ['Qua', 'Cardio leve, 30 min'], ['Qui', 'Treino C: costas e braços'], ['Sex', 'Treino D: pernas e glúteos']],
+  },
+  endurance: {
+    3: [['Seg', 'Rodagem leve, zona 2'], ['Qua', 'Musculação: corpo todo'], ['Sáb', 'Longão']],
+    4: [['Seg', 'Rodagem leve, zona 2'], ['Ter', 'Musculação: inferiores'], ['Qui', 'Tiros curtos'], ['Sáb', 'Longão']],
+    5: [['Seg', 'Rodagem leve, zona 2'], ['Ter', 'Musculação: inferiores'], ['Qua', 'Tiros curtos'], ['Qui', 'Musculação: superiores'], ['Sáb', 'Longão']],
+  },
+};
 
 export const FAQ = [
   { q: 'Preciso de academia?', r: 'Não. Monto com academia completa, simples ou halteres em casa.' },
-  { q: 'Tem fidelidade?', r: 'Não. É mensal: cancelou, o mês seguinte não é cobrado.' },
+  { q: 'Tem fidelidade?', r: 'Não. No mensal, cancelou, o mês seguinte não é cobrado. O ciclo de 12 semanas é pago de uma vez.' },
+  // Pergunta que o quiz levanta: "mandei a mensagem, já paguei?".
+  { q: 'Pago na hora?', r: 'Não. Você manda as respostas, a gente conversa, e só depois eu mando a cobrança.' },
   { q: 'Corrida e ciclismo custam à parte?', r: 'Não. Entram no mesmo valor.' },
   { q: 'Sou iniciante. Serve?', r: 'Serve. O ponto de partida é o seu.' },
   { q: 'As fotos são obrigatórias?', r: 'São. Sem elas o ajuste vira chute. Ficam no app, só entre você e eu.' },
@@ -389,3 +423,12 @@ export const GARANTIA = {
   titulo: 'Garantia de 12 semanas',
   texto: 'Seguiu o plano e não evoluiu? Eu refaço o seu planejamento do zero, sem custo.',
 };
+
+// As três garantias juntas (25/10/2026). Os 7 dias não são cortesia: é o
+// direito de arrependimento do CDC (art. 49) pra compra fora do
+// estabelecimento, e internet conta. Escrever na página só deixa claro.
+export const GARANTIAS = [
+  { marca: '7 dias', t: 'Desistiu? Devolvo tudo.', d: 'Nos primeiros 7 dias, sem precisar explicar. É direito seu pelo Código de Defesa do Consumidor.' },
+  { marca: '12 sem.', t: GARANTIA.titulo, d: GARANTIA.texto },
+  { marca: '0', t: 'Zero fidelidade.', d: 'Cancelou, o mês seguinte não é cobrado.' },
+];
