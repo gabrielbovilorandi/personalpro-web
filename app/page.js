@@ -415,6 +415,15 @@ export default function LandingPage() {
 
       {/* FOOTER */}
       <footer className="border-t border-white/[0.05] py-10">
+        {/* Ponte pra consultoria do Matheus (/treine), aprovada pelo Gabriel em
+            25/10/2026. Discreta de propósito: esta página é pra personal, e o
+            link não pode disputar atenção com os botões de baixar o app. */}
+        <p className="max-w-6xl mx-auto px-4 md:px-8 mb-8 text-center text-[13px] text-white/40">
+          Quer treinar com o Matheus?{' '}
+          <a href="/treine/" className="font-medium text-white/70 underline decoration-white/20 underline-offset-4 hover:text-accent hover:decoration-accent/60 transition-colors">
+            Conheça a consultoria →
+          </a>
+        </p>
         <div className="max-w-6xl mx-auto px-4 md:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <Image src="/logo.png" alt="PersonalPro" width={110} height={32} style={{ objectFit: 'contain', height: 28, width: 'auto', opacity: 0.6 }} />
           <p className="text-[12px] text-white/20">© {new Date().getFullYear()} PersonalPro · Todos os direitos reservados</p>
