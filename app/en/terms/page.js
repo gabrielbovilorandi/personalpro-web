@@ -1,5 +1,5 @@
 import PaginaLegal from '@/components/legal/PaginaLegal';
-import { alternates } from '@/lib/legal';
+import { alternates } from '@/lib/idioma';
 
 // Tradução de /termos/ (content/legal/terms.en.html).
 export const metadata = {

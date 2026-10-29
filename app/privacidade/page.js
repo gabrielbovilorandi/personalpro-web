@@ -1,5 +1,5 @@
 import PaginaLegal from '@/components/legal/PaginaLegal';
-import { alternates } from '@/lib/legal';
+import { alternates } from '@/lib/idioma';
 
 // Texto: content/legal/privacidade.pt.html (ver lib/legal.js). Até a 1.2 esta
 // página copiava a política de personalpro-1d4bc.web.app no build; com a
