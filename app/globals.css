@@ -133,7 +133,7 @@ table { border-collapse: collapse; width: 100%; }
    precisa mexer em nenhum <Icone strokeWidth=...>. */
 .lucide { stroke-width: 1.75; }
 
-/* ── /privacidade: o HTML vem pronto da política do app (hosting/politica) ── */
+/* ── Páginas legais (/privacidade, /termos, /en/privacy, /en/terms): HTML de content/legal ── */
 .politica header { padding-bottom: 20px; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.08); }
 .politica h1 { font-family: var(--font-display); font-weight: 600; font-size: 30px; line-height: 1.2; color: var(--color-ink); text-wrap: balance; }
 .politica .meta { margin-top: 8px; font-size: 13px; color: var(--color-ink-3); }
@@ -145,4 +145,5 @@ table { border-collapse: collapse; width: 100%; }
 .politica li + li { margin-top: 4px; }
 .politica strong, .politica b { color: var(--color-ink); font-weight: 600; }
 .politica a { color: var(--color-accent); text-decoration: underline; text-underline-offset: 2px; }
+.politica .aviso-traducao { margin: 20px 0 4px; padding: 12px 14px; border-radius: 12px; background: var(--color-surface); border: 1px solid rgba(255,255,255,0.08); font-size: 14px; }
 .politica .contato { margin-top: 32px; padding: 16px 18px; border-radius: 14px; background: var(--color-surface); border: 1px solid rgba(255,255,255,0.08); font-size: 15px; color: var(--color-ink-2); }
