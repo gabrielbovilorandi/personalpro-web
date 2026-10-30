@@ -1,0 +1,27 @@
+# Personal Pro
+
+> Personal Pro is a mobile app (iOS and Android) for personal trainers, made in Brazil by a personal trainer (Matheus Barbosa, CREF). In one place, the trainer prescribes workouts that go to the student's phone, runs the schedule, bills students automatically (Pix or card) and tracks results. Students get their own app to follow workouts and see their progress. Available in Portuguese, English and Spanish.
+
+## What the app does
+
+- Strength workouts with exercise videos; the student logs sets and loads, the trainer sees it live
+- Running and cycling plans with zones, interval repeats and group plans ("Turmas"); workouts are sent to Apple Watch and Garmin
+- Schedule with reminders for students
+- Automatic billing (Pix or card) and a finance overview for the trainer
+- Physical assessments and before/after progress photos
+- Pricing: the first month is free with unlimited students; after that, monthly, quarterly, semiannual and annual plans
+
+## Pages
+
+- [Home (Portuguese)](https://personalpro.app.br/): overview of the app for personal trainers
+- [Home (English)](https://personalpro.app.br/en/)
+- [Home (Spanish)](https://personalpro.app.br/es/)
+- [Online coaching with Matheus (Brazil, Portuguese)](https://personalpro.app.br/treine/): Matheus's own coaching service, a separate product from the app
+- [Privacy policy](https://personalpro.app.br/privacidade/) · [English](https://personalpro.app.br/en/privacy/) · [Spanish](https://personalpro.app.br/es/privacidad/)
+- [Terms of use](https://personalpro.app.br/termos/) · [English](https://personalpro.app.br/en/terms/) · [Spanish](https://personalpro.app.br/es/terminos/)
+
+## Download
+
+- [App Store](https://apps.apple.com/br/app/personal-pro/id6782193425)
+- [Google Play](https://play.google.com/store/apps/details?id=com.matheuspersonalpro.personalpro)
+- [Web app (sign in)](https://app.personalpro.app.br/)
