@@ -1,13 +1,13 @@
 import PaginaLegal from '@/components/legal/PaginaLegal';
-import { alternates } from '@/lib/idioma';
+import { metadataPagina } from '@/lib/seo';
 
 // Tradução de /termos/ (content/legal/terms.en.html).
-export const metadata = {
+export const metadata = metadataPagina({
+  pagina: 'termos',
+  idioma: 'en',
   title: 'Terms of Use · Personal Pro',
-  description: 'The rules for using the Personal Pro app.',
-  alternates: alternates('termos', 'en'),
-  openGraph: { locale: 'en_US' },
-};
+  description: 'Terms of use of the Personal Pro app for personal trainers and their clients.',
+});
 
 export default function Terms() {
   return <PaginaLegal doc="termos" idioma="en" />;

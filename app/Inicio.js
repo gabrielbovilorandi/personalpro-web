@@ -82,7 +82,7 @@ export default function LandingPage({ idioma = 'pt-BR' }) {
       <nav className="sticky top-0 z-50 border-b border-white/[0.05]"
         style={{ background: 'rgba(10,11,13,0.85)', backdropFilter: 'blur(16px)' }}>
         <div className="max-w-6xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
-          <Image src="/logo.png" alt="Personal Pro" width={130} height={36} style={{ objectFit: 'contain', height: 32, width: 'auto' }} priority />
+          <Image src="/logo.png" alt="Personal Pro" width={130} height={36} style={{ objectFit: 'contain', height: 32, width: 'auto' }} loading="eager" />
           <div className="flex items-center gap-1 sm:gap-3">
             {/* No celular a barra não tem lugar pro seletor: ele fica no rodapé. */}
             <TrocaIdioma atual={idioma} caminhos={PAGINAS.inicio} className="hidden md:flex" />
@@ -101,6 +101,8 @@ export default function LandingPage({ idioma = 'pt-BR' }) {
         </div>
       </nav>
 
+      {/* <main> só marca o conteúdo pra leitor de tela e buscador: sem estilo. */}
+      <main>
       {/* HERO */}
       <section className="max-w-6xl mx-auto px-4 md:px-8 pt-20 pb-24 md:pt-28 md:pb-32">
         <div className="flex flex-col md:flex-row items-center gap-12 md:gap-16">
@@ -337,6 +339,8 @@ export default function LandingPage({ idioma = 'pt-BR' }) {
           {t.faqs.map(f => <FaqItem key={f.q} q={f.q} a={f.a} />)}
         </div>
       </section>
+
+      </main>
 
       {/* FOOTER */}
       <footer className="border-t border-white/[0.05] py-10">

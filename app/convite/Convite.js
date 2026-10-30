@@ -88,7 +88,7 @@ export default function Convite({ idioma = 'pt-BR' }) {
       <TrocaIdioma atual={idioma} caminhos={PAGINAS.convite} className="absolute right-4 top-4" />
       <div className="w-full max-w-md">
         <div className="text-center">
-          <img src="/logo.png" alt="Personal Pro" className="h-14 mx-auto mb-8" />
+          <img src="/logo.png" alt="Personal Pro" width={56} height={56} className="h-14 mx-auto mb-8" />
           <h1 className="text-3xl font-semibold tracking-tight font-display">
             {t.titulo}
           </h1>

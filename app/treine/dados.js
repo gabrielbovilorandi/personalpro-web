@@ -31,14 +31,14 @@ export const WHATSAPP = '5519997984847';
 // lado. As três têm proporção diferente (9:16, 2:3 e 3:4), então cada uma
 // precisa do seu recorte pra não cortar cabeça nem pé.
 export const FOTOS_TOPO = [
-  { src: '/matheus.jpg',           alt: 'Matheus Barbosa na academia',          pos: 'center 12%', posLg: 'top' },
+  { src: '/matheus.webp',           alt: 'Matheus Barbosa na academia',          pos: 'center 12%', posLg: 'top' },
   // Ordem escolhida pelo Matheus: personal, ciclismo, corrida. A do ciclismo foi
   // trocada em 16/10 por uma que ele escolheu (trilha, rosto e bike inteiros);
   // o original é 9:16 e foi recortado em 3:4, a proporção da coluna. Nome de
   // arquivo novo de propósito: com o nome antigo, o navegador de quem já tinha
   // visitado continuava mostrando a foto da estrada (o Matheus viu isso).
-  { src: '/matheus-trilha.jpg',     alt: 'Matheus Barbosa com a bike numa trilha', pos: 'center',     posLg: 'center' },
-  { src: '/matheus-corrida.jpg',   alt: 'Matheus Barbosa correndo uma prova',   pos: 'center 25%', posLg: 'center 20%' },
+  { src: '/matheus-trilha.webp',     alt: 'Matheus Barbosa com a bike numa trilha', pos: 'center',     posLg: 'center' },
+  { src: '/matheus-corrida.webp',   alt: 'Matheus Barbosa correndo uma prova',   pos: 'center 25%', posLg: 'center 20%' },
 ];
 
 

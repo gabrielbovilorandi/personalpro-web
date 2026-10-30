@@ -1,13 +1,15 @@
 import Convite from '@/app/convite/Convite';
-import { alternates } from '@/lib/idioma';
+import { metadataPagina } from '@/lib/seo';
 
 // /convite/ em inglês. O código chega na query (?codigo=), igual ao português.
-export const metadata = {
+export const metadata = metadataPagina({
+  pagina: 'convite',
+  idioma: 'en',
   title: 'Your trainer invited you · Personal Pro',
   description: 'Download Personal Pro and join with your invite code.',
-  alternates: alternates('convite', 'en'),
-  openGraph: { locale: 'en_US' },
-};
+  // Página de quem recebeu um código: sem valor na busca, fica fora do índice.
+  indexar: false,
+});
 
 export default function Page() {
   return <Convite idioma="en" />;
