@@ -1,5 +1,5 @@
 import PaginaLegal from '@/components/legal/PaginaLegal';
-import { alternates } from '@/lib/legal';
+import { alternates } from '@/lib/idioma';
 
 // Tradução de /privacidade/ (content/legal/privacy.en.html). O <html lang="en">
 // vem de scripts/idioma-html.mjs, no fim do build.
