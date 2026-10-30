@@ -290,6 +290,14 @@ export default function Treine() {
     return () => clearTimeout(t);
   }, [foto, topoNaTela]);
   const trocarFoto = (passo) => setFoto((i) => (i + passo + FOTOS_TOPO.length) % FOTOS_TOPO.length);
+  // A 2ª e a 3ª foto só entram depois que a 1ª carregou (ou 1,5 s, o que vier
+  // antes): baixando as três juntas, elas disputavam a banda com a 1ª, que é o
+  // maior elemento da tela (LCP) no celular. A troca é aos 3 s, dá tempo.
+  const [fotosExtras, setFotosExtras] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setFotosExtras(true), 1500);
+    return () => clearTimeout(t);
+  }, []);
   const arrastoFoto = useArrastar(() => trocarFoto(-1), () => trocarFoto(1));
 
   // ── Telas do app ───────────────────────────────────────────────────────────
@@ -385,14 +393,15 @@ export default function Treine() {
                   }`}
                   style={transicaoSlide}
                 >
-                  <Image
-                    src={f.src} alt={ativa ? f.alt : ''}
-                    fill priority={i === 0} sizes="(min-width: 1024px) 45vw, 100vw"
+                  {(i === 0 || fotosExtras || i === foto) && <Image
+                    src={f.src} alt={f.alt}
+                    onLoad={i === 0 ? () => setFotosExtras(true) : undefined}
+                    fill loading={i === 0 ? 'eager' : 'lazy'} fetchPriority={i === 0 ? 'high' : 'auto'} sizes="(min-width: 1024px) 45vw, 100vw"
                     className={`object-cover [object-position:var(--pos)] lg:[object-position:var(--pos-lg)] transition-transform duration-[4000ms] ease-out motion-reduce:transition-none ${
                       ativa ? 'scale-100' : 'scale-105'
                     }`}
                     style={{ '--pos': f.pos, '--pos-lg': f.posLg }}
-                  />
+                  />}
                 </div>
               );
             })}
@@ -474,7 +483,7 @@ export default function Treine() {
                 ))}
               </div>
               <div className="mt-2.5 flex items-start gap-2.5 rounded-[14px] bg-accent/10 p-3">
-                <img src="/matheus.jpg" alt="" className="h-8 w-8 shrink-0 rounded-full object-cover" style={{ objectPosition: 'center 12%' }} />
+                <img src="/matheus.webp" alt="" width={32} height={32} className="h-8 w-8 shrink-0 rounded-full object-cover" style={{ objectPosition: 'center 12%' }} />
                 <div>
                   <p className="text-[13px] font-bold text-accent">Matheus ajustou</p>
                   <p className="text-sm leading-snug">Fechou as 3 séries perto do alvo. Na próxima: 62,5 kg, mesmas repetições.</p>
@@ -533,7 +542,8 @@ export default function Treine() {
                       <div className="grid grid-cols-2 gap-0.5 overflow-hidden rounded-[18px]">
                         {[['Antes', t.antes], ['Depois', t.depois]].map(([rotulo, src]) => (
                           <div key={rotulo} className="relative aspect-[9/16] overflow-hidden">
-                            <img src={src} alt="" loading="lazy" className="h-full w-full object-cover" />
+                            {/* Alt só na primeira cópia: a segunda (aria-hidden) é a emenda da fila. */}
+                            <img src={src} alt={n < OUTRAS_TRANSF.length ? `${t.quem.split(',')[0]}, ${rotulo.toLowerCase()}` : ''} loading="lazy" className="h-full w-full object-cover" />
                             <span className={`absolute left-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest ${
                               rotulo === 'Depois' ? 'bg-accent text-on-accent' : 'bg-black/70 text-white/85'
                             }`}>
@@ -643,7 +653,7 @@ export default function Treine() {
                     <div className="mx-auto w-[220px] overflow-hidden rounded-[2rem] border-[6px] border-surface-2 bg-bg shadow-2xl shadow-black/60 sm:mx-0 sm:w-[240px]">
                       {/* Moldura na proporção real das capturas (480x840):
                           com proporção de aparelho, o cover cortava as laterais. */}
-                      <img src={t.src} alt={t.titulo} loading={i === 0 ? undefined : 'lazy'}
+                      <img src={t.src} alt={t.titulo} width={480} height={840} loading="lazy"
                         className="aspect-[480/840] w-full rounded-[1.6rem] object-cover" />
                     </div>
                     <div className="text-center sm:text-left">
@@ -813,7 +823,7 @@ export default function Treine() {
                     <div className="mt-4 grid grid-cols-3 gap-2">
                       {PROTOCOLO_FOTOS.modelo.map((m) => (
                         <figure key={m.rotulo}>
-                          <img src={m.src} alt={`Exemplo de foto ${m.rotulo.toLowerCase()}`} loading="lazy" className="w-full rounded-[10px]" />
+                          <img src={m.src} alt={`Exemplo de foto ${m.rotulo.toLowerCase()}`} width={520} height={694} loading="lazy" className="w-full rounded-[10px]" />
                           <figcaption className="mt-1.5 text-xs font-semibold text-ink">{m.rotulo}</figcaption>
                         </figure>
                       ))}
@@ -853,7 +863,7 @@ export default function Treine() {
             Curto de propósito (a seção longa saiu a pedido dele, 16/10). A
             foto de prova com número de peito diz mais que currículo. */}
         <section className="mt-16 flex items-center gap-4 border-t border-white/[0.06] pt-10 lg:mt-20">
-          <img src="/matheus-corrida.jpg" alt="Matheus Barbosa correndo uma prova"
+          <img src="/matheus-corrida.webp" width={96} height={120} loading="lazy" alt="Matheus Barbosa correndo uma prova"
             className="h-[120px] w-24 shrink-0 rounded-[18px] object-cover" style={{ objectPosition: 'center 20%' }} />
           <div className="min-w-0">
             <p className="font-display text-lg font-semibold">Matheus Barbosa</p>

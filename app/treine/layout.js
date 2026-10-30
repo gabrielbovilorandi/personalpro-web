@@ -16,8 +16,13 @@
 // `metadataBase` existe porque o Open Graph exige URL absoluta: caminho
 // relativo nao e resolvido pelo WhatsApp nem pelo Instagram, e a imagem
 // simplesmente nao aparece.
+import JsonLd from '@/components/JsonLd';
+import { CREF } from './dados';
+
 export const metadata = {
   metadataBase: new URL('https://personalpro.app.br'),
+  // Só em português (atende só no Brasil): canonical sem hreflang.
+  alternates: { canonical: 'https://personalpro.app.br/treine/' },
   title: 'Treine com Matheus Barbosa | Consultoria online',
   description:
     'Consultoria online de musculação, corrida e ciclismo. Treino no aplicativo, com vídeo de execução. Sem fidelidade.',
@@ -27,7 +32,8 @@ export const metadata = {
       'Consultoria online de musculação, corrida e ciclismo. Treino no aplicativo, com vídeo de execução. Sem fidelidade.',
     type: 'website',
     locale: 'pt_BR',
-    url: '/treine',
+    url: '/treine/',
+    siteName: 'Personal Pro',
     // Sem imagem o link chegava como texto puro no WhatsApp, que e onde ele
     // manda esse link o dia inteiro -- e onde a foto decide se a pessoa toca
     // ou passa reto. 1200x630 e o recorte das duas plataformas.
@@ -45,9 +51,32 @@ export const metadata = {
   },
 };
 
+// Dados estruturados: o serviço (consultoria online) e quem presta. Sem preço
+// (muda com as vagas, em dados.js) e sem nota/avaliação.
+const JSON_LD = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  '@id': 'https://personalpro.app.br/treine/#consultoria',
+  name: 'Consultoria online com Matheus Barbosa',
+  serviceType: 'Consultoria online de musculação, corrida e ciclismo',
+  description: metadata.description,
+  url: 'https://personalpro.app.br/treine/',
+  image: 'https://personalpro.app.br/og-treine-v3.jpg',
+  areaServed: { '@type': 'Country', name: 'Brasil' },
+  availableLanguage: 'pt-BR',
+  provider: {
+    '@type': 'Person',
+    name: 'Matheus Barbosa',
+    jobTitle: 'Personal trainer',
+    hasCredential: { '@type': 'EducationalOccupationalCredential', name: CREF },
+    sameAs: ['https://www.instagram.com/matheusseupersonal/'],
+  },
+};
+
 export default function TreineLayout({ children }) {
   return (
     <div className="min-h-full bg-bg text-ink">
+      <JsonLd dados={JSON_LD} />
       {children}
     </div>
   );

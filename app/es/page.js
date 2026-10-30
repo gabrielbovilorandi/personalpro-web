@@ -1,15 +1,21 @@
 import Inicio from '../Inicio';
-import { alternates } from '@/lib/idioma';
+import JsonLd from '@/components/JsonLd';
+import { metadataPagina, jsonLdInicio } from '@/lib/seo';
 
 // Página inicial em espanhol (México e América Latina). O <html lang="es">
 // vem de scripts/idioma-html.mjs, no fim do build.
-export const metadata = {
+export const metadata = metadataPagina({
+  pagina: 'inicio',
+  idioma: 'es',
   title: 'Personal Pro · La app para entrenadores personales',
   description: 'Alumnos, entrenamientos, agenda, pagos y evaluaciones en una sola app. Gratis hasta 3 alumnos.',
-  alternates: alternates('inicio', 'es'),
-  openGraph: { locale: 'es_MX' },
-};
+});
 
 export default function Page() {
-  return <Inicio idioma="es" />;
+  return (
+    <>
+      <JsonLd dados={jsonLdInicio('es')} />
+      <Inicio idioma="es" />
+    </>
+  );
 }
