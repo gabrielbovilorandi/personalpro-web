@@ -25,9 +25,8 @@ const TEXTOS = {
   },
 };
 
-// A logo leva pra página inicial do mesmo idioma (inglês não tem: vai pra de
-// português).
-const INICIO = { 'pt-BR': '/', en: '/', es: '/es/' };
+// A logo leva pra página inicial do mesmo idioma.
+const INICIO = { 'pt-BR': '/', en: '/en/', es: '/es/' };
 
 export default function PaginaLegal({ doc, idioma }) {
   const html = lerDocumento(doc, idioma);

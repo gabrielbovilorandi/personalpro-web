@@ -11,8 +11,8 @@ import {
   Smartphone, BarChart2, BookOpen, Bell, LayoutDashboard, Wallet,
 } from 'lucide-react';
 
-// Os textos (português e espanhol) estão em inicio.textos.js; aqui ficam
-// os ícones e os números, que são os mesmos nos dois idiomas.
+// Os textos (português, inglês e espanhol) estão em inicio.textos.js; aqui ficam
+// os ícones e os números, que são os mesmos em todos os idiomas.
 const ICONES_FEATURES = [Users, Dumbbell, DollarSign, CalendarDays, Activity, Smartphone];
 
 const PLANOS = [

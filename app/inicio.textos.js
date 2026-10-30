@@ -1,8 +1,12 @@
-// Textos da página inicial (/ e /es/). O português é o original; o espanhol
-// (México e América Latina, tú, glossário do app em espanhol) foi pedido pelo
-// Matheus em 29/10/2026. Mudou um, mude o outro.
+// Textos da página inicial (/, /en/ e /es/). O português é o original; o
+// espanhol (México e América Latina, tú, glossário do app em espanhol) e o
+// inglês (americano, "clients" como no app em inglês) foram pedidos pelo
+// Matheus em 29/10/2026. Mudou um, mude os outros.
 //
-// Diferenças de conteúdo de propósito no espanhol:
+// Inglês e espanhol: sem o link da consultoria (/treine/ é só pro Brasil),
+// Asaas/Pix/boleto ditos como só do Brasil, preços em R$ com ponto decimal.
+//
+// Diferenças de conteúdo de propósito no espanhol (e no inglês):
 // - Asaas, Pix e boleto só existem no Brasil: o texto diz isso em vez de
 //   prometer cobrança automática pra quem está no México.
 // - "o melhor personal do Brasil" virou "da sua cidade".
@@ -80,6 +84,78 @@ export const TEXTOS_INICIO = {
     privacidade: 'Privacidade',
   },
 
+  en: {
+    entrar: 'Log in',
+    baixarApp: 'Get the app',
+    // As the official store badges say in English.
+    loja: { play: 'Get it on', apple: 'Download on the' },
+    selo: 'The all-in-one app for personal trainers',
+    titulo1: 'Manage your clients',
+    titulo2: 'the right way.',
+    sub: 'Workouts, scheduling, payments, and assessments in one app, so you can focus on what matters most: changing lives.',
+    gratis: 'Free for up to 3 clients · No credit card',
+    pc: 'or use it on your computer',
+    mock: {
+      saudacao: 'Good afternoon',
+      proxima: 'Next session',
+      emMin: 'in 25 min',
+      aluno: 'Jake Miller · Muscle gain',
+      recebido: 'Collected this month',
+      de: 'of R$ 3,100',
+      valor: 'R$ 2,400',
+      lista: [
+        { nome: 'Sarah M.', info: '3 days overdue', chip: 'Collect', tom: 'text-danger bg-danger/15' },
+        { nome: 'Emily Ross', info: 'due tomorrow', chip: 'Remind', tom: 'text-warn bg-warn/15' },
+      ],
+      abas: ['Home', 'Schedule', 'Workouts', 'Clients', 'Finance'],
+    },
+    featRotulo: 'Features',
+    featTitulo: 'Everything you need',
+    featSub: 'One platform to run your personal training business.',
+    features: [
+      { title: 'Client management', desc: 'Add clients and keep track of payment due dates, plans, and their full history in one place.' },
+      { title: 'Custom workouts', desc: 'Build programs with an exercise library, videos, and automatic 12-month periodization.' },
+      { title: 'Payments at a glance', desc: 'See your income, who’s behind on payments, and what’s due this week. In Brazil, automatic billing through Asaas.' },
+      { title: 'Smart scheduling', desc: 'Handle sessions, reschedules, time off, and make-up sessions without double-booking.' },
+      { title: 'Fitness assessments', desc: '7-site skinfold (Jackson-Pollock), BMI, body fat %, and progress charts.' },
+      { title: 'An app for your clients', desc: 'Your clients see their workouts, videos, and progress right on their phone. iOS and Android.' },
+    ],
+    planosRotulo: 'Pricing',
+    planosTitulo: 'Invest in your business',
+    planosSub: 'Start free. Upgrade when you’re ready to grow.',
+    gratuito: 'Free plan',
+    gratuitoInfo: 'Up to 3 active clients · Free forever',
+    comecarGratis: 'Start free',
+    planos: {
+      mensal: { nome: 'Monthly', desc: 'A no-commitment way to get started.' },
+      trimestral: { nome: 'Quarterly', desc: 'Save 8% vs. monthly.', badge: '8% OFF' },
+      semestral: { nome: '6 months', desc: 'Save 17% vs. monthly.', badge: '17% OFF' },
+      anual: { nome: 'Annual', desc: 'Best value. Save 25%.', badge: 'MOST POPULAR' },
+    },
+    porMes: '/mo',
+    precoDe: 'was',
+    assinar: 'Subscribe',
+    planosNota: 'Every plan includes unlimited clients and full access to every feature.',
+    ctaTitulo1: 'Ready to be the best',
+    ctaTitulo2: 'trainer in your city?',
+    ctaSub: 'Join trainers already using PersonalPro to get organized and grow their business.',
+    ctaPc: 'or sign up on your computer',
+    faqRotulo: 'FAQ',
+    faqTitulo: 'Frequently asked questions',
+    faqs: [
+      { q: 'How many clients can I have for free?', a: 'Up to 3 active clients, no subscription needed. To manage more, choose one of the paid plans.' },
+      { q: 'Where do I get the app?', a: 'On Google Play (Android) and the App Store (iPhone). The buttons are at the top and bottom of this page. The same app works for you and your clients, and your account works on both your phone and your computer.' },
+      { q: 'Can I cancel anytime?', a: 'Yes. No contracts, no commitment. Cancel anytime in the app or by contacting us.' },
+      { q: 'Is my clients’ data secure?', a: 'All data is stored on Firebase (Google Cloud) and encrypted in transit and at rest.' },
+      { q: 'How do my clients pay me?', a: 'Log each payment in the app and see at a glance who’s paid and who hasn’t. If you work in Brazil, you can also bill clients by Pix, card, or boleto through the Asaas integration, and the money goes straight to your account.' },
+    ],
+    // No coaching link: Matheus's coaching is Brazil-only.
+    consultoria: '',
+    consultoriaLink: '',
+    direitos: 'All rights reserved',
+    privacidade: 'Privacy',
+  },
+
   es: {
     entrar: 'Iniciar sesión',
     baixarApp: 'Descargar app',
@@ -153,7 +229,7 @@ export const TEXTOS_INICIO = {
   },
 };
 
-/** Preço com a vírgula (pt-BR) ou o ponto (es-MX) decimal; a moeda é sempre R$. */
+/** Preço com a vírgula (pt-BR) ou o ponto (en, es-MX) decimal; a moeda é sempre R$. */
 export function precoR$(valor, idioma) {
   const n = valor.toFixed(2);
   return `R$ ${idioma === 'pt-BR' ? n.replace('.', ',') : n}`;
