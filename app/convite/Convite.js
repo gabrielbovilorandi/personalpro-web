@@ -33,6 +33,17 @@ const TEXTOS = {
     iphone: 'Baixar no iPhone',
     jaTem: 'Já tem o app instalado? Abra o Personal Pro, entre com seu e-mail e digite o código na tela de vínculo.',
   },
+  en: {
+    titulo: 'Your trainer invited you',
+    sub: 'Download Personal Pro and use the code below. Your workouts, assessments, and schedule, all in one place.',
+    rotuloCodigo: 'INVITE CODE',
+    copiado: 'Copied!',
+    toque: 'Tap to copy',
+    semCodigo: 'Ask your trainer for your invite code. It’s 6 characters long.',
+    android: 'Download for Android',
+    iphone: 'Download for iPhone',
+    jaTem: 'Already have the app? Open Personal Pro, sign in or create an account with your email, and enter your invite code.',
+  },
   es: {
     titulo: 'Tu entrenador te invitó',
     sub: 'Descarga Personal Pro y usa el código de abajo. Tus entrenamientos, evaluaciones y agenda, todo en un solo lugar.',
