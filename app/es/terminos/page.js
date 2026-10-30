@@ -3,8 +3,8 @@ import { alternates } from '@/lib/idioma';
 
 // Tradução de /termos/ (content/legal/terminos.es.html).
 export const metadata = {
-  title: 'Términos de uso · PersonalPro',
-  description: 'Las reglas para usar la app PersonalPro.',
+  title: 'Términos de uso · Personal Pro',
+  description: 'Las reglas para usar la app Personal Pro.',
   alternates: alternates('termos', 'es'),
   openGraph: { locale: 'es_MX' },
 };

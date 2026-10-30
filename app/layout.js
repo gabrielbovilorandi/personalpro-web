@@ -10,7 +10,7 @@ const sora = Sora({ subsets: ['latin'], variable: '--font-sora', display: 'swap'
 const manrope = Manrope({ subsets: ['latin'], variable: '--font-manrope', display: 'swap' });
 
 export const metadata = {
-  title: 'PersonalPro',
+  title: 'Personal Pro',
   description: 'Gestão para personal trainers',
   icons: { icon: '/favicon.png', apple: '/favicon.png' },
 };
