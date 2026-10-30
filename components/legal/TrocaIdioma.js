@@ -1,7 +1,7 @@
 'use client';
 
 // Seletor de idioma (PT | EN | ES) das páginas públicas. Mostra só os idiomas
-// que a página tem: as legais têm os três, a inicial, a /treine e o convite
+// que a página tem: as legais têm os três, a inicial e o convite
 // têm PT e ES. Bandeiras a pedido do Matheus (29/10/2026): espanhol com a da
 // Espanha, mesmo com o texto em espanhol da América Latina.
 //

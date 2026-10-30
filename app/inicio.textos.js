@@ -145,8 +145,9 @@ export const TEXTOS_INICIO = {
       { q: '¿Los datos de mis alumnos están seguros?', a: 'Todos los datos se guardan en Firebase (Google Cloud), cifrados en tránsito y en reposo.' },
       { q: '¿Cómo les cobro a mis alumnos?', a: 'En la app registras cada pago y ves al momento quién está al corriente y quién no. Si trabajas en Brasil, también puedes generar cobros por Pix, tarjeta o boleto bancario con la integración de Asaas, y el dinero llega directo a tu cuenta.' },
     ],
-    consultoria: '¿Quieres entrenar con Matheus?',
-    consultoriaLink: 'Conoce su asesoría en línea →',
+    // Sem o link da consultoria: ela é só pro Brasil.
+    consultoria: '',
+    consultoriaLink: '',
     direitos: 'Todos los derechos reservados',
     privacidade: 'Privacidad',
   },

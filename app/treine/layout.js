@@ -1,16 +1,13 @@
-import { alternates } from '@/lib/idioma';
-
 // Desde 16/10/2026 a página segue o padrão Grafite & Lima do app (Sora + Manrope,
 // fundo grafite, acento lima), a pedido do Matheus: quem compra a consultoria
 // já vê a cara do app que vai usar. Antes era Outfit + navy + o vermelho dele,
 // isolados do resto do site pela classe .treine-escopo (está no histórico do git).
 
-// Metadata da página de consultoria (a versão em espanhol tem o seu, em
-// app/es/entrena/page.js).
+// Metadata da página de consultoria.
 //
-// Fica no layout desde quando `page.js` era componente de cliente (a tela
-// agora está em Treine.js); o objeto `metadata` só é suportado em componente
-// de servidor.
+// Fica no layout, e não na page, porque `page.js` é componente de cliente (tem
+// formulário com estado) e a documentação do Next 16 é explícita: o objeto
+// `metadata` só é suportado em componente de servidor.
 //
 // O título e a descrição são o que aparece quando alguém compartilha o link no
 // WhatsApp ou no Instagram — é a primeira impressão de quem recebe, e vale mais
@@ -21,7 +18,6 @@ import { alternates } from '@/lib/idioma';
 // simplesmente nao aparece.
 export const metadata = {
   metadataBase: new URL('https://personalpro.app.br'),
-  alternates: alternates('treine', 'pt-BR'),
   title: 'Treine com Matheus Barbosa | Consultoria online',
   description:
     'Consultoria online de musculação, corrida e ciclismo. Treino no aplicativo, com vídeo de execução. Sem fidelidade.',

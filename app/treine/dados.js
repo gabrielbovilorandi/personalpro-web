@@ -229,7 +229,7 @@ export const TRANSFORMACOES = [
 // Se algum mudar, muda aqui: a faixa some sozinha se a lista ficar vazia.
 /** @type {{n:string, oq:string}[]} */
 export const NUMEROS = [
-  { n: '8 anos', oq: 'de profissão', anos: true },
+  { n: '8 anos', oq: 'de profissão' },
   { n: '+200', oq: 'alunos atendidos' },
 ];
 

@@ -75,7 +75,6 @@ function FaqItem({ q, a }) {
 
 export default function LandingPage({ idioma = 'pt-BR' }) {
   const t = TEXTOS_INICIO[idioma];
-  const ROTAS = { treine: PAGINAS.treine[idioma], privacidade: PAGINAS.privacidade[idioma] };
   return (
     <div lang={idioma} className="min-h-full bg-bg text-white">
 
@@ -331,12 +330,16 @@ export default function LandingPage({ idioma = 'pt-BR' }) {
         {/* Ponte pra consultoria do Matheus (/treine), aprovada pelo Gabriel em
             25/10/2026. Discreta de propósito: esta página é pra personal, e o
             link não pode disputar atenção com os botões de baixar o app. */}
+        {/* Só em português: a consultoria atende só no Brasil (o Matheus,
+            29/10/2026), então a página em espanhol não tem esse link. */}
+        {t.consultoria && (
         <p className="max-w-6xl mx-auto px-4 md:px-8 mb-8 text-center text-[13px] text-white/40">
           {t.consultoria}{' '}
-          <a href={ROTAS.treine} className="font-medium text-white/70 underline decoration-white/20 underline-offset-4 hover:text-accent hover:decoration-accent/60 transition-colors">
+          <a href="/treine/" className="font-medium text-white/70 underline decoration-white/20 underline-offset-4 hover:text-accent hover:decoration-accent/60 transition-colors">
             {t.consultoriaLink}
           </a>
         </p>
+        )}
         <div className="max-w-6xl mx-auto px-4 md:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <Image src="/logo.png" alt="PersonalPro" width={110} height={32} style={{ objectFit: 'contain', height: 28, width: 'auto', opacity: 0.6 }} />
           <p className="text-[12px] text-white/20">© {new Date().getFullYear()} PersonalPro · {t.direitos}</p>
@@ -344,7 +347,7 @@ export default function LandingPage({ idioma = 'pt-BR' }) {
             <a href={PLAY_URL} target="_blank" rel="noopener noreferrer" className="text-[12px] text-white/30 hover:text-white/60 transition-colors">Google Play</a>
             <a href={IOS_URL} target="_blank" rel="noopener noreferrer" className="text-[12px] text-white/30 hover:text-white/60 transition-colors">App Store</a>
             <a href={APP_WEB_ENTRAR} className="text-[12px] text-white/30 hover:text-white/60 transition-colors">{t.entrar}</a>
-            <a href={ROTAS.privacidade} className="text-[12px] text-white/30 hover:text-white/60 transition-colors">{t.privacidade}</a>
+            <a href={PAGINAS.privacidade[idioma]} className="text-[12px] text-white/30 hover:text-white/60 transition-colors">{t.privacidade}</a>
           </div>
         </div>
         <TrocaIdioma atual={idioma} caminhos={PAGINAS.inicio} className="mt-6 justify-center" />
