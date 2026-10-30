@@ -1,5 +1,6 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { planosVigentes, emJanelaFundador, proximaTroca, economiaVsMensal } from '@/lib/precosAssinatura';
 import Image from 'next/image';
 import { APP_WEB_ENTRAR } from '@/lib/appWeb';
 import { PAGINAS } from '@/lib/idioma';
@@ -15,12 +16,28 @@ import {
 // os ícones e os números, que são os mesmos em todos os idiomas.
 const ICONES_FEATURES = [Users, Dumbbell, DollarSign, CalendarDays, Activity, Smartphone];
 
-const PLANOS = [
-  { id: 'mensal', preco: 39.90, porMes: 39.90, popular: false },
-  { id: 'trimestral', preco: 109.90, porMes: 36.63, de: 119.70, popular: false },
-  { id: 'semestral', preco: 199.90, porMes: 33.32, de: 239.40, popular: false },
-  { id: 'anual', preco: 359.90, porMes: 29.99, de: 478.80, popular: true },
-];
+// Planos e preços: lib/precosAssinatura.js (tabela regular + janela de
+// fundador). A página é estática (output: 'export'): o HTML sai com a tabela
+// do momento do build e, no navegador, troca pra tabela de AGORA logo depois
+// de montar — e de novo se a página ficar aberta atravessando uma borda.
+// Mesmo número no HTML do build e na hidratação (next.config.mjs → env).
+const AGORA_DO_BUILD = Number(process.env.AGORA_DO_BUILD) || 0;
+
+function useAgora() {
+  const [agora, setAgora] = useState(AGORA_DO_BUILD);
+  useEffect(() => {
+    let id;
+    const agendar = () => {
+      const ms = Date.now();
+      setAgora(ms);
+      const troca = proximaTroca(ms);
+      if (troca != null && troca - ms < 2147483647) id = setTimeout(agendar, troca - ms + 1000);
+    };
+    agendar();
+    return () => clearTimeout(id);
+  }, []);
+  return agora;
+}
 
 // O site é a única coisa na bio do Instagram, e quem chega de lá está no
 // CELULAR procurando um app. Antes não havia um único link pras lojas — o
@@ -75,6 +92,9 @@ function FaqItem({ q, a }) {
 
 export default function LandingPage({ idioma = 'pt-BR' }) {
   const t = TEXTOS_INICIO[idioma];
+  const agora = useAgora();
+  const PLANOS = planosVigentes(agora);
+  const fundador = emJanelaFundador(agora);
   return (
     <div lang={idioma} className="min-h-full bg-bg text-white">
 
@@ -243,6 +263,9 @@ export default function LandingPage({ idioma = 'pt-BR' }) {
             </span>
           </h2>
           <p className="text-[15px] text-white/35 mt-3">{t.planosSub}</p>
+          {fundador && (
+            <p className="inline-block mt-4 px-3 py-1 rounded-full text-[12px] font-semibold text-accent bg-accent/10 ring-1 ring-accent/25">{t.fundador}</p>
+          )}
         </div>
 
         {/* Grátis */}
@@ -266,11 +289,16 @@ export default function LandingPage({ idioma = 'pt-BR' }) {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {PLANOS.map(p => { const tp = t.planos[p.id]; return (
+          {PLANOS.map(p => {
+            const tp = t.planos[p.id];
+            // Selo: "MAIS POPULAR" no anual; nos outros, o desconto da tabela.
+            const badge = tp.badge || p.desconto;
+            const desc = typeof tp.desc === 'function' ? tp.desc(economiaVsMensal(p, PLANOS)) : tp.desc;
+            return (
             <div key={p.id} className={`relative rounded-[22px] p-6 flex flex-col transition-all ${p.popular ? 'bg-accent shadow-2xl shadow-black/40 pt-8' : 'bg-surface ring-1 ring-white/[0.04] hover:ring-white/[0.12]'}`}>
-              {tp.badge && (
+              {badge && (
                 <div className={`absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${p.popular ? 'bg-on-accent text-accent' : 'bg-accent/15 text-accent ring-1 ring-accent/25'}`}>
-                  {tp.badge}
+                  {badge}
                 </div>
               )}
               <p className={`text-[13px] font-semibold mb-1 ${p.popular ? 'text-on-accent/70' : 'text-white/50'}`}>{tp.nome}</p>
@@ -294,7 +322,7 @@ export default function LandingPage({ idioma = 'pt-BR' }) {
                 <p className={`text-[11px] ${p.popular ? 'text-on-accent/60' : 'text-white/30'}`}>{t.equivale(precoR$(p.porMes, idioma))}</p>
               )}
               <div className="mb-3" />
-              <p className={`text-[12px] leading-relaxed mb-5 flex-1 ${p.popular ? 'text-on-accent/70' : 'text-white/35'}`}>{tp.desc}</p>
+              <p className={`text-[12px] leading-relaxed mb-5 flex-1 ${p.popular ? 'text-on-accent/70' : 'text-white/35'}`}>{desc}</p>
               <a href={APP_WEB_ENTRAR}
                 className={`flex items-center justify-center gap-1.5 py-2.5 rounded-[14px] text-[13px] font-bold transition-all ${p.popular ? 'bg-on-accent text-accent hover:bg-black' : 'bg-surface-2 text-ink hover:bg-white/[0.12]'}`}>
                 {t.assinar} <ChevronRight size={13} />
