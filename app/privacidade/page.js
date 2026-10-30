@@ -6,8 +6,8 @@ import { alternates } from '@/lib/idioma';
 // versão em inglês (pedido da Garmin, 29/10/2026) as duas moram aqui, lado a
 // lado, pra nunca ficarem em versões diferentes.
 export const metadata = {
-  title: 'Política de Privacidade · PersonalPro',
-  description: 'Como o PersonalPro trata os seus dados, em conformidade com a LGPD (Lei nº 13.709/2018).',
+  title: 'Política de Privacidade · Personal Pro',
+  description: 'Como o Personal Pro trata os seus dados, em conformidade com a LGPD (Lei nº 13.709/2018).',
   alternates: alternates('privacidade', 'pt-BR'),
 };
 
