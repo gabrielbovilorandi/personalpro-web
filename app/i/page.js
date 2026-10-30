@@ -5,8 +5,8 @@ import { OG_IMAGEM } from '@/lib/seo';
 //   https://personalpro.app.br/i/?c=MATHEUS27
 // O site é export estático: o código vem na query (/i/MATHEUS27 cai no 404,
 // que redireciona pra cá — app/not-found.js). Fora da busca: é página de link.
-const titulo = 'Você ganhou 1 mês grátis no Personal Pro';
-const descricao = 'Um amigo personal te indicou: assine com o código dele e o 1º mês sai grátis, em qualquer plano.';
+const titulo = 'Você ganhou meses grátis no Personal Pro';
+const descricao = 'Você foi indicado ao Personal Pro: crie sua conta, use o código ao assinar e ganhe até 3 meses grátis, em qualquer plano.';
 export const metadata = {
   title: titulo,
   description: descricao,

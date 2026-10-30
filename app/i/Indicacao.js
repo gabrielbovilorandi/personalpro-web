@@ -10,9 +10,10 @@
 //  - Android: baixar o app; quem já tem abre direto pelo personalpro:// (o
 //    app guarda o código igual).
 //
-// O nome do amigo sai do próprio código (MATHEUS27 → Matheus): o código do
-// personal é o 1º nome + 2 ou 3 dígitos. Código de vendedor (JOAO-VENDAS) não
-// tem esse formato e a página fica genérica.
+// Meses grátis (spec final, 30/10): todo personal novo tem 30 dias de teste;
+// código de personal (MATHEUS27) dá +1 → 2 meses; cupom de vendedor
+// (JOAO-7K2M, com hífen, vale 7 dias) dá +2 → 3 meses. O nome do amigo sai do
+// próprio código de personal (1º nome + 2 ou 3 dígitos).
 import { useEffect, useState } from 'react';
 import { APP_WEB_ENTRAR } from '@/lib/appWeb';
 import { LOJA_APPLE, LOJA_PLAY } from '@/lib/seo';
@@ -26,6 +27,8 @@ function nomeDoCodigo(codigo) {
   return m[1].charAt(0) + m[1].slice(1).toLowerCase();
 }
 
+const ehCupomVendedor = (codigo) => /^[A-Z]{2,10}-[A-Z0-9]{4}$/.test(codigo);
+
 export default function Indicacao() {
   const [codigo, setCodigo] = useState('');
   const [copiado, setCopiado] = useState(false);
@@ -37,6 +40,7 @@ export default function Indicacao() {
   }, []);
 
   const nome = nomeDoCodigo(codigo);
+  const meses = ehCupomVendedor(codigo) ? 3 : 2;
   const assinarSite = codigo ? `${APP_WEB_ENTRAR}?indicacao=${encodeURIComponent(codigo)}` : APP_WEB_ENTRAR;
   const abrirApp = `personalpro://indicacao?c=${encodeURIComponent(codigo)}`;
 
@@ -56,10 +60,10 @@ export default function Indicacao() {
         <div className="text-center">
           <img src="/logo.png" alt="Personal Pro" className="h-14 mx-auto mb-8" />
           <h1 className="text-3xl font-semibold tracking-tight font-display">
-            {nome ? `${nome} te deu 1 mês grátis` : 'Você ganhou 1 mês grátis'}
+            {codigo ? (nome ? `${nome} te deu ${meses} meses grátis` : `Você ganhou ${meses} meses grátis`) : 'Você ganhou meses grátis'}
           </h1>
           <p className="mt-3 text-white/60 leading-relaxed">
-            Organize alunos, treinos, agenda e cobranças no Personal Pro. Assine com o código abaixo e o 1º mês sai grátis, em qualquer plano.
+            Organize alunos, treinos, agenda e cobranças no Personal Pro. Crie sua conta, use o código abaixo ao assinar e só paga depois de {codigo ? meses : 2} meses, em qualquer plano.{ehCupomVendedor(codigo) ? ' O cupom vale por 7 dias.' : ''}
           </p>
         </div>
 
@@ -83,7 +87,7 @@ export default function Indicacao() {
             href={assinarSite}
             className="block rounded-[14px] bg-accent px-6 py-4 text-center font-semibold text-on-accent transition hover:bg-accent-hover"
           >
-            Assinar pelo site com 1 mês grátis
+            {codigo ? `Assinar pelo site com ${meses} meses grátis` : 'Assinar pelo site'}
           </a>
           <a
             href={LOJA_PLAY}
