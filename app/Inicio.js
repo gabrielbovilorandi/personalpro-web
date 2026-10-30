@@ -82,7 +82,7 @@ export default function LandingPage({ idioma = 'pt-BR' }) {
       <nav className="sticky top-0 z-50 border-b border-white/[0.05]"
         style={{ background: 'rgba(10,11,13,0.85)', backdropFilter: 'blur(16px)' }}>
         <div className="max-w-6xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
-          <Image src="/logo.png" alt="PersonalPro" width={130} height={36} style={{ objectFit: 'contain', height: 32, width: 'auto' }} priority />
+          <Image src="/logo.png" alt="Personal Pro" width={130} height={36} style={{ objectFit: 'contain', height: 32, width: 'auto' }} priority />
           <div className="flex items-center gap-1 sm:gap-3">
             {/* No celular a barra não tem lugar pro seletor: ele fica no rodapé. */}
             <TrocaIdioma atual={idioma} caminhos={PAGINAS.inicio} className="hidden md:flex" />
@@ -272,13 +272,26 @@ export default function LandingPage({ idioma = 'pt-BR' }) {
                 </div>
               )}
               <p className={`text-[13px] font-semibold mb-1 ${p.popular ? 'text-on-accent/70' : 'text-white/50'}`}>{tp.nome}</p>
+              {/* O preço grande é o que é COBRADO no período (decisão do
+                  Matheus, 29/10/2026). Riscado, o mesmo período no plano
+                  mensal (mensal × meses), e embaixo, pequeno, quanto dá por
+                  mês. Antes o grande era o por-mês e o riscado era o total do
+                  período: comparava coisas diferentes e parecia desconto falso. */}
               <div className="flex items-end gap-1 mb-1">
                 <p className={`text-[32px] font-black leading-none ${p.popular ? 'text-on-accent' : 'text-white'}`}>
-                  {precoR$(p.porMes, idioma)}
+                  {precoR$(p.preco, idioma)}
                 </p>
               </div>
-              <p className={`text-[11px] mb-1 ${p.popular ? 'text-on-accent/60' : 'text-white/30'}`}>{t.porMes}</p>
-              {p.de && <p className={`text-[11px] line-through mb-3 ${p.popular ? 'text-on-accent/50' : 'text-white/20'}`}>{t.precoDe} {precoR$(p.de, idioma)}</p>}
+              <p className={`text-[11px] mb-1 ${p.popular ? 'text-on-accent/60' : 'text-white/30'}`}>{t.periodo[p.id]}</p>
+              {p.de && (
+                <p className={`text-[11px] ${p.popular ? 'text-on-accent/50' : 'text-white/25'}`}>
+                  {t.precoDe && `${t.precoDe} `}<s>{precoR$(p.de, idioma)}</s>
+                </p>
+              )}
+              {p.id !== 'mensal' && (
+                <p className={`text-[11px] ${p.popular ? 'text-on-accent/60' : 'text-white/30'}`}>{t.equivale(precoR$(p.porMes, idioma))}</p>
+              )}
+              <div className="mb-3" />
               <p className={`text-[12px] leading-relaxed mb-5 flex-1 ${p.popular ? 'text-on-accent/70' : 'text-white/35'}`}>{tp.desc}</p>
               <a href={APP_WEB_ENTRAR}
                 className={`flex items-center justify-center gap-1.5 py-2.5 rounded-[14px] text-[13px] font-bold transition-all ${p.popular ? 'bg-on-accent text-accent hover:bg-black' : 'bg-surface-2 text-ink hover:bg-white/[0.12]'}`}>
@@ -341,8 +354,8 @@ export default function LandingPage({ idioma = 'pt-BR' }) {
         </p>
         )}
         <div className="max-w-6xl mx-auto px-4 md:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <Image src="/logo.png" alt="PersonalPro" width={110} height={32} style={{ objectFit: 'contain', height: 28, width: 'auto', opacity: 0.6 }} />
-          <p className="text-[12px] text-white/20">© {new Date().getFullYear()} PersonalPro · {t.direitos}</p>
+          <Image src="/logo.png" alt="Personal Pro" width={110} height={32} style={{ objectFit: 'contain', height: 28, width: 'auto', opacity: 0.6 }} />
+          <p className="text-[12px] text-white/20">© {new Date().getFullYear()} Personal Pro · {t.direitos}</p>
           <div className="flex items-center gap-4">
             <a href={PLAY_URL} target="_blank" rel="noopener noreferrer" className="text-[12px] text-white/30 hover:text-white/60 transition-colors">Google Play</a>
             <a href={IOS_URL} target="_blank" rel="noopener noreferrer" className="text-[12px] text-white/30 hover:text-white/60 transition-colors">App Store</a>

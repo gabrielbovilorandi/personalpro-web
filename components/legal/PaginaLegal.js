@@ -6,19 +6,19 @@ import { DOCUMENTOS, lerDocumento } from '@/lib/legal';
 
 const TEXTOS = {
   'pt-BR': {
-    inicio: 'PersonalPro, página inicial',
+    inicio: 'Personal Pro, página inicial',
     rodape: 'A mesma política aparece dentro do app, no cadastro e no Perfil.',
     rodapeTermos: 'O mesmo termo aparece dentro do app, no cadastro.',
     links: { privacidade: 'Política de Privacidade', termos: 'Termo de Uso' },
   },
   en: {
-    inicio: 'PersonalPro, home page',
+    inicio: 'Personal Pro, home page',
     rodape: 'The same policy is shown inside the app, at sign-up and in Profile.',
     rodapeTermos: 'The same terms are shown inside the app, at sign-up.',
     links: { privacidade: 'Privacy Policy', termos: 'Terms of Use' },
   },
   es: {
-    inicio: 'PersonalPro, página de inicio',
+    inicio: 'Personal Pro, página de inicio',
     rodape: 'La misma política aparece dentro de la app, al registrarte y en tu Perfil.',
     rodapeTermos: 'Los mismos términos aparecen dentro de la app, al registrarte.',
     links: { privacidade: 'Política de privacidad', termos: 'Términos de uso' },
@@ -39,7 +39,7 @@ export default function PaginaLegal({ doc, idioma }) {
       <div className="max-w-3xl mx-auto px-4 md:px-8 py-10 md:py-14">
         <div className="flex items-center justify-between gap-4 mb-10">
           <Link href={INICIO[idioma]} aria-label={t.inicio} className="inline-block">
-            <Image src="/logo.png" alt="PersonalPro" width={110} height={32} style={{ objectFit: 'contain', height: 28, width: 'auto' }} />
+            <Image src="/logo.png" alt="Personal Pro" width={110} height={32} style={{ objectFit: 'contain', height: 28, width: 'auto' }} />
           </Link>
           <TrocaIdioma atual={idioma} caminhos={DOCUMENTOS[doc]} />
         </div>
