@@ -5,6 +5,7 @@
 //
 // Inglês e espanhol: sem o link da consultoria (/treine/ é só pro Brasil),
 // Asaas/Pix/boleto ditos como só do Brasil, preços em R$ com ponto decimal.
+// Os % de economia vêm da tabela (lib/precosAssinatura.js): `desc` é função.
 //
 // Diferenças de conteúdo de propósito no espanhol (e no inglês):
 // - Asaas, Pix e boleto só existem no Brasil: o texto diz isso em vez de
@@ -57,15 +58,17 @@ export const TEXTOS_INICIO = {
     comecarGratis: 'Começar grátis',
     planos: {
       mensal: { nome: '1 mês', desc: 'Ideal para começar sem compromisso.' },
-      trimestral: { nome: '3 meses', desc: 'Economize 8% comparado ao mensal.', badge: '8% OFF' },
-      semestral: { nome: '6 meses', desc: 'Economize 17% comparado ao mensal.', badge: '17% OFF' },
-      anual: { nome: '12 meses', desc: 'Melhor custo-benefício. Economize 25%.', badge: 'MAIS POPULAR' },
+      trimestral: { nome: '3 meses', desc: (pct) => `Economize ${pct}% comparado ao mensal.` },
+      semestral: { nome: '6 meses', desc: (pct) => `Economize ${pct}% comparado ao mensal.` },
+      anual: { nome: '12 meses', desc: (pct) => `Melhor custo-benefício. Economize ${pct}%.`, badge: 'MAIS POPULAR' },
     },
     // O que é cobrado em cada período, e quanto dá por mês.
     periodo: { mensal: '/mês', trimestral: 'a cada 3 meses', semestral: 'a cada 6 meses', anual: 'por ano' },
     equivale: (v) => `equivale a ${v}/mês`,
     precoDe: 'de',
     assinar: 'Assinar',
+    // Só aparece na janela de fundador (lib/precosAssinatura.js).
+    fundador: 'Preço de fundador · só até hoje 23h59',
     planosNota: 'Todos os planos incluem alunos ilimitados e acesso completo a todas as funcionalidades.',
     ctaTitulo1: 'Pronto para ser o melhor',
     ctaTitulo2: 'personal do Brasil?',
@@ -130,15 +133,17 @@ export const TEXTOS_INICIO = {
     comecarGratis: 'Start free',
     planos: {
       mensal: { nome: 'Monthly', desc: 'A no-commitment way to get started.' },
-      trimestral: { nome: 'Quarterly', desc: 'Save 8% vs. monthly.', badge: '8% OFF' },
-      semestral: { nome: '6 months', desc: 'Save 17% vs. monthly.', badge: '17% OFF' },
-      anual: { nome: 'Annual', desc: 'Best value. Save 25%.', badge: 'MOST POPULAR' },
+      trimestral: { nome: 'Quarterly', desc: (pct) => `Save ${pct}% vs. monthly.` },
+      semestral: { nome: '6 months', desc: (pct) => `Save ${pct}% vs. monthly.` },
+      anual: { nome: 'Annual', desc: (pct) => `Best value. Save ${pct}%.`, badge: 'MOST POPULAR' },
     },
     // O que é cobrado em cada período, e quanto dá por mês.
     periodo: { mensal: '/mo', trimestral: 'every 3 months', semestral: 'every 6 months', anual: 'per year' },
     equivale: (v) => `works out to ${v}/mo`,
     precoDe: '',
     assinar: 'Subscribe',
+    // Só aparece na janela de fundador (lib/precosAssinatura.js).
+    fundador: 'Founder pricing · today only, until 11:59 PM',
     planosNota: 'Every plan includes unlimited clients and full access to every feature.',
     ctaTitulo1: 'Ready to be the best',
     ctaTitulo2: 'trainer in your city?',
@@ -204,15 +209,17 @@ export const TEXTOS_INICIO = {
     comecarGratis: 'Empezar gratis',
     planos: {
       mensal: { nome: '1 mes', desc: 'Ideal para empezar sin compromiso.' },
-      trimestral: { nome: '3 meses', desc: 'Ahorra 8% frente al plan mensual.', badge: '8% OFF' },
-      semestral: { nome: '6 meses', desc: 'Ahorra 17% frente al plan mensual.', badge: '17% OFF' },
-      anual: { nome: '12 meses', desc: 'La mejor relación costo-beneficio. Ahorra 25%.', badge: 'MÁS POPULAR' },
+      trimestral: { nome: '3 meses', desc: (pct) => `Ahorra ${pct}% frente al plan mensual.` },
+      semestral: { nome: '6 meses', desc: (pct) => `Ahorra ${pct}% frente al plan mensual.` },
+      anual: { nome: '12 meses', desc: (pct) => `La mejor relación costo-beneficio. Ahorra ${pct}%.`, badge: 'MÁS POPULAR' },
     },
     // O que é cobrado em cada período, e quanto dá por mês.
     periodo: { mensal: '/mes', trimestral: 'cada 3 meses', semestral: 'cada 6 meses', anual: 'al año' },
     equivale: (v) => `equivale a ${v}/mes`,
     precoDe: 'antes',
     assinar: 'Suscribirme',
+    // Só aparece na janela de fundador (lib/precosAssinatura.js).
+    fundador: 'Precio de fundador · solo hasta hoy a las 23:59',
     planosNota: 'Todos los planes incluyen alumnos ilimitados y acceso completo a todas las funciones.',
     ctaTitulo1: '¿Listo para ser el mejor',
     ctaTitulo2: 'entrenador de tu ciudad?',
