@@ -38,3 +38,29 @@ jobs:
     steps:
       - uses: actions/deploy-pages@v4
         id: deployment
+
+  # Mesmo build, servido também nos domínios Personal X (personalx.app.br,
+  # personalxapp.com.br e www): site "personalx-redirect" do Firebase Hosting.
+  # Regras em firebase.json: /convite e /.well-known seguem redirecionando pro
+  # personalpro.app.br (os links universais do app só valem lá).
+  # Login sem chave: Workload Identity Federation (pool "github", provider
+  # "personalpro-web", só este repo + branch master) → SA site-personalx-deploy.
+  firebase-personalx:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: github-pages
+      - name: Extrair o build
+        run: mkdir -p out && tar -xf artifact.tar -C out && rm artifact.tar && test -f out/index.html
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/703552257798/locations/global/workloadIdentityPools/github/providers/personalpro-web
+          service_account: site-personalx-deploy@personalpro-1d4bc.iam.gserviceaccount.com
+      - name: Deploy no Firebase Hosting (personalx-redirect)
+        run: npx --yes firebase-tools@15 deploy --only hosting --project personalpro-1d4bc --non-interactive -m "personalpro-web ${GITHUB_SHA::7}"
