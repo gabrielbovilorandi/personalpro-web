@@ -24,36 +24,36 @@ import TrocaIdioma from '@/components/legal/TrocaIdioma';
 const TEXTOS = {
   'pt-BR': {
     titulo: 'Seu personal te convidou',
-    sub: 'Baixe o Personal Pro e entre com o código abaixo. Seus treinos, avaliações e agenda ficam todos aqui.',
+    sub: 'Baixe o Personal X e entre com o código abaixo. Seus treinos, avaliações e agenda ficam todos aqui.',
     rotuloCodigo: 'CÓDIGO DE CONVITE',
     copiado: 'Copiado!',
     toque: 'Toque para copiar',
     semCodigo: 'Peça o código de convite ao seu personal — são 6 caracteres.',
     android: 'Baixar no Android',
     iphone: 'Baixar no iPhone',
-    jaTem: 'Já tem o app instalado? Abra o Personal Pro, entre com seu e-mail e digite o código na tela de vínculo.',
+    jaTem: 'Já tem o app instalado? Abra o Personal X, entre com seu e-mail e digite o código na tela de vínculo.',
   },
   en: {
     titulo: 'Your trainer invited you',
-    sub: 'Download Personal Pro and use the code below. Your workouts, assessments, and schedule, all in one place.',
+    sub: 'Download Personal X and use the code below. Your workouts, assessments, and schedule, all in one place.',
     rotuloCodigo: 'INVITE CODE',
     copiado: 'Copied!',
     toque: 'Tap to copy',
     semCodigo: 'Ask your trainer for your invite code. It’s 6 characters long.',
     android: 'Download for Android',
     iphone: 'Download for iPhone',
-    jaTem: 'Already have the app? Open Personal Pro, sign in or create an account with your email, and enter your invite code.',
+    jaTem: 'Already have the app? Open Personal X, sign in or create an account with your email, and enter your invite code.',
   },
   es: {
     titulo: 'Tu entrenador te invitó',
-    sub: 'Descarga Personal Pro y usa el código de abajo. Tus entrenamientos, evaluaciones y agenda, todo en un solo lugar.',
+    sub: 'Descarga Personal X y usa el código de abajo. Tus entrenamientos, evaluaciones y agenda, todo en un solo lugar.',
     rotuloCodigo: 'CÓDIGO DE INVITACIÓN',
     copiado: '¡Copiado!',
     toque: 'Toca para copiar',
     semCodigo: 'Pídele a tu entrenador el código de invitación: son 6 caracteres.',
     android: 'Descargar para Android',
     iphone: 'Descargar para iPhone',
-    jaTem: '¿Ya tienes la app? Abre Personal Pro, inicia sesión con tu correo y escribe el código de invitación.',
+    jaTem: '¿Ya tienes la app? Abre Personal X, inicia sesión con tu correo y escribe el código de invitación.',
   },
 };
 
@@ -88,7 +88,7 @@ export default function Convite({ idioma = 'pt-BR' }) {
       <TrocaIdioma atual={idioma} caminhos={PAGINAS.convite} className="absolute right-4 top-4" />
       <div className="w-full max-w-md">
         <div className="text-center">
-          <img src="/logo.png" alt="Personal Pro" width={56} height={56} className="h-14 mx-auto mb-8" />
+          <img src="/marca/personal-x-empilhado.svg" alt="Personal X" width={110} height={80} className="h-20 w-auto mx-auto mb-8" />
           <h1 className="text-3xl font-semibold tracking-tight font-display">
             {t.titulo}
           </h1>

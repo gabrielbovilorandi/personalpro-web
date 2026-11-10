@@ -6,8 +6,8 @@ import { metadataPagina } from '@/lib/seo';
 export const metadata = metadataPagina({
   pagina: 'privacidade',
   idioma: 'es',
-  title: 'Política de privacidad · Personal Pro',
-  description: 'Cómo Personal Pro trata tus datos, conforme a la Ley General de Protección de Datos de Brasil (LGPD).',
+  title: 'Política de privacidad · Personal X',
+  description: 'Cómo Personal X trata tus datos, conforme a la Ley General de Protección de Datos de Brasil (LGPD).',
 });
 
 export default function Privacidad() {

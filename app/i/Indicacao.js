@@ -58,12 +58,12 @@ export default function Indicacao() {
     <main lang="pt-BR" className="relative min-h-full flex items-center justify-center px-5 py-16">
       <div className="w-full max-w-md">
         <div className="text-center">
-          <img src="/logo.png" alt="Personal Pro" className="h-14 mx-auto mb-8" />
+          <img src="/marca/personal-x-empilhado.svg" alt="Personal X" width={110} height={80} className="h-20 w-auto mx-auto mb-8" />
           <h1 className="text-3xl font-semibold tracking-tight font-display">
             {codigo ? (nome ? `${nome} te deu ${meses} meses grátis` : `Você ganhou ${meses} meses grátis`) : 'Você ganhou meses grátis'}
           </h1>
           <p className="mt-3 text-white/60 leading-relaxed">
-            Organize alunos, treinos, agenda e cobranças no Personal Pro. Crie sua conta, use o código abaixo ao assinar e só paga depois de {codigo ? meses : 2} meses, em qualquer plano.{ehCupomVendedor(codigo) ? ' O cupom vale por 7 dias.' : ''}
+            Organize alunos, treinos, agenda e cobranças no Personal X. Crie sua conta, use o código abaixo ao assinar e só paga depois de {codigo ? meses : 2} meses, em qualquer plano.{ehCupomVendedor(codigo) ? ' O cupom vale por 7 dias.' : ''}
           </p>
         </div>
 

@@ -33,7 +33,7 @@ export const metadata = {
     type: 'website',
     locale: 'pt_BR',
     url: '/treine/',
-    siteName: 'Personal Pro',
+    siteName: 'Personal X',
     // Sem imagem o link chegava como texto puro no WhatsApp, que e onde ele
     // manda esse link o dia inteiro -- e onde a foto decide se a pessoa toca
     // ou passa reto. 1200x630 e o recorte das duas plataformas.

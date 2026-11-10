@@ -8,7 +8,7 @@ import { metadataPagina, jsonLdInicio } from '@/lib/seo';
 export const metadata = metadataPagina({
   pagina: 'inicio',
   idioma: 'pt-BR',
-  title: 'Personal Pro · O app para personal trainers',
+  title: 'Personal X · O app para personal trainers',
   description: 'Alunos, treinos, agenda, pagamentos e avaliações em um só app. Grátis até 3 alunos.',
 });
 

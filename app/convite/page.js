@@ -6,8 +6,8 @@ import { metadataPagina } from '@/lib/seo';
 export const metadata = metadataPagina({
   pagina: 'convite',
   idioma: 'pt-BR',
-  title: 'Seu personal te convidou · Personal Pro',
-  description: 'Baixe o Personal Pro e entre com o seu código de convite.',
+  title: 'Seu personal te convidou · Personal X',
+  description: 'Baixe o Personal X e entre com o seu código de convite.',
   // Página de quem recebeu um código: sem valor na busca, fica fora do índice.
   indexar: false,
 });
