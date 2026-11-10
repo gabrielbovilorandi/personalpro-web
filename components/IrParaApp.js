@@ -13,7 +13,7 @@ export default function IrParaApp() {
   return (
     <div className="min-h-full flex items-center justify-center px-4">
       <a href={APP_WEB_ENTRAR} className="text-[14px] text-white/60 hover:text-white transition-colors">
-        Abrindo o Personal Pro…
+        Abrindo o Personal X…
       </a>
     </div>
   );

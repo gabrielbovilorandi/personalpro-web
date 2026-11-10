@@ -4,6 +4,7 @@ import { planosVigentes, emJanelaFundador, proximaTroca, economiaVsMensal } from
 import Image from 'next/image';
 import { APP_WEB_ENTRAR } from '@/lib/appWeb';
 import { PAGINAS } from '@/lib/idioma';
+import { EMPRESA } from '@/lib/seo';
 import TrocaIdioma from '@/components/legal/TrocaIdioma';
 import { TEXTOS_INICIO, precoR$ } from './inicio.textos';
 import {
@@ -102,7 +103,7 @@ export default function LandingPage({ idioma = 'pt-BR' }) {
       <nav className="sticky top-0 z-50 border-b border-white/[0.05]"
         style={{ background: 'rgba(10,11,13,0.85)', backdropFilter: 'blur(16px)' }}>
         <div className="max-w-6xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
-          <Image src="/logo.png" alt="Personal Pro" width={130} height={36} style={{ objectFit: 'contain', height: 32, width: 'auto' }} loading="eager" />
+          <Image src="/marca/personal-x.svg" alt="Personal X" width={145} height={22} className="h-[17px] md:h-[22px] w-auto shrink-0" loading="eager" />
           <div className="flex items-center gap-1 sm:gap-3">
             {/* No celular a barra não tem lugar pro seletor: ele fica no rodapé. */}
             <TrocaIdioma atual={idioma} caminhos={PAGINAS.inicio} className="hidden md:flex" />
@@ -386,8 +387,8 @@ export default function LandingPage({ idioma = 'pt-BR' }) {
         </p>
         )}
         <div className="max-w-6xl mx-auto px-4 md:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <Image src="/logo.png" alt="Personal Pro" width={110} height={32} style={{ objectFit: 'contain', height: 28, width: 'auto', opacity: 0.6 }} />
-          <p className="text-[12px] text-white/20">© {new Date().getFullYear()} Personal Pro · {t.direitos}</p>
+          <Image src="/marca/personal-x.svg" alt="Personal X" width={119} height={18} style={{ height: 18, width: 'auto', opacity: 0.6 }} />
+          <p className="text-[12px] text-white/20 text-center sm:text-left">© {new Date().getFullYear()} {EMPRESA.razaoSocial} · CNPJ {EMPRESA.cnpj} · {t.direitos}</p>
           <div className="flex items-center gap-4">
             <a href={PLAY_URL} target="_blank" rel="noopener noreferrer" className="text-[12px] text-white/30 hover:text-white/60 transition-colors">Google Play</a>
             <a href={IOS_URL} target="_blank" rel="noopener noreferrer" className="text-[12px] text-white/30 hover:text-white/60 transition-colors">App Store</a>

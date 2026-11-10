@@ -17,11 +17,11 @@ const manrope = Manrope({ subsets: ['latin'], variable: '--font-manrope', displa
 export const metadata = {
   verification: { google: "5jd2-lCguNR9zjHt8EyusefoIc4OrTY8oRrAxEyE6Vk" },
   metadataBase: new URL(SITE),
-  applicationName: 'Personal Pro',
-  title: 'Personal Pro',
+  applicationName: 'Personal X',
+  title: 'Personal X',
   description: 'Gestão para personal trainers',
   icons: { icon: '/favicon.png', apple: '/favicon.png' },
-  openGraph: { siteName: 'Personal Pro', type: 'website', locale: 'pt_BR', images: [OG_IMAGEM] },
+  openGraph: { siteName: 'Personal X', type: 'website', locale: 'pt_BR', images: [OG_IMAGEM] },
 };
 
 export default function RootLayout({ children }) {

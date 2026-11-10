@@ -906,7 +906,7 @@ export default function Treine() {
           </p>
           <p className="mt-1">
             Contato: <a href={LINK_WHATS_DIRETO} className="text-ink-2 underline-offset-4 hover:underline">{TELEFONE}</a>
-            {' '}· O treino é entregue pelo aplicativo Personal Pro, para Android e iPhone.
+            {' '}· O treino é entregue pelo aplicativo Personal X, para Android e iPhone.
           </p>
           <p className="mt-3">
             <a href="/privacidade/" className="text-ink-2 underline decoration-white/20 underline-offset-4 transition hover:text-ink">

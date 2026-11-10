@@ -5,8 +5,8 @@ import { metadataPagina } from '@/lib/seo';
 export const metadata = metadataPagina({
   pagina: 'termos',
   idioma: 'pt-BR',
-  title: 'Termo de Uso · Personal Pro',
-  description: 'Termo de uso do aplicativo Personal Pro para personal trainers e seus alunos.',
+  title: 'Termo de Uso · Personal X',
+  description: 'Termo de uso do aplicativo Personal X para personal trainers e seus alunos.',
 });
 
 export default function Termos() {
