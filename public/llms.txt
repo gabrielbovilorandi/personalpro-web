@@ -24,4 +24,4 @@
 
 - [App Store](https://apps.apple.com/br/app/personal-pro/id6782193425)
 - [Google Play](https://play.google.com/store/apps/details?id=com.matheuspersonalpro.personalpro)
-- [Web app (sign in)](https://app.personalpro.app.br/)
+- [Web app (sign in)](https://app.personalx.app.br/)
