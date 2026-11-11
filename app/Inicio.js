@@ -269,7 +269,9 @@ export default function LandingPage({ idioma = 'pt-BR' }) {
           )}
         </div>
 
-        {/* Grátis */}
+        {/* Teste grátis: conta nova tem 30 dias com alunos ilimitados, sem cartão
+            (functions/acessoPersonal.js no app). O plano grátis de até 3 alunos
+            é só das contas antigas — não se vende mais aqui. */}
         <div className="rounded-[22px] bg-surface ring-1 ring-white/[0.04] p-6 flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-[14px] bg-white/[0.05] flex items-center justify-center">

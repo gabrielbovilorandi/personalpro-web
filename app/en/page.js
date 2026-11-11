@@ -8,7 +8,7 @@ export const metadata = metadataPagina({
   pagina: 'inicio',
   idioma: 'en',
   title: 'Personal X · The app for personal trainers',
-  description: 'Clients, workouts, scheduling, payments, and assessments in one app. Free for up to 3 clients.',
+  description: 'Clients, workouts, scheduling, payments, and assessments in one app. 30-day free trial, unlimited clients, no credit card.',
 });
 
 export default function Page() {

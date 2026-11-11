@@ -8,7 +8,7 @@ export const metadata = metadataPagina({
   pagina: 'inicio',
   idioma: 'es',
   title: 'Personal X · La app para entrenadores personales',
-  description: 'Alumnos, entrenamientos, agenda, pagos y evaluaciones en una sola app. Gratis hasta 3 alumnos.',
+  description: 'Alumnos, entrenamientos, agenda, pagos y evaluaciones en una sola app. 30 días gratis, alumnos ilimitados, sin tarjeta.',
 });
 
 export default function Page() {
