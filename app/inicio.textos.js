@@ -67,8 +67,6 @@ export const TEXTOS_INICIO = {
     equivale: (v) => `equivale a ${v}/mês`,
     precoDe: 'de',
     assinar: 'Assinar',
-    // Só aparece na janela de fundador (lib/precosAssinatura.js).
-    fundador: 'Preço de fundador · só até hoje 23h59',
     planosNota: 'Todos os planos incluem alunos ilimitados e acesso completo a todas as funcionalidades.',
     ctaTitulo1: 'Pronto para ser o melhor',
     ctaTitulo2: 'personal do Brasil?',
@@ -142,8 +140,6 @@ export const TEXTOS_INICIO = {
     equivale: (v) => `works out to ${v}/mo`,
     precoDe: '',
     assinar: 'Subscribe',
-    // Só aparece na janela de fundador (lib/precosAssinatura.js).
-    fundador: 'Founder pricing · today only, until 11:59 PM',
     planosNota: 'Every plan includes unlimited clients and full access to every feature.',
     ctaTitulo1: 'Ready to be the best',
     ctaTitulo2: 'trainer in your city?',
@@ -218,8 +214,6 @@ export const TEXTOS_INICIO = {
     equivale: (v) => `equivale a ${v}/mes`,
     precoDe: 'antes',
     assinar: 'Suscribirme',
-    // Só aparece na janela de fundador (lib/precosAssinatura.js).
-    fundador: 'Precio de fundador · solo hasta hoy a las 23:59',
     planosNota: 'Todos los planes incluyen alumnos ilimitados y acceso completo a todas las funciones.',
     ctaTitulo1: '¿Listo para ser el mejor',
     ctaTitulo2: 'entrenador de tu ciudad?',

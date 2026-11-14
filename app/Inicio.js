@@ -1,6 +1,6 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { planosVigentes, emJanelaFundador, proximaTroca, economiaVsMensal } from '@/lib/precosAssinatura';
+import { useState } from 'react';
+import { PLANOS_REGULAR as PLANOS, economiaVsMensal } from '@/lib/precosAssinatura';
 import Image from 'next/image';
 import { APP_WEB_ENTRAR } from '@/lib/appWeb';
 import { PAGINAS } from '@/lib/idioma';
@@ -17,28 +17,8 @@ import {
 // os ícones e os números, que são os mesmos em todos os idiomas.
 const ICONES_FEATURES = [Users, Dumbbell, DollarSign, CalendarDays, Activity, Smartphone];
 
-// Planos e preços: lib/precosAssinatura.js (tabela regular + janela de
-// fundador). A página é estática (output: 'export'): o HTML sai com a tabela
-// do momento do build e, no navegador, troca pra tabela de AGORA logo depois
-// de montar — e de novo se a página ficar aberta atravessando uma borda.
-// Mesmo número no HTML do build e na hidratação (next.config.mjs → env).
-const AGORA_DO_BUILD = Number(process.env.AGORA_DO_BUILD) || 0;
-
-function useAgora() {
-  const [agora, setAgora] = useState(AGORA_DO_BUILD);
-  useEffect(() => {
-    let id;
-    const agendar = () => {
-      const ms = Date.now();
-      setAgora(ms);
-      const troca = proximaTroca(ms);
-      if (troca != null && troca - ms < 2147483647) id = setTimeout(agendar, troca - ms + 1000);
-    };
-    agendar();
-    return () => clearTimeout(id);
-  }, []);
-  return agora;
-}
+// Planos e preços: lib/precosAssinatura.js (sempre a tabela regular; o cupom
+// da live, LIVE28, é resgatado no app web, na tela Assinatura).
 
 // O site é a única coisa na bio do Instagram, e quem chega de lá está no
 // CELULAR procurando um app. Antes não havia um único link pras lojas — o
@@ -93,9 +73,6 @@ function FaqItem({ q, a }) {
 
 export default function LandingPage({ idioma = 'pt-BR' }) {
   const t = TEXTOS_INICIO[idioma];
-  const agora = useAgora();
-  const PLANOS = planosVigentes(agora);
-  const fundador = emJanelaFundador(agora);
   return (
     <div lang={idioma} className="min-h-full bg-bg text-white">
 
@@ -264,9 +241,6 @@ export default function LandingPage({ idioma = 'pt-BR' }) {
             </span>
           </h2>
           <p className="text-[15px] text-white/35 mt-3">{t.planosSub}</p>
-          {fundador && (
-            <p className="inline-block mt-4 px-3 py-1 rounded-full text-[12px] font-semibold text-accent bg-accent/10 ring-1 ring-accent/25">{t.fundador}</p>
-          )}
         </div>
 
         {/* Teste grátis: conta nova tem 30 dias com alunos ilimitados, sem cartão
